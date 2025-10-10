@@ -7,16 +7,38 @@
     <link rel="stylesheet" href="styles.css" />
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400..700;1,400..700&display=swap"
+        rel="stylesheet">
     <title>Lotus Travel| From Low Cost To High Trust</title>
 </head>
 
 <body>
+    <nav>
+        <div class="nav__header">
+            <div class="nav__logo">
+                <a href="#" class="logo">Lotus Travel</a>
+            </div>
+            <div class="nav__menu__btn" id="menu-btn">
+                <i class="ri-menu-line"></i>
+            </div>
+        </div>
+        <ul class="nav__links" id="nav-links">
+            <li><a href="#plan">Lên kế hoạch</a></li>
+            <li><a href="#information">Thông tin hành trình</a></li>
+            <li><a href="#bookticket">Mua vé</a></li>
+            <li><a href="#">Đăng nhập</a></li>
+        </ul>
+        <div class="nav__btns">
+            <button class="btn">Đăng nhập</button>
+        </div>
+    </nav>
+
     <section id="booking" class="booking-section">
         <div class="booking-container">
             <div class="booking-tabs">
                 <button class="tab active">✈️ Đặt vé</button>
                 <button class="tab">🎫 Làm thủ tục</button>
-                <button class="tab">📍Quản lý đặt chỗ</button>
+                <button class="tab">📍 Quản lý đặt chỗ</button>
             </div>
 
             <form class="booking-form">
@@ -47,13 +69,15 @@
                     </div>
 
                     <div class="booking-group passenger-group">
-                        <label>Hành khách</label>
+                        <label for="passenger-summary">Hành khách</label>
                         <div class="passenger-box" onclick="togglePassengerPopup()">
                             <span id="passenger-summary">1</span>
                         </div>
                         <div class="passenger-popup" id="passenger-popup">
                             <div class="passenger-row">
-                                <div><strong>Người lớn</strong><br><small>(12+ tuổi)</small></div>
+                                <div>
+                                    <strong>Người lớn</strong>
+                                </div>
                                 <div class="counter">
                                     <button type="button" onclick="changeCount('adult', -1)">-</button>
                                     <span id="adult-count">1</span>
@@ -61,7 +85,9 @@
                                 </div>
                             </div>
                             <div class="passenger-row">
-                                <div><strong>Trẻ em</strong><br><small>(2–11 tuổi)</small></div>
+                                <div>
+                                    <strong>Trẻ em</strong><br><small>(2-11 tuổi)</small>
+                                </div>
                                 <div class="counter">
                                     <button type="button" onclick="changeCount('child', -1)">-</button>
                                     <span id="child-count">0</span>
@@ -69,7 +95,9 @@
                                 </div>
                             </div>
                             <div class="passenger-row">
-                                <div><strong>Trẻ sơ sinh</strong><br><small>(0–2 tuổi)</small></div>
+                                <div>
+                                    <strong>Trẻ sơ sinh</strong><br><small>(0-2 tuổi)</small>
+                                </div>
                                 <div class="counter">
                                     <button type="button" onclick="changeCount('infant', -1)">-</button>
                                     <span id="infant-count">0</span>
@@ -80,7 +108,7 @@
                     </div>
 
                     <div class="booking-group">
-                        <button type="submit" class="btn">🔍 Tìm chuyến bay</button>
+                        <button type="submit" class="btn">Tìm chuyến bay</button>
                     </div>
                 </div>
             </form>
@@ -101,10 +129,7 @@
                     <div>
                         <h4>Lăng Chủ tịch Hồ Chí Minh</h4>
                         <p>Hà Nội</p>
-                    </div>
-                    <div class="destination__rating">
-                        <span><i class="ri-star-fill"></i></span>
-                        1000
+                        <span class="rating">⭐ 1000</span>
                     </div>
                 </div>
             </div>
@@ -114,10 +139,7 @@
                     <div>
                         <h4>Dinh Độc Lập</h4>
                         <p>Thành phố Hồ Chí Minh</p>
-                    </div>
-                    <div class="destination__rating">
-                        <span><i class="ri-star-fill"></i></span>
-                        1000
+                        <span class="rating">⭐ 1000</span>
                     </div>
                 </div>
             </div>
@@ -127,10 +149,7 @@
                     <div>
                         <h4>Bảo tàng Lịch sử Quân sự Việt Nam</h4>
                         <p>Hà Nội</p>
-                    </div>
-                    <div class="destination__rating">
-                        <span><i class="ri-star-fill"></i></span>
-                        1000
+                        <span class="rating">⭐ 1000</span>
                     </div>
                 </div>
             </div>
@@ -144,15 +163,15 @@
         <div class="showcase__content">
             <h4>Lotus Travel - nơi giúp những ước mơ du lịch của bạn thành hiện thực.</h4>
             <p>
-                Ra đời với sứ mệnh kết nối trái tim Việt trên mọi vùng trời, Lotus Travel không <br>
-                chỉ mang đến những chuyến đi, mà còn lan tỏa những giá trị nhân văn, tinh thần <br>
-                tận tâm và cảm hứng sống tích cực trên từng chặng đường.
+                Ra đời với sứ mệnh kết nối trái tim Việt trên mọi vùng trời tổ quốc, Lotus
+                Travel không chỉ mang đến những chuyến đi, mà còn lan tỏa những giá trị nhân
+                văn, tinh thần tận tâm và cảm hứng sống tích cực trên từng chặng đường.
             </p>
             <p>
-                Du lịch không chỉ là khám phá thế giới, mà còn là hành trình khám phá vẻ đẹp đất <br>
-                nước Việt Nam - nơi hội tụ tinh hoa văn hóa, con người nghĩa tình và thiên nhiên <br>
-                hùng vĩ. Mỗi bước chân là một niềm tự hào, mỗi vùng đất là một câu chuyện, mỗi <br>
-                hành trình là một cơ hội để tình yêu nước lại ngân vang trong tim.
+                Du lịch không chỉ là khám phá thế giới, mà còn là hành trình khám phá vẻ đẹp đất
+                nước Việt Nam - nơi hội tụ những tinh hoa văn hóa, con người nghĩa tình và thiên
+                nhiên hùng vĩ. Mỗi bước chân là một niềm tự hào, mỗi vùng đất là một câu chuyện,
+                mỗi hành trình là một cơ hội để tình yêu nước lại ngân vang trong tim.
             </p>
             <p>
                 <i> Vì đất nước mình còn lạ, cần chi đâu nước ngoài <br>
@@ -186,7 +205,7 @@
                     <img src="assets/avatar1.jpg" alt="client">
                     <div>
                         <h4>Trần Long Thiên Kim</h4>
-                        <small>Hành khách chuyến bay</small>
+                        <small>Hành khách chuyến bay VN7151 <br> (Hà Nội - Đà Nẵng)</small>
                     </div>
                 </div>
             </div>
@@ -201,7 +220,7 @@
                     <img src="assets/avatar2.jpg" alt="client">
                     <div>
                         <h4>Võ Khánh Tường</h4>
-                        <small>Hành khách chuyến bay</small>
+                        <small>Hành khách chuyến bay VJ771 <br> (Hà Nội - Nha Trang)</small>
                     </div>
                 </div>
             </div>
@@ -216,7 +235,7 @@
                     <img src="assets/avatar3.jpg" alt="client">
                     <div>
                         <h4>Phạm Yến Nhi</h4>
-                        <small>Hành khách chuyến bay</small>
+                        <small>Hành khách chuyến bay VN1382 <br> (TP HCM - Đà Lạt)</small>
                     </div>
                 </div>
             </div>
@@ -231,7 +250,39 @@
                     <img src="assets/avatar4.jpg" alt="client">
                     <div>
                         <h4>Phạm Minh Khanh</h4>
-                        <small>Hành khách chuyến bay</small>
+                        <small>Hành khách chuyến bay QH204 <br> (TP HCM - Hà Nội)</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feedback__card">
+                <div class="feedback__rating">
+                    <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i
+                        class="ri-star-fill"></i><i class="ri-star-fill"></i>
+                </div>
+                <p>Recommend mua vé ở đây nhé. Mỗi lần đi du lịch mình đều đặt vé ở đây,
+                    siêu hài lòng với dịch vụ chăm sóc khách hàng của Lotus.
+                </p>
+                <div class="feedback__user">
+                    <img src="assets/avatar5.jpg" alt="client">
+                    <div>
+                        <h4>Lý Tố Như</h4>
+                        <small>Hành khách chuyến bay VN283 <br> (Hà Nội - TP HCM)</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feedback__card">
+                <div class="feedback__rating">
+                    <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i
+                        class="ri-star-fill"></i><i class="ri-star-fill"></i>
+                </div>
+                <p>5 sao</p>
+                <div class="feedback__user">
+                    <img src="assets/avatar6.jpg" alt="client">
+                    <div>
+                        <h4>Trần Long Phương Nghi</h4>
+                        <small>Hành khách chuyến bay QH1622 <br> (Phú Quốc - Hà Nội)</small>
                     </div>
                 </div>
             </div>

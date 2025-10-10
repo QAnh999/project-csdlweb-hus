@@ -80,15 +80,16 @@ body {
 }
 
 body {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Noto Serif", sans-serif;
 }
 
 nav {
-  position: fixed;
+  position: relative;
   isolation: isolate;
   top: 0;
-  width: 100%;
+  width: 100vw;
   z-index: 9;
+  background: linear-gradient(135deg, #e8f1ff, #f8fbff);
 }
 
 .nav__header {
@@ -218,6 +219,8 @@ header::before {
   background-color: var(--primary-color);
 }
 
+
+/* phan diem den pho bien */
 .destination__container {
   text-align: center;
   padding: 60px 0;
@@ -246,17 +249,20 @@ header::before {
 
 .destination__card {
   background-color: #fff;
-  border-radius: 20px;
+  border-radius: 1rem;
   overflow: hidden;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
   cursor: pointer;
+  text-align: center;
 }
 
 .destination__card img {
   width: 100%;
-  height: 260px;
+  height: 350px;
   object-fit: cover;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
   transition: transform 0.4s ease;
 }
 
@@ -265,10 +271,8 @@ header::before {
 }
 
 .destination__card__details {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 15px 20px;
+  text-align: center;
+  padding: 1rem;
   background: #fafafa;
 }
 
@@ -276,12 +280,13 @@ header::before {
   font-size: 1.1rem;
   font-weight: 600;
   color: #222;
+  margin-bottom: 0.3rem;
 }
 
 .destination__card__details p {
-  font-size: 1.1rem;
-  font-weight: 600;
   color: #222;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
 }
 
 .destination__rating {
@@ -291,6 +296,7 @@ header::before {
   display: flex;
   align-items: center;
   gap: 4px;
+  justify-content: center;
 }
 
 .destination__card:hover .destination__rating {
@@ -478,11 +484,11 @@ header::before {
   margin-bottom: 1rem;
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--text-dark);
+  color: black;
 }
 
 .destination__card p {
-  color: var(--text-light);
+  color: black;
 }
 
 .destination__card:hover {
@@ -828,6 +834,8 @@ footer {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   max-width: 1200px;
   margin: 30px auto;
+  position: relative;
+  overflow: visible !important;
 }
 
 .booking-tabs {
@@ -844,6 +852,7 @@ footer {
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: 0.3s;
+  font-family: "Noto Serif", sans-serif;
 }
 
 .booking-tabs .tab.active {
@@ -864,6 +873,7 @@ footer {
   gap: 20px;
   font-size: 0.95rem;
   color: #333;
+  font-size: 16px;
 }
 
 .booking-row {
@@ -881,82 +891,138 @@ footer {
 }
 
 .booking-group label {
-  font-size: 0.9rem;
+  font-size: 16px;
   color: #333;
   margin-bottom: 5px;
 }
 
 .booking-group input {
-  padding: 8px 10px;
+  padding: 10px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  font-family: "Noto Serif", sans-serif;
+  font-size: 16px;
 }
 
 .btn {
-  background: #007bff;
+  background: #35265c;
   color: #fff;
   border: none;
   padding: 10px 16px;
   border-radius: 6px;
   cursor: pointer;
   transition: 0.3s;
+  font-family: "Noto Serif", sans-serif;
 }
 
 .btn:hover {
   background: #005fcc;
 }
 
-.passenger-popup {
-  display: none;
-  position: absolute;
-  background: #fff;
-  border: 1px solid #ddd;
-  padding: 12px;
+.passenger-group {
+  position: relative;
+}
+
+.passenger-box {
+  padding: 10px;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin-top: 5px;
-  z-index: 10;
+  cursor: pointer;
+  background: #fff;
+  transition: 0.2s;
+  width: 120px;
+}
+
+.passenger-box:hover {
+  border-color: #35265c;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.passenger-popup {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgb(255, 255, 255);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 14px 18px;
+  width: 260px;
+  z-index: 999;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 .passenger-popup.active {
   display: block;
 }
 
+.passenger-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #35265c;
+}
+
+.passenger-row:last-child {
+  border-bottom: none;
+}
+
+.passenger-row strong {
+  color: var(--primary-color-dark);
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .counter button {
-  background: #007bff;
+  background: #35265c;
+  color: rgb(255, 255, 255);
   border: none;
-  color: #fff;
-  width: 24px;
-  height: 24px;
   border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 16px;
   cursor: pointer;
+  transition: 0.2s;
+}
+
+.counter button:hover {
+  background: #5339a5;
 }
 
 .counter span {
-  margin: 0 8px;
-  font-weight: bold;
-}
-
-.passenger-box {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  cursor: pointer;
-  background: #fff;
+  width: 20px;
   text-align: center;
+  font-weight: 600;
 }
-
 
 /* phan feedback */
 .feedback {
   text-align: center;
   padding: 60px 20px;
-  background: #f8fafc;
+  background: rgb(255, 255, 255);
 }
 
 .feedback__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
@@ -967,6 +1033,11 @@ footer {
   padding: 1.5rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .feedback__card:hover {
