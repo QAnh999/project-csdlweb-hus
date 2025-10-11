@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lotus Travel Admin</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h2 class="logo">Lotus Travel</h2>
+          <button class="menu-toggle">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <ul>
+            <li class="active">
+              <a href="#dashboard">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="#booking">
+                <i class="fas fa-calendar-check"></i>
+                <span>Booking</span>
+              </a>
+            </li>
+            <li>
+              <a href="#flight-tracking">
+                <i class="fas fa-plane"></i>
+                <span>Flight Tracking</span>
+              </a>
+            </li>
+            <li>
+              <a href="#service">
+                <i class="fas fa-concierge-bell"></i>
+                <span>Service</span>
+              </a>
+            </li>
+            <li>
+              <a href="#feedback">
+                <i class="fas fa-comment-dots"></i>
+                <span>Feedback</span>
+              </a>
+            </li>
+            <li>
+              <a href="#promotion">
+                <i class="fas fa-gift"></i>
+                <span>Promotion</span>
+              </a>
+            </li>
+            <li>
+              <a href="#managers">
+                <i class="fas fa-users-cog"></i>
+                <span>Managers</span>
+              </a>
+            </li>
+            <li>
+              <a href="#logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log out</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <header class="main-header">
+          <div class="header-left">
+            <h1>Dashboard</h1>
+          </div>
+          <div class="header-right">
+            <!-- Admin Profile -->
+            <div class="admin-profile">
+              <div class="admin-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="admin-info">
+                <h4>Admin</h4>
+                <p>admin@lotustravel.com</p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+          <!-- KPI Cards -->
+          <div class="kpi-section">
+            <div class="kpi-card">
+              <div class="kpi-icon completed">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="kpi-content">
+                <h3>Completed Flights</h3>
+                <div class="kpi-value">125</div>
+                <div class="kpi-trend positive">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>1.35%</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon active">
+                <i class="fas fa-plane"></i>
+              </div>
+              <div class="kpi-content">
+                <h3>Active Flights</h3>
+                <div class="kpi-value">80</div>
+                <div class="kpi-trend positive">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>3.68%</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon cancelled">
+                <i class="fas fa-times-circle"></i>
+              </div>
+              <div class="kpi-content">
+                <h3>Cancelled Flights</h3>
+                <div class="kpi-value">25</div>
+                <div class="kpi-trend negative">
+                  <i class="fas fa-arrow-down"></i>
+                  <span>1.45%</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon revenue">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <div class="kpi-content">
+                <h3>Total Revenue</h3>
+                <div class="kpi-value">$15,000</div>
+                <div class="kpi-trend positive">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>5.94%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Section -->
+          <div class="charts-section">
+            <div class="chart-card ticket-sales">
+              <div class="chart-header">
+                <h3>Số vé bán ra</h3>
+                <div class="chart-toggles">
+                  <button class="toggle-btn active">Daily</button>
+                  <button class="toggle-btn">Weekly</button>
+                </div>
+              </div>
+              <div class="chart-content">
+                <div class="chart-value">5000 Vé đã được bán</div>
+                <div class="chart-container">
+                  <canvas id="ticketSalesChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-card revenue-growth">
+              <div class="chart-header">
+                <h3>Revenue</h3>
+                <select class="chart-select">
+                  <option>Today</option>
+                  <option>Week</option>
+                  <option>Month</option>
+                  <option>Last 6 Months</option>
+                </select>
+              </div>
+              <div class="chart-content">
+                <div class="chart-container">
+                  <canvas id="revenueChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table Section -->
+          <div class="table-section">
+            <div class="table-card">
+              <div class="table-header">
+                <h3>Recent Bookings</h3>
+              </div>
+              <div class="table-container">
+                <table class="bookings-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Booking ID</th>
+                      <th>Flight</th>
+                      <th>Time</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>User1</td>
+                      <td>BK001</td>
+                      <td>VN123</td>
+                      <td>14:30</td>
+                      <td><span class="status completed">Completed</span></td>
+                    </tr>
+                    <tr>
+                      <td>User2</td>
+                      <td>BK002</td>
+                      <td>VN456</td>
+                      <td>16:45</td>
+                      <td><span class="status pending">Pending</span></td>
+                    </tr>
+                    <tr>
+                      <td>User3</td>
+                      <td>BK003</td>
+                      <td>VN789</td>
+                      <td>18:20</td>
+                      <td><span class="status completed">Completed</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="chart-card popular-airlines">
+              <div class="card-header">
+                <h3>Popular Airlines</h3>
+                <button class="menu-btn">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </div>
+              <div class="airlines-chart">
+                <div class="donut-chart">
+                  <canvas id="airlinesChart"></canvas>
+                  <div class="chart-center">
+                    <i class="fas fa-plane"></i>
+                  </div>
+                </div>
+                <div class="airlines-legend">
+                  <div class="legend-item">
+                    <span
+                      class="legend-color"
+                      style="background: var(--primary-color)"
+                    ></span>
+                    <span>Vietjet 35%</span>
+                  </div>
+                  <div class="legend-item">
+                    <span
+                      class="legend-color"
+                      style="background: var(--text-dark)"
+                    ></span>
+                    <span>Vietnam Airlines 30%</span>
+                  </div>
+                  <div class="legend-item">
+                    <span
+                      class="legend-color"
+                      style="background: var(--text-light)"
+                    ></span>
+                    <span>Bamboo Airways 20%</span>
+                  </div>
+                  <div class="legend-item">
+                    <span
+                      class="legend-color"
+                      style="background: var(--extra-light)"
+                    ></span>
+                    <span>Vietravel Airlines 10%</span>
+                  </div>
+                  <div class="legend-item">
+                    <span
+                      class="legend-color"
+                      style="background: #ff6b6b"
+                    ></span>
+                    <span>Pacific Airlines 5%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Flight Routes -->
+          <div class="routes-section">
+            <div class="bottom-card top-routes">
+              <div class="card-header">
+                <h3>Top Flight Routes</h3>
+                <button class="menu-btn">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </div>
+              <div class="routes-list">
+                <div class="route-item highlighted">
+                  <div class="route-info">
+                    <h4>Hà Nội (HAN) - Hồ Chí Minh (SGN)</h4>
+                    <p>5,834 km</p>
+                  </div>
+                  <div class="route-stats">
+                    <span class="passengers">140,000 Passengers</span>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 85%"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="route-item highlighted">
+                  <div class="route-info">
+                    <h4>Hà Nội (HAN) - Đà Nẵng (DAD)</h4>
+                    <p>11,062 km</p>
+                  </div>
+                  <div class="route-stats">
+                    <span class="passengers">130,000 Passengers</span>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 75%"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="route-item">
+                  <div class="route-info">
+                    <h4>Hồ Chí Minh (SGN) - Phú Quốc (PQC)</h4>
+                    <p>8,927 km</p>
+                  </div>
+                  <div class="route-stats">
+                    <span class="passengers">120,000 Passengers</span>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 65%"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="route-item">
+                  <div class="route-info">
+                    <h4>Nha Trang (CXR) - Huế (HUI)</h4>
+                    <p>8,236 km</p>
+                  </div>
+                  <div class="route-stats">
+                    <span class="passengers">110,000 Passengers</span>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 55%"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="route-item">
+                  <div class="route-info">
+                    <h4>Quy Nhơn (UIH) - Hồ Chí Minh (SGN)</h4>
+                    <p>10,885 km</p>
+                  </div>
+                  <div class="route-stats">
+                    <span class="passengers">100,000 Passengers</span>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 45%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
