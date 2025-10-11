@@ -17,12 +17,11 @@
             <div class="nav__header">
                 <div class="nav__logo">
                     <a href="#" class="logo">Lotus Travel</a>
-                    <P class="tagline">From Low Cost To High Trust
-                    <p>
+                    <p class="tagline">From Low Cost To High Trust</p>
                 </div>
-                <div class="nav__menu__btn" id="menu-btn">
+                <!-- <div class="nav__menu__btn" id="menu-btn">
                     <i class="ri-menu-line"></i>
-                </div>
+                </div> -->
             </div>
             <ul class="nav__links" id="nav-links">
                 <li><a href="#plan">Lên kế hoạch</a></li>
@@ -52,31 +51,12 @@
                     <div class="booking-row">
                         <div class="booking-group">
                             <label>Từ</label>
-                            <div class="select-box" onclick="openPopup('from')">
-                                <span id="from-value">Hà Nội (HAN)</span>
-                            </div>
+                            <input type="text" placeholder="Hà Nội (HAN)">
                         </div>
 
                         <div class="booking-group">
                             <label>Đến</label>
-                            <div class="select-box" onclick="openPopup('to')">
-                                <span id="to-value">TP. Hồ Chí Minh (SGN)</span>
-                            </div>
-                        </div>
-
-                        <div id="airport-popup" class="airport-popup">
-                            <div class="airport-list" id="vn-list">
-                                <div onclick="selectAirport('HAN')">Hà Nội (HAN)</div>
-                                <div onclick="selectAirport('SGN')">TP Hồ Chí Minh (SGN)</div>
-                                <div onclick="selectAirport('DAD')">Đà Nẵng (DAD)</div>
-                                <div onclick="selectAirport('CXR')">Nha Trang (CXR)</div>
-                                <div onclick="selectAirport('UIH')">Quy Nhơn (UIH)</div>
-                                <div onclick="selectAirport('DLI')">Đà Lạt (DLI)</div>
-                                <div onclick="selectAirport('PQC')">Phú Quốc (PQC)</div>
-                                <div onclick="selectAirport('THD')">Thanh Hóa (THD)</div>
-                                <div onclick="selectAirport('HPH')">Hải Phòng (HPH)</div>
-                                <div onclick="selectAirport('VII')">Vinh (VII)</div>
-                            </div>
+                            <input type="text" placeholder="TP. Hồ Chí Minh (SGN)">
                         </div>
 
                         <div class="booking-group">

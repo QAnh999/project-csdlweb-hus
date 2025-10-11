@@ -97,8 +97,8 @@ body {
 
 nav {
   position: relative;
-  background: rgba(255, 255, 255, 0.6); /* nền trắng mờ */
-  position: fixed;
+  background: rgba(255, 255, 255, 0.6);
+  /* nền trắng mờ */
   border-radius: 1rem;
   padding: 2rem;
   top: 0;
@@ -306,8 +306,10 @@ footer {
 }
 
 .footer__col {
-  flex: 1;                     /* mỗi cột chiếm 1 phần bằng nhau */
-  min-width: 250px;            /* tránh bị bóp nhỏ quá */
+  flex: 1;
+  /* mỗi cột chiếm 1 phần bằng nhau */
+  min-width: 250px;
+  /* tránh bị bóp nhỏ quá */
 }
 
 .footer__col p {
@@ -363,25 +365,34 @@ footer {
   color: var(--text-light);
   text-align: center;
 }
+
 .sponsor {
   background-color: var(--extra-light);
 }
 
 .logo__sponsors {
   display: flex;
-  justify-content: center;    /* căn giữa logo */
+  justify-content: center;
+  /* căn giữa logo */
   align-items: center;
-  gap: 0.5rem;                /* khoảng cách giữa các logo */
-  flex-wrap: nowrap;          /* giữ 1 hàng duy nhất */
-  overflow: hidden;         /* ẩn cuộn ngang */
-  width: 100%;                /* chiếm toàn bộ chiều rộng footer */
-  max-width: 100%;          /* 🔹 mở rộng tối đa vùng chứa logo */
-  margin: 0 auto;             /* căn giữa vùng chứa trong footer */
+  gap: 0.5rem;
+  /* khoảng cách giữa các logo */
+  flex-wrap: nowrap;
+  /* giữ 1 hàng duy nhất */
+  overflow: hidden;
+  /* ẩn cuộn ngang */
+  width: 100%;
+  /* chiếm toàn bộ chiều rộng footer */
+  max-width: 100%;
+  /* 🔹 mở rộng tối đa vùng chứa logo */
+  margin: 0 auto;
+  /* căn giữa vùng chứa trong footer */
   box-sizing: border-box;
 }
 
 .logo__sponsors img {
-  width: 120px;               /* kích thước logo phù hợp */
+  width: 120px;
+  /* kích thước logo phù hợp */
   height: 70px;
   object-fit: contain;
   display: block;
@@ -420,6 +431,32 @@ footer {
 
   .footer__col:last-child {
     grid-area: 2/1/3/2;
+  }
+}
+
+@media (max-width: 768px) {
+  nav {
+    background: rgba(255, 255, 255, 0.6) !important;
+    /* Giữ trắng mờ */
+    backdrop-filter: blur(8px);
+    padding: 2rem;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+  }
+
+  .nav__header {
+    justify-content: center;
+  }
+
+  .nav__links {
+    display: none;
+  }
+
+  .nav__logo .logo {
+    color: var(--text-dark) !important;
+    /* Giữ chữ màu đậm như bản full */
   }
 }
 
@@ -630,7 +667,7 @@ footer {
 }
 
 /* button tim chuyen bay */
-.btn {    
+.btn {
   background: #35265c;
   color: var(--extra-light);
   border: none;
@@ -794,6 +831,7 @@ footer {
   color: var(--text-dark)
 }
 
-.feedback__user small, p {
+.feedback__user small,
+p {
   color: var(--text-light);
 }
