@@ -35,20 +35,20 @@
         </nav>
 
         <section id="booking" class="booking-section">
-            <div class="booking-container">
-                <div class="booking-tabs">
-                    <button class="tab active">✈️ Đặt vé</button>
-                    <button class="tab">🎫 Làm thủ tục</button>
-                    <button class="tab">📍 Quản lý đặt chỗ</button>
-                </div>
+            <div class="booking-tabs">
+                <button class="tab active" data-tab="booking">✈️ Đặt vé</button>
+                <button class="tab" data-tab="checkin">🎫 Làm thủ tục</button>
+                <button class="tab" data-tab="manage">📍 Quản lý đặt chỗ</button>
+            </div>
 
-                <form class="booking-form">
+            <div class="booking-container active">
+                <form class="tab-content active" id="booking">
                     <div class="booking-type">
                         <label><input type="radio" name="trip" value="oneway" checked> Một chiều</label>
                         <label><input type="radio" name="trip" value="roundtrip"> Khứ hồi</label>
                     </div>
 
-                    <div class="booking-row">
+                    <div class="content-row">
                         <div class="booking-group">
                             <label>Từ</label>
                             <input type="text" placeholder="Hà Nội (HAN)">
@@ -64,7 +64,7 @@
                             <input type="date">
                         </div>
 
-                        <div class="booking-group">
+                        <div class="booking-group" id="return-date">
                             <label>Ngày về</label>
                             <input type="date">
                         </div>
@@ -112,6 +112,42 @@
                             <button type="submit" class="btn">Tìm chuyến bay</button>
                         </div>
                     </div>
+                </form>
+            </div>
+
+            <div class="checkin-container">
+                <form class="tab-content active" id="code">
+                    <p>
+                        <strong>
+                            Làm thủ tục trực tuyến trong khoảng 24 giờ đến 1 giờ trước khi chuyến bay khởi hành. <br>
+                            Vui lòng nhập đúng họ như trên vé của bạn.
+                        </strong>
+                    </p>
+                    <div class="checkin-row">
+                        <div class="checkin-group">
+                            <label>Mã đặt chỗ</label>
+                            <input type="text" placeholder="123XXX">
+                        </div>
+                        <div class="checkin-group">
+                            <label>Họ</label>
+                            <input type="text" placeholder="NGUYEN">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">Làm thủ tục</button>
+                </form>
+            </div>
+
+            <div class="management-container">
+                <form>
+                    <div class="checkin-group">
+                        <label>Mã đặt chỗ/ Số vé</label>
+                        <input type="text" placeholder="123XXXXXXXXXX">
+                    </div>
+                    <div class="checkin-group">
+                        <label>Họ</label>
+                        <input type="text" placeholder="NGUYEN">
+                    </div>
+                    <button type="submit" class="btn">Tìm kiếm</button>
                 </form>
             </div>
         </section>
