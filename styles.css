@@ -298,45 +298,24 @@ footer {
 
 .footer__container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  align-items: flex-start;
   justify-items: center;
-  padding: 2rem 3rem;
+  gap: 2.5rem;
+  padding: 3rem 4rem;
   box-sizing: border-box;
   overflow: hidden;
 }
 
 .footer__col {
-  flex: 1;
-  /* mỗi cột chiếm 1 phần bằng nhau */
   min-width: 250px;
-  /* tránh bị bóp nhỏ quá */
 }
 
 .footer__col p {
   max-width: 300px;
   margin-block: 2rem;
   color: var(--text-light);
-}
-
-.footer__socials {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.footer__socials a {
-  display: inline-block;
-  padding: 7px 10px;
-  font-size: 1.25rem;
-  color: var(--white);
-  background-color: var(--primary-color);
-  border-radius: 100%;
-}
-
-.footer__socials a:hover {
-  background-color: var(--primary-color-dark);
+  line-height: 1.6;
 }
 
 .footer__col h4 {
@@ -374,26 +353,18 @@ footer {
 .logo__sponsors {
   display: flex;
   justify-content: center;
-  /* căn giữa logo */
   align-items: center;
   gap: 0.5rem;
-  /* khoảng cách giữa các logo */
   flex-wrap: nowrap;
-  /* giữ 1 hàng duy nhất */
   overflow: hidden;
-  /* ẩn cuộn ngang */
   width: 100%;
-  /* chiếm toàn bộ chiều rộng footer */
   max-width: 100%;
-  /* 🔹 mở rộng tối đa vùng chứa logo */
   margin: 0 auto;
-  /* căn giữa vùng chứa trong footer */
   box-sizing: border-box;
 }
 
 .logo__sponsors img {
   width: 120px;
-  /* kích thước logo phù hợp */
   height: 70px;
   object-fit: contain;
   display: block;
@@ -438,7 +409,6 @@ footer {
 @media (max-width: 768px) {
   nav {
     background: rgba(255, 255, 255, 0.6) !important;
-    /* Giữ trắng mờ */
     backdrop-filter: blur(8px);
     padding: 2rem;
     top: 0;
@@ -457,7 +427,6 @@ footer {
 
   .nav__logo .logo {
     color: var(--text-dark) !important;
-    /* Giữ chữ màu đậm như bản full */
   }
 }
 
@@ -676,42 +645,6 @@ footer {
   background: #fff;
 }
 
-.checkin-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  ;
-}
-
-.checkin-group input {
-  padding: 10px 10px;
-  border: none;
-  border-radius: 8px;
-  font-family: "Noto Serif", sans-serif;
-  font-size: 16px;
-  color: var(--primary-color-dark);
-}
-
-.checkin-group label {
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.checkin-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 30px;
-  margin-top: 20px;
-}
-
-@media (max-width: 600px) {
-  .checkin-row {
-    flex-direction: column;
-  }
-}
-
-
 .passenger-group {
   position: relative;
 }
@@ -798,6 +731,51 @@ footer {
   text-align: center;
   font-weight: 600;
   color: var(--text-dark);
+}
+
+.checkin-group, .management-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.checkin-group input, .management-group input {
+  padding: 10px 10px;
+  border: none;
+  border-radius: 8px;
+  font-family: "Noto Serif", sans-serif;
+  font-size: 16px;
+  color: var(--primary-color-dark);
+  text-transform: uppercase;
+}
+
+.checkin-group label, .management-group label {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.checkin-row, .management-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+  .checkin-row, .management-row {
+    flex-direction: column;
+  }
+}
+
+.checkin-container .btn , .management-container .btn{
+  width: fit-content;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 20px;
+  margin: 20px auto 0;
+  cursor: pointer;
 }
 
 /* phan feedback */
