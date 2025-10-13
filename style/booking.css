@@ -1,0 +1,78 @@
+body {
+  font-family: "DM Sans", sans-serif;
+  background-color: #f7f9fc;
+  margin: 0;
+  padding: 2rem;
+  color: #2b3746;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #1d477a;
+}
+
+.flight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.flight-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.flight-card:hover {
+  transform: scale(1.02);
+}
+
+.flight-info {
+  flex: 2;
+  padding: 1.5rem;
+  border-right: 1px solid #eee;
+}
+
+.flight-info h3 {
+  margin: 0;
+  color: #1d477a;
+}
+
+.flight-info p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.flight-price {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #4a7c2e;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 1rem;
+}
+
+.flight-price small {
+  font-size: 0.8rem;
+  color: #e0e0e0;
+}
+
+.flight-price .sold-out {
+  background: #ccc;
+  color: #333;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  margin-top: 0.5rem;
+}

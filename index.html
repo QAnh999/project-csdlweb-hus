@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="style/interface.css" />
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400..700;1,400..700&display=swap"
         rel="stylesheet">
@@ -24,10 +24,10 @@
                 </div> -->
             </div>
             <ul class="nav__links" id="nav-links">
-                <li><a href="#plan">Lên kế hoạch</a></li>
+                <!-- <li><a href="#plan">Lên kế hoạch</a></li>
                 <li><a href="#information">Thông tin hành trình</a></li>
                 <li><a href="#bookticket">Mua vé</a></li>
-                <li><a href="#">Đăng nhập</a></li>
+                <li><a href="#">Đăng nhập</a></li> -->
             </ul>
             <div class="nav__btns">
                 <button class="btn">Đăng nhập</button>
@@ -51,17 +51,41 @@
                     <div class="content-row">
                         <div class="booking-group">
                             <label>Từ</label>
-                            <input type="text" placeholder="Hà Nội (HAN)">
+                            <!-- <input type="text" placeholder="Hà Nội (HAN)"> -->
+                            <select id="from" name="from">
+                                <option value="SGN">TP HCM (SGN)</option>
+                                <option value="HAN">Hà Nội (HAN)</option>
+                                <option value="DLI">Đà Lạt (DLI)</option>
+                                <option value="PQC">Phú Quốc (PQC)</option>
+                                <option value="CXR">Nha Trang (CXR)</option>
+                                <option value="DAD">Đà Nẵng (DAD)</option>
+                                <option value="UIH">Quy Nhơn (UIH)</option>
+                                <option value="THD">Thanh Hóa (THD)</option>
+                                <option value="HPH">Hải Phòng (HPH)</option>
+                                <option value="VII">Vinh (VII)</option>
+                            </select>
                         </div>
 
                         <div class="booking-group">
                             <label>Đến</label>
-                            <input type="text" placeholder="TP. Hồ Chí Minh (SGN)">
+                            <!-- <input type="text" placeholder="TP. Hồ Chí Minh (SGN)"> -->
+                            <select id="to" name="to">
+                                <option value="SGN">TP HCM (SGN)</option>
+                                <option value="HAN">Hà Nội (HAN)</option>
+                                <option value="DLI">Đà Lạt (DLI)</option>
+                                <option value="PQC">Phú Quốc (PQC)</option>
+                                <option value="CXR">Nha Trang (CXR)</option>
+                                <option value="DAD">Đà Nẵng (DAD)</option>
+                                <option value="UIH">Quy Nhơn (UIH)</option>
+                                <option value="THD">Thanh Hóa (THD)</option>
+                                <option value="HPH">Hải Phòng (HPH)</option>
+                                <option value="VII">Vinh (VII)</option>
+                            </select>
                         </div>
 
                         <div class="booking-group">
                             <label>Ngày đi</label>
-                            <input type="date">
+                            <input type="date" id="departure-time">
                         </div>
 
                         <div class="booking-group" id="return-date">
@@ -362,7 +386,7 @@
     </footer>
 
     <script src="https://unpkg.com/scrollreveal"></script>
-    <script src="main.js"></script>
+    <script src="javascript/main.js"></script>
 </body>
 
 </html>

@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
   tripRadios.forEach(radio => {
     radio.addEventListener("change", updateReturnDate);
   });
-  updateReturnDate(); 
+  updateReturnDate();
 
   document.addEventListener("click", (e) => {
     const popup = document.getElementById("passenger-popup");
@@ -103,3 +103,26 @@ function changeCount(type, change) {
   const infant = parseInt(document.getElementById("infant-count").textContent);
   document.getElementById("passenger-summary").textContent = adult + child + infant;
 }
+
+
+// Xử lý form "Tìm chuyến bay"
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("#booking");
+  if (!form) return;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const from = document.querySelector("#from").selectedOptions[0].text.split("(")[0].trim();
+    const to = document.querySelector("#to").selectedOptions[0].text.split("(")[0].trim();
+    const date = document.querySelector("#departure-time").value;
+
+    if (!from || !to || !date) {
+      alert("Vui lòng chọn đầy đủ nơi đi, nơi đến và ngày đi!");
+      return;
+    }
+
+    const query = new URLSearchParams({ from, to, date }).toString();
+    window.location.href = `flights.html?${query}`;
+  });
+});

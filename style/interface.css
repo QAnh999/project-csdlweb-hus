@@ -40,7 +40,7 @@
 
 /* phan hop thoai va tieu de trang*/
 .hero__section {
-  background-image: url("assets/background3.jpg");
+  background-image: url("../assets/background3.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -628,7 +628,7 @@ footer {
   margin-bottom: 5px;
 }
 
-.booking-group input {
+.booking-group input, .booking-group select{
   padding: 10px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -839,7 +839,6 @@ footer {
   color: var(--text-dark)
 }
 
-.feedback__user small,
-p {
+.feedback__user small, p {
   color: var(--text-light);
 }
