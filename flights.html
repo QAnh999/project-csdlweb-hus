@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Danh sách chuyến bay</title>
   <link rel="stylesheet" href="style/booking.css">
 </head>
-<body>
-  <h1>Chuyến bay Hà Nội → TP.HCM</h1>
-  <div id="flight-list" class="flight-list"></div>
 
-  <!-- Thư viện PapaParse để đọc CSV -->
+<body>
+  <h1>Vui lòng chọn chuyến đi</h1>
+  <div class="select_flight">
+    <div id="flight-list" class="flight-list"></div>
+  </div>
+  
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="javascript/booking.js"></script>
 </body>
+
 </html>

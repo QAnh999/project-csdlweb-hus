@@ -1,78 +1,129 @@
-body {
-  font-family: "DM Sans", sans-serif;
-  background-color: #f7f9fc;
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+
+:root {
+  --primary-color: #87b3ea;
+  --primary-color-dark: #2b3746;
+  --text-dark: #35265c;
+  --text-light: #5d5e84;
+  --extra-light: #f3f4f6;
+  --white: #ffffff;
+  --max-width: 1200px;
+}
+
+* {
+  padding: 0;
   margin: 0;
-  padding: 2rem;
-  color: #2b3746;
+  box-sizing: border-box;
+}
+
+.select_flight {
+  font-size: 1.2rem;
+  overflow: hidden;   
+  text-overflow: ellipsis;
+  color: var(--text-light);
+  background: #eef1f8;          /* 🔹 Màu nền nhẹ khác với thẻ flight */
+  padding: 2rem 0;
+  border-radius: 1rem;
+  margin: 2rem auto;
+  width: 90%;
+  max-width: 1200px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 h1 {
+  background: url("/assets/background2.jpg");
+  padding-top: 30px;
   text-align: center;
-  margin-bottom: 2rem;
-  color: #1d477a;
-}
-
-.flight-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  max-width: 900px;
-  margin: 0 auto;
+  color: #1d477a;               /* 🔹 Màu xanh đậm, đồng bộ với giao diện */
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
 }
 
 .flight-card {
   display: flex;
   justify-content: space-between;
-  align-items: stretch;
-  background: #fff;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.6);
   border-radius: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  overflow: hidden;
+  padding: 1rem 2rem;
+  margin-bottom: 1rem;
   transition: transform 0.2s ease;
+  width: 95%;              
+  max-width: 1300px;       
+  white-space: nowrap;    
+  box-sizing: border-box;
 }
 
 .flight-card:hover {
-  transform: scale(1.02);
+  transform: translateY(-4px);
 }
 
 .flight-info {
   flex: 2;
-  padding: 1.5rem;
-  border-right: 1px solid #eee;
+  color: var(--text-light);
 }
 
-.flight-info h3 {
-  margin: 0;
-  color: #1d477a;
+.time {
+  display: flex;
+  justify-content: space-between; /* căn 2 đầu */
+  align-items: center;
+  font-weight: bold;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  padding-right: 3.5rem;
 }
 
-.flight-info p {
-  margin: 0.5rem 0;
-  color: #555;
+.depart {
+  text-align: left;
+}
+
+.arrive {
+  text-align: right;
+}
+
+.route {
+  margin-top: 0.3rem;
+}
+
+.details p {
+  margin: 0.2rem 0;
+  font-size: 1rem;
 }
 
 .flight-price {
-  flex: 1;
+  flex: 0 0 auto;
+  text-align: center;
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+.price-block {
+  background: #35265c;
+  color: #fff;
+  border-radius: 0.5rem;
+  padding-right: 1rem;      
+  width: 200px;              /* 🔹 Đặt độ rộng cố định */
+  text-align: center;        /* 🔹 Giữ chữ ở giữa ô */
+  box-sizing: border-box;
+  margin-right: 0;
+}
+
+.price-amount {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.price-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+#flight-list {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #4a7c2e;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  padding: 1rem;
-}
-
-.flight-price small {
-  font-size: 0.8rem;
-  color: #e0e0e0;
-}
-
-.flight-price .sold-out {
-  background: #ccc;
-  color: #333;
-  border-radius: 0.5rem;
-  padding: 0.3rem 0.8rem;
-  margin-top: 0.5rem;
+  align-items: center; /* Căn giữa ngang */
+  justify-content: center; /* Căn giữa dọc (nếu muốn toàn trang) */
+  padding: 2rem 0;
+  width: 100%;
 }
