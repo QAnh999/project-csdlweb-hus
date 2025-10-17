@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Thông tin hành khách</title>
+    <link rel="stylesheet" href="style/payment.css">
+</head>
+
+
+<body>
+    <section class="passenger-infomation">
+        <form class="passenger-info-form">
+            <div class="passenger-info">
+                <h1>Nhập thông tin hành khách</h1>
+                <p class="note">* là các trường bắt buộc.</p>
+                <p class="note">Vui lòng điền thông tin cá nhân như trong hộ chiếu.</p>
+            </div>
+            
+            <label for="title">Danh xưng *</label>
+            <select id="title" name="title" required>
+                <option value="Mr">Ông</option>
+                <option value="Mrs">Bà</option>
+                <option value="Ms">Cô</option>
+                <option value="Child">Trẻ em</option>
+            </select>
+
+            <label for="firstname">Tên đệm và tên*</label>
+            <input type="text" id="firstname" name="firstname" placeholder="Tên đệm và tên" required>
+
+            <label for="lastname">Họ *</label>
+            <input type="text" id="lastname" name="lastname" placeholder="Họ" required>
+
+            <label for="dob">Ngày sinh *</label>
+            <input type="date" id="dob" name="dob" required>
+
+            <label for="email">Email *</label>
+            <input type="text" id="email" name="email" placeholder="Địa chỉ email" required>
+
+            <label for="countrycode">Mã quốc gia *</label>
+            <input type="text" id="countrycode" name="countrycode" placeholder="Mã quốc gia" pattern="^\+\d{1,4}$"
+                required>
+
+            <label for="phonenumber">Số điện thoại *</label>
+            <input type="number" id="phonenumber" name="phonenumber" placeholder="Số điện thoại"
+                pattern="^[0-9+]{8,15}$" required>
+
+            <button type="submit">Xác nhận thông tin</button>
+        </form>
+    </section>
+
+    <section class="services">
+        <h1>Các dịch vụ bổ sung</h1>
+        <form id="extra-services-form">
+            <div class="service-items">
+                <label>
+                    <input type="checkbox" name="baggage" id="baggage">
+                    Thêm hành lý ký gửi
+                </label>
+                <div class="service-details" id="baggage-options" style="display: none;">
+                    <select name="baggage-weight">
+                        <option value="">-- Chọn gói hành lý --</option>
+                        <option value="15kg">15kg - 180.000 VND</option>
+                        <option value="20kg">20kg - 220.000 VND</option>
+                        <option value="25kg">25kg - 260.000 VND</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="service-item">
+                <label>
+                    <input type="checkbox" name="meal" id="meal">
+                    Thêm suất ăn trên máy bay
+                </label>
+                <div class="service-details" id="meal-options" style="display: none;">
+                    <select name="meal-type">
+                        <option value="">-- Chọn suất ăn --</option>
+                        <option value="chay">Suất ăn chay - 90.000 VND</option>
+                        <option value="thuong">Suất ăn tiêu chuẩn - 120.000 VND</option>
+                        <option value="dacbiet">Suất ăn đặc biệt - 150.000 VND</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="service-item">
+                <label>
+                    <input type="checkbox" name="seat" id="seat">
+                    Chọn chỗ ngồi ưu tiên
+                </label>
+                <div class="service-details" id="seat-options" style="display: none;">
+                    <select name="seat-type">
+                        <option value="">-- Chọn chỗ ngồi --</option>
+                        <option value="gan-cua-so">Gần cửa sổ - 100.000 VND</option>
+                        <option value="gan-loi-di">Gần lối đi - 100.000 VND</option>
+                        <option value="hang-dau">Hàng ghế đầu - 150.000 VND</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="javascript/payment.js"></script>
+</body>
+
+</html>

@@ -31,13 +31,15 @@
 }
 
 h1 {
-  background: url("/assets/background2.jpg");
-  padding-top: 30px;
+  background: linear-gradient(
+    rgba(135, 179, 234, 0.5),
+    rgba(43, 55, 70, 0.5)
+  );
+  backdrop-filter: blur(6px);
+  color: white;
+  padding: 25px;
+  border-radius: 15px;
   text-align: center;
-  color: #1d477a;               /* 🔹 Màu xanh đậm, đồng bộ với giao diện */
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-  font-weight: 700;
 }
 
 .flight-card {
@@ -126,4 +128,19 @@ h1 {
   justify-content: center; /* Căn giữa dọc (nếu muốn toàn trang) */
   padding: 2rem 0;
   width: 100%;
+}
+
+.confirm-btn {
+  background-color: #029fb1;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.confirm-btn:hover {
+  background-color: #94a4ed;
 }
