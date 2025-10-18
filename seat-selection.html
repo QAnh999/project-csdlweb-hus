@@ -8,17 +8,23 @@
 <body>
   <section class="seat-selection">
     <h1>Chọn chỗ ngồi trên máy bay</h1>
-    <p>Chọn chỗ ngồi mong muốn của bạn. Ghế đã chọn sẽ được tô màu xanh dương 💺</p>
+    <p>Chọn chỗ ngồi mong muốn của bạn <br>
+      Ghế đã chọn sẽ được tô màu xanh dương
+    </p>
 
     <div class="plane">
-      <div class="cockpit">✈️ Buồng lái</div>
-      <div class="exit">Lối thoát hiểm</div>
-
-      <div class="seat-map" id="seat-map">
-        <!-- Ghế sẽ được tạo bằng JavaScript -->
+      <div class="plane-nose"></div>
+      <div class="seat-map" id="seat-map"></div>
+      <div class="plane-tail">
+        <div class="restroom">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M6 2v7" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M18 2v7" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+            <rect x="2" y="10" width="20" height="10" rx="2" fill="#4b5563"/>
+          </svg>
+          <span>Restroom</span>
+        </div>
       </div>
-
-      <div class="exit">Lối thoát hiểm</div>
     </div>
 
     <div class="info">

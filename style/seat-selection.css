@@ -1,123 +1,204 @@
+:root {
+  --seat-size: 40px;
+  --gap: 8px;
+  --aisle-w: 80px;
+  --exit-width: 70px;
+  --row-number-w: 30px;
+  --left-offset-B: 120px;
+  --right-offset-E: 120px;
+}
+
 body {
-  background: linear-gradient(to bottom right, #e8f0ff, #f8faff);
-  font-family: "Segoe UI", sans-serif;
-  display: flex;
-  justify-content: center;
-  padding: 40px;
-}
-
-.seat-selection {
-  background: #fff;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  font-family: Arial, sans-serif;
+  background-color: #eef4ff;
   text-align: center;
-  width: 90%;
-  max-width: 700px;
 }
 
-h1 {
-  color: #1e4fa3;
-  margin-bottom: 10px;
+#seat-map {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
 }
 
-p {
-  color: #555;
-}
-
-.plane {
-  margin: 20px auto;
-  background: #eef3ff;
-  border-radius: 20px;
-  padding: 20px 10px;
-  width: fit-content;
-}
-
-.cockpit {
-  font-weight: bold;
-  background: #1e4fa3;
-  color: white;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-.exit {
-  background: #ffd966;
-  color: #222;
-  font-weight: bold;
-  padding: 5px;
-  margin: 8px 0;
-  border-radius: 6px;
-}
-
-.seat-map {
-  display: grid;
-  grid-template-columns: repeat(6, 40px);
-  gap: 10px;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-/* Các trạng thái ghế */
-.seat {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: 1px solid #ccc;
+.row {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--gap);
+  margin: 5px 0;
+}
+
+.row-number {
+  width: var(--row-number-w);
+  text-align: right;
   font-weight: bold;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
+  color: #333;
+  margin-right: 6px;
 }
 
-.seat.available {
-  background-color: #f2f2f2;
-}
-
-.seat.available:hover {
-  background-color: #dce8ff;
-  transform: scale(1.1);
-}
-
-.seat.selected {
-  background-color: #1e4fa3;
-  color: white;
-}
-
-.seat.booked {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-/* Chú thích */
-.info {
+.seat-group {
   display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 15px 0;
+  gap: var(--gap);
 }
 
-.info .seat {
-  width: 20px;
-  height: 20px;
-  margin-right: 5px;
+.aisle {
+  width: var(--aisle-w);
 }
 
-/* Nút */
-#confirmSeat {
-  background-color: #1e4fa3;
-  color: white;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 8px;
+/* ---------- ghế ngồi ---------- */
+.seat {
+  width: 40px;
+  height: 40px;
+  background-color: #cfe2ff;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
   transition: 0.3s;
 }
 
-#confirmSeat:hover {
-  background-color: #163b7a;
+.seat.available:hover {
+  background-color: #6ea8fe;
+}
+
+.seat.booked {
+  background-color: #b0b0b0;
+  cursor: not-allowed;
+}
+
+.seat.selected {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* ---------- hàng EXIT ---------- */
+.exit-row {
+  position: relative;
+  height: 40px;
+  width: 100%;
+  margin: 12px 0;
+}
+
+.exit {
+  width: 90px;
+  height: 35px;
+  background-color: #ff6b6b;
+  color: #fff;
+  line-height: 35px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.plane {
+  background: linear-gradient(180deg, #ffffff, #eef4ff);
+  border-radius: 120px / 60px;
+  padding: 24px 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 540px;
+  margin: 0 auto;
+}
+
+.plane-nose {
+  width: 60%;
+  height: 48px;
+  border-radius: 28px 28px 18px 18px;
+  background: linear-gradient(180deg, #f1f6ff, #ffffff);
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
+  margin-bottom: 12px;
+}
+
+.plane-tail {
+  width: 100%;
+  height: 56px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff, #f3f7ff);
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.restroom {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #374151;
+  font-size: 13px
+}
+
+
+/* cabin background (thân máy bay) */
+.cabin {
+  width: 100%;
+  background: linear-gradient(180deg, #f8fafc, #ffffff);
+  border-radius: 18px;
+  padding: 14px 12px 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.exit-left,
+.exit-right {
+  position: absolute;
+  top: 0;
+  width: var(--exit-width);
+  height: 35px;
+  background-color: #ff6b6b;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  line-height: 35px;
+  border-radius: 6px;
+}
+
+.exit-left {
+  left: var(--left-offset-B);
+}
+
+.exit-right {
+  right: var(--right-offset-E);
+}
+
+/* controls */
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px
+}
+
+button#confirmSeat {
+  background: #0b5394;
+  color: #fff;
+  border: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer
+}
+
+.selectedInfo {
+  color: #0b3b76;
+  font-weight: 700
+}
+
+/* responsive */
+@media (max-width:520px) {
+  :root {
+    --seat-size: 36px;
+    --aisle-w: 64px;
+    --exit-width: 72px
+  }
+
+  .plane-wrap {
+    width: 100%
+  }
+
+  .row-number {
+    width: 30px
+  }
 }
