@@ -1,0 +1,117 @@
+/* Reset cơ bản */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Toàn trang */
+body {
+  background: linear-gradient(to bottom right, #e8f0ff, #f8faff);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+}
+
+/* Form thông tin hành khách */
+.passenger-infomation {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 30px;
+}
+
+.passenger-info h1 {
+  font-size: 1.8rem;
+  color: #1e4fa3;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.note {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+/* Nhãn và input */
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+  font-size: 1rem;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #1e4fa3;
+  box-shadow: 0 0 4px rgba(30, 79, 163, 0.4);
+}
+
+/* Nút xác nhận */
+button[type="submit"] {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background-color: #1e4fa3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #163b7a;
+}
+
+/* Dịch vụ bổ sung */
+.services {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 600px;
+}
+
+.services h1 {
+  text-align: center;
+  color: #1e4fa3;
+  margin-bottom: 20px;
+}
+
+.service-item,
+.service-items {
+  margin-bottom: 15px;
+}
+
+.service-details {
+  margin-top: 10px;
+}
+
+.service-details select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}

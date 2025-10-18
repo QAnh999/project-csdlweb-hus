@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chọn chỗ ngồi</title>
+  <link rel="stylesheet" href="style/seat-selection.css">
+</head>
+<body>
+  <section class="seat-selection">
+    <h1>Chọn chỗ ngồi trên máy bay</h1>
+    <p>Chọn chỗ ngồi mong muốn của bạn. Ghế đã chọn sẽ được tô màu xanh dương 💺</p>
+
+    <div class="plane">
+      <div class="cockpit">✈️ Buồng lái</div>
+      <div class="exit">Lối thoát hiểm</div>
+
+      <div class="seat-map" id="seat-map">
+        <!-- Ghế sẽ được tạo bằng JavaScript -->
+      </div>
+
+      <div class="exit">Lối thoát hiểm</div>
+    </div>
+
+    <div class="info">
+      <p><span class="seat available"></span> Ghế trống</p>
+      <p><span class="seat selected"></span> Ghế bạn chọn</p>
+      <p><span class="seat booked"></span> Ghế đã đặt</p>
+    </div>
+
+    <button id="confirmSeat">Xác nhận chỗ ngồi</button>
+  </section>
+
+  <script src="javascript/seat-selection.js"></script>
+</body>
+</html>
