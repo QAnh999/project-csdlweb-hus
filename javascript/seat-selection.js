@@ -47,16 +47,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     seatMap.appendChild(rowDiv);
 
-    // nếu cần hàng EXIT sau hàng này
     if (exitAfter.includes(i)) {
       seatMap.appendChild(makeExitRow());
     }
   }
 
-  // thêm EXIT cuối sau hàng 40
   seatMap.appendChild(makeExitRow());
 
-  // -------------------------------
   // Hàm tạo ghế
   function createSeatElement(code) {
     const seat = document.createElement("div");
@@ -72,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return seat;
   }
 
-  // -------------------------------
+
   function toggleSelect(seatEl, code) {
     if (selectedSeat && selectedSeat !== seatEl) {
       selectedSeat.classList.remove("selected");
@@ -88,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // -------------------------------
+
   function makeExitRow() {
     const container = document.createElement("div");
     container.className = "exit-row";
@@ -106,7 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return container;
   }
 
-  // -------------------------------
   document.getElementById("confirmSeat").addEventListener("click", () => {
     if (selectedSeat && selectedSeat.dataset.code) {
       const code = selectedSeat.dataset.code;

@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      window.location.href = `booking.html?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${encodeURIComponent(date)}`;
+      window.location.href = `pages/booking.html?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${encodeURIComponent(date)}`;
     });
     return;
   }
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const to = params.get("to");
   const date = params.get("date");
 
-  fetch("flights_sample_102.csv")
+  fetch("../flights_sample_102.csv")
     .then(res => res.text())
     .then(csv => {
       const flights = Papa.parse(csv.trim(), { header: true }).data;
@@ -96,5 +96,5 @@ function renderFlights(flights, container) {
 }
 
 function xacNhanChuyenBay(maChuyenBay) {
-  window.location.href = `customerinfo.html?flight=${encodeURIComponent(maChuyenBay)}`;
+  window.location.href = `passenger-info.html?flight=${encodeURIComponent(maChuyenBay)}`;
 }

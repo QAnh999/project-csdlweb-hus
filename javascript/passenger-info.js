@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Gộp tất cả
     const fullData = { ...passengerData, ...serviceData };
-    console.log("✅ Dữ liệu hành khách:", fullData);
+    console.log("Dữ liệu hành khách:", fullData);
 
     localStorage.setItem("passengerInfo", JSON.stringify(fullData));
 
