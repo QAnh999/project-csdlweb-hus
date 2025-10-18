@@ -1,14 +1,25 @@
-/* Reset cơ bản */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
+
+:root {
+  --primary-color: #87b3ea;
+  --primary-color-dark: #2b3746;
+  --text-dark: #35265c;
+  --text-light: #5d5e84;
+  --extra-light: #f3f4f6;
+  --white: #ffffff;
+  --max-width: 1200px;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
+  font-family: "Noto Serif", sans-serif;
 }
 
 /* Toàn trang */
 body {
-  background: linear-gradient(to bottom right, #e8f0ff, #f8faff);
+  background: linear-gradient(to top right, #084159, #a1c4fd);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -17,7 +28,7 @@ body {
 }
 
 /* Form thông tin hành khách */
-.passenger-infomation {
+.passenger-information {
   background: #fff;
   padding: 25px 30px;
   border-radius: 15px;
@@ -29,15 +40,22 @@ body {
 
 .passenger-info h1 {
   font-size: 1.8rem;
-  color: #1e4fa3;
+  color: var(--text-dark);
   text-align: center;
   margin-bottom: 10px;
   padding: 20px;
 }
 
+.passenger-info-form {
+  background-color: aliceblue;
+  border-radius: 15px;
+  padding: 25px 30px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
 .note {
   text-align: center;
-  color: #666;
+  color: var(--text-light);
   font-size: 0.9rem;
   margin-bottom: 10px;
 }
@@ -47,17 +65,20 @@ label {
   display: block;
   margin-top: 15px;
   font-weight: 600;
-  color: #333;
+  color: var(--text-dark);
+  font-family: "Noto Serif", sans-serif;
 }
 
 input,
 select {
+  color: var(--text-dark);
   width: 100%;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
   margin-top: 5px;
   font-size: 1rem;
+  font-family: "Noto Serif", sans-serif;
 }
 
 input:focus,
@@ -72,17 +93,18 @@ button[type="submit"] {
   margin-top: 20px;
   width: 100%;
   padding: 12px;
-  background-color: #1e4fa3;
+  background-color: var(--primary-color-dark);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1.1rem;
   cursor: pointer;
   transition: background 0.3s ease;
+  font-family: "Noto Serif", sans-serif;
 }
 
 button[type="submit"]:hover {
-  background-color: #163b7a;
+  background-color: var(--primary-color);
 }
 
 /* Dịch vụ bổ sung */
@@ -97,7 +119,6 @@ button[type="submit"]:hover {
 
 .services h1 {
   text-align: center;
-  color: #1e4fa3;
   margin-bottom: 20px;
 }
 

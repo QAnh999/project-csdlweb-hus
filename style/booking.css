@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
 
 :root {
   --primary-color: #87b3ea;
@@ -105,8 +105,8 @@ h1 {
   color: #fff;
   border-radius: 0.5rem;
   padding-right: 1rem;      
-  width: 200px;              /* 🔹 Đặt độ rộng cố định */
-  text-align: center;        /* 🔹 Giữ chữ ở giữa ô */
+  width: 200px;              
+  text-align: center;       
   box-sizing: border-box;
   margin-right: 0;
 }
@@ -124,8 +124,8 @@ h1 {
 #flight-list {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Căn giữa ngang */
-  justify-content: center; /* Căn giữa dọc (nếu muốn toàn trang) */
+  align-items: center; 
+  justify-content: center; 
   padding: 2rem 0;
   width: 100%;
 }
