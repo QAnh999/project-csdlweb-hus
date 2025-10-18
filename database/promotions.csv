@@ -1,0 +1,101 @@
+promotion_id,name,description,discount_rate,start_date,end_date,status,airline
+P001,28% OFF Thanh Hóa-TP HCM,Special discount for flights from Thanh Hóa to TP HCM.,49,2025-04-08,2025-10-18,active,Bamboo Airways
+P002,19% OFF Đà Nẵng-TP HCM,Special discount for flights from Đà Nẵng to TP HCM.,22,2025-01-28,2025-10-30,active,Vietjet
+P003,7% OFF Phú Quốc-Hà Nội,Special discount for flights from Phú Quốc to Hà Nội.,7,2025-06-29,2025-10-24,expired,Bamboo Airways
+P004,27% OFF Huế-TP HCM,Special discount for flights from Huế to TP HCM.,6,2025-02-17,2025-12-20,upcoming,Pacific Airlines
+P005,6% OFF Hải Phòng-TP HCM,Special discount for flights from Hải Phòng to TP HCM.,25,2025-03-26,2025-10-28,expired,Vietjet
+P006,39% OFF Hà Nội-Đà Nẵng,Special discount for flights from Hà Nội to Đà Nẵng.,32,2025-08-19,2025-11-08,active,Bamboo Airways
+P007,5% OFF TP HCM-Đà Lạt,Special discount for flights from TP HCM to Đà Lạt.,30,2025-10-04,2025-12-05,upcoming,Vietravel Airlines
+P008,14% OFF Hà Nội-Nha Trang,Special discount for flights from Hà Nội to Nha Trang.,37,2025-03-08,2025-12-25,active,Vietnam Airlines
+P009,38% OFF TP HCM-Chu Lai,Special discount for flights from TP HCM to Chu Lai.,13,2025-02-14,2025-11-09,expired,Vietjet
+P010,5% OFF TP HCM-Vinh,Special discount for flights from TP HCM to Vinh.,34,2025-05-14,2025-12-05,expired,Vietravel Airlines
+P011,36% OFF Đà Nẵng-Hà Nội,Special discount for flights from Đà Nẵng to Hà Nội.,39,2025-02-19,2025-11-09,expired,Pacific Airlines
+P012,9% OFF TP HCM-Chu Lai,Special discount for flights from TP HCM to Chu Lai.,41,2025-08-17,2025-10-21,active,Bamboo Airways
+P013,16% OFF TP HCM-Nha Trang,Special discount for flights from TP HCM to Nha Trang.,19,2025-07-19,2025-11-25,expired,Vietravel Airlines
+P014,28% OFF TP HCM-Chu Lai,Special discount for flights from TP HCM to Chu Lai.,18,2025-03-13,2025-12-22,upcoming,Vietjet
+P015,7% OFF TP HCM-Thanh Hóa,Special discount for flights from TP HCM to Thanh Hóa.,9,2025-06-28,2025-11-08,upcoming,Vietnam Airlines
+P016,25% OFF TP HCM-Đà Lạt,Special discount for flights from TP HCM to Đà Lạt.,31,2025-04-09,2025-12-23,expired,Vietnam Airlines
+P017,39% OFF Vinh-TP HCM,Special discount for flights from Vinh to TP HCM.,16,2025-06-24,2025-10-18,upcoming,Vietjet
+P018,11% OFF Hà Nội-TP HCM,Special discount for flights from Hà Nội to TP HCM.,42,2025-07-01,2025-10-20,active,Vietjet
+P019,20% OFF TP HCM-Đà Nẵng,Special discount for flights from TP HCM to Đà Nẵng.,25,2025-10-07,2025-12-16,upcoming,Vietravel Airlines
+P020,50% OFF Hà Nội-TP HCM,Special discount for flights from Hà Nội to TP HCM.,30,2025-04-29,2025-12-17,expired,Vietravel Airlines
+P021,33% OFF Nha Trang-Hà Nội,Special discount for flights from Nha Trang to Hà Nội.,6,2025-03-09,2025-11-24,expired,Vietnam Airlines
+P022,33% OFF Vinh-TP HCM,Special discount for flights from Vinh to TP HCM.,14,2025-06-10,2025-11-07,expired,Vietjet
+P023,24% OFF Vinh-TP HCM,Special discount for flights from Vinh to TP HCM.,27,2025-04-18,2025-10-28,upcoming,Vietravel Airlines
+P024,10% OFF TP HCM-Phú Quốc,Special discount for flights from TP HCM to Phú Quốc.,5,2025-09-20,2025-11-14,upcoming,Pacific Airlines
+P025,24% OFF Đà Lạt-Hà Nội,Special discount for flights from Đà Lạt to Hà Nội.,40,2025-01-25,2025-12-17,expired,Vietnam Airlines
+P026,17% OFF Huế-TP HCM,Special discount for flights from Huế to TP HCM.,50,2025-02-26,2025-11-21,upcoming,Vietjet
+P027,35% OFF TP HCM-Chu Lai,Special discount for flights from TP HCM to Chu Lai.,43,2025-01-11,2025-11-20,upcoming,Vietnam Airlines
+P028,23% OFF TP HCM-Đà Nẵng,Special discount for flights from TP HCM to Đà Nẵng.,27,2025-03-06,2025-11-12,expired,Bamboo Airways
+P029,6% OFF TP HCM-Phú Quốc,Special discount for flights from TP HCM to Phú Quốc.,41,2025-05-05,2025-12-06,upcoming,Pacific Airlines
+P030,11% OFF Đà Nẵng-TP HCM,Special discount for flights from Đà Nẵng to TP HCM.,22,2025-01-26,2025-11-30,expired,Bamboo Airways
+P031,18% OFF Nha Trang-Hà Nội,Special discount for flights from Nha Trang to Hà Nội.,16,2025-04-21,2025-11-04,active,Vietnam Airlines
+P032,16% OFF TP HCM-Đà Nẵng,Special discount for flights from TP HCM to Đà Nẵng.,39,2025-03-29,2025-11-27,upcoming,Bamboo Airways
+P033,50% OFF Hà Nội-TP HCM,Special discount for flights from Hà Nội to TP HCM.,10,2025-09-29,2025-10-19,expired,Vietjet
+P034,48% OFF Quy Nhơn-Hà Nội,Special discount for flights from Quy Nhơn to Hà Nội.,37,2025-04-30,2025-12-31,upcoming,Vietnam Airlines
+P035,6% OFF Nha Trang-TP HCM,Special discount for flights from Nha Trang to TP HCM.,5,2025-10-05,2025-11-22,expired,Pacific Airlines
+P036,14% OFF Đà Nẵng-TP HCM,Special discount for flights from Đà Nẵng to TP HCM.,6,2025-03-12,2025-11-18,active,Pacific Airlines
+P037,49% OFF Nha Trang-TP HCM,Special discount for flights from Nha Trang to TP HCM.,7,2025-03-27,2025-12-12,upcoming,Bamboo Airways
+P038,15% OFF Nha Trang-TP HCM,Special discount for flights from Nha Trang to TP HCM.,19,2025-01-20,2025-12-11,expired,Pacific Airlines
+P039,15% OFF TP HCM-Chu Lai,Special discount for flights from TP HCM to Chu Lai.,37,2025-04-17,2025-11-15,upcoming,Vietnam Airlines
+P040,6% OFF TP HCM-Vinh,Special discount for flights from TP HCM to Vinh.,29,2025-06-29,2025-12-28,upcoming,Vietnam Airlines
+P041,45% OFF TP HCM-Phú Quốc,Special discount for flights from TP HCM to Phú Quốc.,14,2025-05-17,2025-10-25,upcoming,Bamboo Airways
+P042,31% OFF Hà Nội-TP HCM,Special discount for flights from Hà Nội to TP HCM.,29,2025-08-16,2025-11-23,expired,Vietravel Airlines
+P043,5% OFF TP HCM-Đà Nẵng,Special discount for flights from TP HCM to Đà Nẵng.,39,2025-02-20,2025-11-05,active,Vietnam Airlines
+P044,21% OFF Đà Nẵng-TP HCM,Special discount for flights from Đà Nẵng to TP HCM.,24,2025-05-03,2025-12-28,expired,Vietnam Airlines
+P045,9% OFF TP HCM-Nha Trang,Special discount for flights from TP HCM to Nha Trang.,48,2025-08-21,2025-12-17,active,Pacific Airlines
+P046,15% OFF Huế-TP HCM,Special discount for flights from Huế to TP HCM.,44,2025-07-10,2025-10-27,expired,Pacific Airlines
+P047,38% OFF TP HCM-Chu Lai,Special discount for flights from TP HCM to Chu Lai.,22,2025-03-22,2025-11-07,upcoming,Vietravel Airlines
+P048,25% OFF Đà Nẵng-TP HCM,Special discount for flights from Đà Nẵng to TP HCM.,35,2025-03-23,2025-11-14,upcoming,Pacific Airlines
+P049,36% OFF Đà Lạt-Hà Nội,Special discount for flights from Đà Lạt to Hà Nội.,16,2025-06-26,2025-11-25,upcoming,Vietjet
+P050,37% OFF TP HCM-Đà Lạt,Special discount for flights from TP HCM to Đà Lạt.,50,2025-06-07,2025-12-14,expired,Vietnam Airlines
+P051,42% OFF TP HCM-Hà Nội,Special discount for flights from TP HCM to Hà Nội.,47,2025-04-10,2025-11-10,upcoming,Pacific Airlines
+P052,37% OFF TP HCM-Nha Trang,Special discount for flights from TP HCM to Nha Trang.,10,2025-02-07,2025-11-28,expired,Vietravel Airlines
+P053,12% OFF TP HCM-Huế,Special discount for flights from TP HCM to Huế.,46,2025-05-27,2025-10-28,upcoming,Vietjet
+P054,50% OFF TP HCM-Đà Nẵng,Special discount for flights from TP HCM to Đà Nẵng.,42,2025-04-23,2025-11-09,upcoming,Vietravel Airlines
+P055,39% OFF Nha Trang-TP HCM,Special discount for flights from Nha Trang to TP HCM.,28,2025-07-08,2025-11-04,active,Bamboo Airways
+P056,26% OFF TP HCM-Phú Quốc,Special discount for flights from TP HCM to Phú Quốc.,37,2025-06-27,2025-11-19,upcoming,Pacific Airlines
+P057,49% OFF Nha Trang-TP HCM,Special discount for flights from Nha Trang to TP HCM.,40,2025-04-27,2025-10-29,upcoming,Vietjet
+P058,12% OFF Hải Phòng-TP HCM,Special discount for flights from Hải Phòng to TP HCM.,22,2025-05-14,2025-12-17,upcoming,Pacific Airlines
+P059,14% OFF Hà Nội-Nha Trang,Special discount for flights from Hà Nội to Nha Trang.,14,2025-09-23,2025-10-19,upcoming,Vietjet
+P060,46% OFF Hà Nội-Đà Lạt,Special discount for flights from Hà Nội to Đà Lạt.,16,2025-01-23,2025-12-17,active,Vietjet
+P061,29% OFF TP HCM-Hải Phòng,Special discount for flights from TP HCM to Hải Phòng.,9,2025-09-14,2025-11-20,expired,Bamboo Airways
+P062,10% OFF Hà Nội-Nha Trang,Special discount for flights from Hà Nội to Nha Trang.,49,2025-03-14,2025-10-24,active,Pacific Airlines
+P063,46% OFF TP HCM-Đà Nẵng,Special discount for flights from TP HCM to Đà Nẵng.,36,2025-10-07,2025-12-10,upcoming,Bamboo Airways
+P064,23% OFF Huế-TP HCM,Special discount for flights from Huế to TP HCM.,12,2025-10-11,2025-10-28,active,Bamboo Airways
+P065,11% OFF Hà Nội-Đà Lạt,Special discount for flights from Hà Nội to Đà Lạt.,19,2025-08-08,2025-11-17,upcoming,Vietravel Airlines
+P066,20% OFF Hà Nội-Đà Nẵng,Special discount for flights from Hà Nội to Đà Nẵng.,48,2025-05-31,2025-11-29,expired,Pacific Airlines
+P067,45% OFF TP HCM-Đà Lạt,Special discount for flights from TP HCM to Đà Lạt.,17,2025-10-09,2025-10-22,expired,Bamboo Airways
+P068,34% OFF Nha Trang-TP HCM,Special discount for flights from Nha Trang to TP HCM.,25,2025-10-01,2025-12-29,active,Vietjet
+P069,48% OFF TP HCM-Hà Nội,Special discount for flights from TP HCM to Hà Nội.,41,2025-06-04,2025-12-13,expired,Vietravel Airlines
+P070,14% OFF TP HCM-Huế,Special discount for flights from TP HCM to Huế.,47,2025-02-20,2025-12-02,expired,Vietjet
+P071,21% OFF TP HCM-Chu Lai,Special discount for flights from TP HCM to Chu Lai.,32,2025-04-28,2025-11-03,upcoming,Vietnam Airlines
+P072,8% OFF Hà Nội-Đà Nẵng,Special discount for flights from Hà Nội to Đà Nẵng.,26,2025-01-28,2025-12-30,active,Bamboo Airways
+P073,9% OFF TP HCM-Hải Phòng,Special discount for flights from TP HCM to Hải Phòng.,42,2025-09-04,2025-11-04,active,Bamboo Airways
+P074,48% OFF TP HCM-Đà Lạt,Special discount for flights from TP HCM to Đà Lạt.,10,2025-04-30,2025-11-18,active,Pacific Airlines
+P075,19% OFF Phú Quốc-Hà Nội,Special discount for flights from Phú Quốc to Hà Nội.,45,2025-03-29,2025-10-24,upcoming,Vietravel Airlines
+P076,5% OFF TP HCM-Chu Lai,Special discount for flights from TP HCM to Chu Lai.,20,2025-01-23,2025-12-07,upcoming,Vietnam Airlines
+P077,31% OFF Hà Nội-Đà Nẵng,Special discount for flights from Hà Nội to Đà Nẵng.,46,2025-09-13,2025-12-17,upcoming,Vietnam Airlines
+P078,35% OFF TP HCM-Đà Nẵng,Special discount for flights from TP HCM to Đà Nẵng.,12,2025-10-11,2025-11-06,upcoming,Bamboo Airways
+P079,34% OFF TP HCM-Nha Trang,Special discount for flights from TP HCM to Nha Trang.,17,2025-09-03,2025-11-15,expired,Bamboo Airways
+P080,49% OFF TP HCM-Đà Nẵng,Special discount for flights from TP HCM to Đà Nẵng.,29,2025-04-06,2025-11-13,expired,Vietjet
+P081,43% OFF TP HCM-Đà Lạt,Special discount for flights from TP HCM to Đà Lạt.,6,2025-08-04,2025-12-04,upcoming,Pacific Airlines
+P082,10% OFF Hà Nội-Đà Nẵng,Special discount for flights from Hà Nội to Đà Nẵng.,11,2025-07-25,2025-12-31,upcoming,Vietjet
+P083,42% OFF Quy Nhơn-Hà Nội,Special discount for flights from Quy Nhơn to Hà Nội.,33,2025-10-16,2025-12-02,active,Vietnam Airlines
+P084,17% OFF Phú Quốc-Hà Nội,Special discount for flights from Phú Quốc to Hà Nội.,40,2025-09-15,2025-11-17,upcoming,Bamboo Airways
+P085,39% OFF TP HCM-Vinh,Special discount for flights from TP HCM to Vinh.,31,2025-05-23,2025-12-05,upcoming,Vietravel Airlines
+P086,22% OFF Hải Phòng-TP HCM,Special discount for flights from Hải Phòng to TP HCM.,34,2025-06-06,2025-11-04,upcoming,Vietjet
+P087,32% OFF Hà Nội-Đà Nẵng,Special discount for flights from Hà Nội to Đà Nẵng.,47,2025-08-26,2025-10-23,expired,Pacific Airlines
+P088,43% OFF TP HCM-Đà Nẵng,Special discount for flights from TP HCM to Đà Nẵng.,25,2025-07-21,2025-11-14,expired,Vietnam Airlines
+P089,32% OFF Hà Nội-Đà Nẵng,Special discount for flights from Hà Nội to Đà Nẵng.,42,2025-02-22,2025-10-27,expired,Pacific Airlines
+P090,23% OFF Phú Quốc-TP HCM,Special discount for flights from Phú Quốc to TP HCM.,40,2025-09-24,2025-12-07,upcoming,Vietjet
+P091,48% OFF Hà Nội-Đà Nẵng,Special discount for flights from Hà Nội to Đà Nẵng.,28,2025-06-04,2025-11-10,active,Pacific Airlines
+P092,6% OFF TP HCM-Đà Lạt,Special discount for flights from TP HCM to Đà Lạt.,12,2025-03-16,2025-11-19,expired,Bamboo Airways
+P093,15% OFF TP HCM-Đà Nẵng,Special discount for flights from TP HCM to Đà Nẵng.,14,2025-01-11,2025-11-05,active,Vietravel Airlines
+P094,48% OFF Quy Nhơn-Hà Nội,Special discount for flights from Quy Nhơn to Hà Nội.,47,2025-08-13,2025-12-06,expired,Vietravel Airlines
+P095,25% OFF Đà Nẵng-TP HCM,Special discount for flights from Đà Nẵng to TP HCM.,20,2025-10-12,2025-12-28,expired,Vietnam Airlines
+P096,38% OFF Đà Lạt-Hà Nội,Special discount for flights from Đà Lạt to Hà Nội.,35,2025-04-01,2025-11-24,expired,Vietnam Airlines
+P097,15% OFF Vinh-TP HCM,Special discount for flights from Vinh to TP HCM.,9,2025-09-21,2025-11-22,upcoming,Bamboo Airways
+P098,43% OFF Hà Nội-Đà Nẵng,Special discount for flights from Hà Nội to Đà Nẵng.,40,2025-06-06,2025-12-05,expired,Bamboo Airways
+P099,42% OFF Hải Phòng-TP HCM,Special discount for flights from Hải Phòng to TP HCM.,45,2025-03-31,2025-12-08,active,Pacific Airlines
+P100,28% OFF TP HCM-Nha Trang,Special discount for flights from TP HCM to Nha Trang.,33,2025-10-14,2025-12-26,active,Pacific Airlines
