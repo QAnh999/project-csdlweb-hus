@@ -9,12 +9,16 @@
 
 
 <body>
+    <h1>Nhập thông tin hành khách</h1>
+
     <section class="passenger-infomation">
         <form class="passenger-info-form">
             <div class="passenger-info">
-                <h1>Nhập thông tin hành khách</h1>
-                <p class="note">* là các trường bắt buộc.</p>
-                <p class="note">Vui lòng điền thông tin cá nhân như trong hộ chiếu.</p>
+                <h2>Thông tin cơ bản</h2>
+                <div class="note">
+                   <p>* là các trường bắt buộc.</p>
+                   <p>Vui lòng điền thông tin cá nhân như trong hộ chiếu.</p> 
+                </div>
             </div>
             
             <label for="title">Danh xưng *</label>
@@ -47,13 +51,14 @@
 
         
             <div class="passenger-info">
-                <h1>Các dịch vụ bổ sung</h1>
+                <h2>Các dịch vụ bổ sung</h2>
             </div>
+
             <div class="service-items">
-                <label>
+                <div class="baggage label">
                     <input type="checkbox" name="baggage" id="baggage">
                     Thêm hành lý ký gửi
-                </label>
+                </div>
                 <div class="service-details" id="baggage-options" style="display: none;">
                     <select name="baggage-weight">
                         <option value="">-- Chọn gói hành lý --</option>
@@ -65,10 +70,10 @@
             </div>
 
             <div class="service-item">
-                <label>
+                <div class="meal label">
                     <input type="checkbox" name="meal" id="meal">
                     Thêm suất ăn trên máy bay
-                </label>
+                </div>
                 <div class="service-details" id="meal-options" style="display: none;">
                     <select name="meal-type">
                         <option value="">-- Chọn suất ăn --</option>

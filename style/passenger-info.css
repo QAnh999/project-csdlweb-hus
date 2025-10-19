@@ -1,63 +1,95 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
 
 :root {
-  --primary-color: #87b3ea;
-  --primary-color-dark: #2b3746;
-  --text-dark: #35265c;
-  --text-light: #5d5e84;
-  --extra-light: #f3f4f6;
+  --primary-color: #87b3ea;           /* Xanh da trời dịu */
+  --primary-color-dark: #0b3b76;      /* Xanh đậm */
+  --text-dark: #2b3746;               /* Màu chữ chính */
+  --text-light: #5d5e84;              /* Màu chữ phụ */
+  --bg-light: #f5f9ff;                /* Nền sáng nhẹ */
   --white: #ffffff;
   --max-width: 1200px;
 }
 
+/* Reset mặc định */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Noto Serif", sans-serif;
+}
+
+/* Tiêu đề chính */
+h1 {
+  width: 100vw;
+  background: linear-gradient(
+    rgba(135, 179, 234, 0.5),
+    rgba(43, 55, 70, 0.5)
+  );
+  backdrop-filter: blur(6px);
+  color: white;
+  padding: 25px;
+  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 35px;
 }
 
 /* Toàn trang */
 body {
-  background: linear-gradient(to top right, #084159, #a1c4fd);
-  min-height: 100vh;
+  background: var(--bg-light);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px;
+  font-family: "Noto Serif", serif;
+  color: var(--text-dark);
 }
 
 /* Form thông tin hành khách */
 .passenger-information {
-  background: #fff;
+  background: var(--white);
   padding: 25px 30px;
   border-radius: 15px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 600px;
   margin-bottom: 30px;
+  transition: transform 0.2s ease;
+  border: 1.5px solid rgba(5, 35, 71, 0.6);
 }
 
-.passenger-info h1 {
-  font-size: 1.8rem;
-  color: var(--text-dark);
+.passenger-information:hover {
+  transform: translateY(-3px);
+}
+
+/* Tiêu đề phụ */
+h2 {
+  color: var(--primary-color-dark);
   text-align: center;
-  margin-bottom: 10px;
-  padding: 20px;
+  padding: 20px 20px;
+  border-bottom: 2px solid var(--primary-color);
+  font-size: 1.4rem;
 }
 
+/* Ô ghi chú */
+.note {
+  margin: 10px 10px;
+  background-color: #fff;
+  text-align: center;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+  border: 1px solid #a6c8ff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f8fbff, #ffffff);
+  box-shadow: 0 1px 4px rgba(135, 179, 234, 0.25);
+}
+
+/* Vùng thông tin */
 .passenger-info-form {
-  background-color: aliceblue;
+  background-color: #f8fbff;
   border-radius: 15px;
   padding: 25px 30px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-}
-
-.note {
-  text-align: center;
-  color: var(--text-light);
-  font-size: 0.9rem;
-  margin-bottom: 10px;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1.5px solid rgba(5, 35, 71, 0.6);
 }
 
 /* Nhãn và input */
@@ -66,7 +98,6 @@ label {
   margin-top: 15px;
   font-weight: 600;
   color: var(--text-dark);
-  font-family: "Noto Serif", sans-serif;
 }
 
 input,
@@ -78,48 +109,49 @@ select {
   border: 1px solid #ccc;
   margin-top: 5px;
   font-size: 1rem;
-  font-family: "Noto Serif", sans-serif;
+  font-family: "Noto Serif", serif;
+  transition: all 0.2s ease;
 }
 
 input:focus,
 select:focus {
   outline: none;
-  border-color: #1e4fa3;
-  box-shadow: 0 0 4px rgba(30, 79, 163, 0.4);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 6px rgba(135, 179, 234, 0.5);
 }
 
 /* Nút xác nhận */
 button[type="submit"] {
-  margin-top: 20px;
+  margin-top: 25px;
   width: 100%;
   padding: 12px;
-  background-color: var(--primary-color-dark);
+  background: var(--primary-color-dark);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: background 0.3s ease;
-  font-family: "Noto Serif", sans-serif;
+  font-family: "Noto Serif", serif;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
 
 button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.05);
   background-color: var(--primary-color);
 }
 
 /* Dịch vụ bổ sung */
 .services {
-  background: #fff;
+  background: var(--white);
   padding: 25px 30px;
   border-radius: 15px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 600px;
-}
-
-.services h1 {
-  text-align: center;
-  margin-bottom: 20px;
 }
 
 .service-item,
@@ -128,12 +160,28 @@ button[type="submit"]:hover {
 }
 
 .service-details {
+  display: flex;
+  align-items: center;     
+  justify-content: space-between;
   margin-top: 10px;
 }
 
-.service-details select {
+.baggage-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  margin-bottom: 6px;
+}
+
+.service-item select {
   width: 100%;
   padding: 8px;
   border-radius: 8px;
   border: 1px solid #ccc;
+  transition: 0.2s;
+}
+
+.service-item select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 5px rgba(135, 179, 234, 0.4);
 }
