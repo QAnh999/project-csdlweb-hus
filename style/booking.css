@@ -21,7 +21,7 @@
   overflow: hidden;   
   text-overflow: ellipsis;
   color: var(--text-light);
-  background: #eef1f8;          /* 🔹 Màu nền nhẹ khác với thẻ flight */
+  background: #eef1f8;          
   padding: 2rem 0;
   border-radius: 1rem;
   margin: 2rem auto;
