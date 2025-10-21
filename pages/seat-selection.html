@@ -10,7 +10,8 @@
 <body>
   <h1>Chọn chỗ ngồi trên máy bay</h1>
   <div class="note">
-    <p>Chọn chỗ ngồi mong muốn của bạn <br> Ghế đã chọn sẽ được tô màu xanh dương</p>
+    <p>Chọn chỗ ngồi mong muốn của bạn</p>
+    <p>Ghế đã chọn sẽ được tô màu vàng</p>
   </div>
   <section class="seat-selection">
     <div class="plane">
@@ -24,7 +25,9 @@
           <span>Restroom</span>
         </div>
       </div>
+
       <div class="seat-map" id="seat-map"></div>
+
       <div class="plane-tail">
         <div class="restroom">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -36,20 +39,20 @@
         </div>
       </div>
       <div class="seat-order">
-      <div class="seat-status">
-        <div class="status available"></div>
-        <span>Ghế trống</span>
+        <div class="seat-status">
+          <div class="status available"></div>
+          <span>Ghế trống</span>
+        </div>
+        <div class="seat-status">
+          <div class="status selected"></div>
+          <span>Ghế bạn chọn</span>
+        </div>
+        <div class="seat-status">
+          <div class="status booked"></div>
+          <span>Ghế đã đặt</span>
+        </div>
       </div>
-      <div class="seat-status">
-        <div class="status selected"></div>
-        <span>Ghế bạn chọn</span>
-      </div>
-      <div class="seat-status">
-        <div class="status booked"></div>
-        <span>Ghế đã đặt</span>
-      </div>
-    </div>
-    <button id="confirmSeat">Xác nhận chỗ ngồi</button>
+      <button id="confirmSeat">Xác nhận chỗ ngồi</button>
   </section>
 
   <script src="../javascript/seat-selection.js"></script>

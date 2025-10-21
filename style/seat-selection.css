@@ -26,10 +26,8 @@ body {
 }
 
 h1 {
-  background: linear-gradient(
-    rgba(135, 179, 234, 0.5),
-    rgba(43, 55, 70, 0.5)
-  );
+  background: linear-gradient(rgba(135, 179, 234, 0.5),
+      rgba(43, 55, 70, 0.5));
   backdrop-filter: blur(6px);
   color: white;
   padding: 25px;
@@ -40,13 +38,13 @@ h1 {
 .note {
   border-radius: 15px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.6); 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
-  padding: 16px 20px; 
-  margin: 20px auto; 
-  width: fit-content; 
-  backdrop-filter: blur(6px); 
-  color: var(--text-dark); 
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 16px 20px;
+  margin: 20px auto;
+  width: fit-content;
+  backdrop-filter: blur(6px);
+  color: var(--text-dark);
   font-size: 16px;
 }
 
@@ -69,7 +67,7 @@ h1 {
   width: var(--row-number-w);
   text-align: right;
   font-weight: bold;
-  color: #333;
+  color: var(--bg-light);
   margin-right: 6px;
 }
 
@@ -82,7 +80,6 @@ h1 {
   width: var(--aisle-w);
 }
 
-
 .seat {
   width: 40px;
   height: 40px;
@@ -93,21 +90,21 @@ h1 {
   font-weight: bold;
   cursor: pointer;
   transition: 0.3s;
-  border: 2px solid #0c2a50; 
+  border: 2px solid #0c2a50;
 }
 
 .seat.available:hover {
-  background-color: #6ea8fe;
+  background-color: #ffffff;
 }
 
 .seat.booked {
-  background-color: #b0b0b0;
+  background-color: #f6b3c8;
   cursor: not-allowed;
 }
 
 .seat.selected {
-  background-color: #022a54;
-  color: #fff;
+  background-color: #f2e85f;
+  color: #000;
 }
 
 
@@ -119,26 +116,38 @@ h1 {
 }
 
 .exit {
-  width: 90px;
-  height: 35px;
-  background-color: #ff6b6b;
-  color: #fff;
+  position: absolute;
+  top: 0;
+  width: var(--exit-width);
+  background-color: #ffffff;
+  color: var(--text-dark);
+  font-weight: bold;
+  text-align: center;
   line-height: 35px;
   border-radius: 6px;
-  border: 2px solid #c44a08; 
+}
+
+.exit-left {
+  left: 0px;
+}
+
+.exit-right {
+  right: 0px;
 }
 
 .plane {
-  background-color: #e9f7fb;  border-radius: 120px / 60px;
+  background-color: #006989;
+  border-radius: 120px / 60px;
   padding: 24px 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   width: 450px;
   margin: 0 auto;
   left: 50px;
-  border: 2px solid #0c2a50; 
+  border: 2px solid #0c2a50;
 }
 
-.plane-tail, .plane-nose {
+.plane-tail,
+.plane-nose {
   width: 100%;
   height: 56px;
   border-radius: 20px;
@@ -147,7 +156,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #0c2a50; 
+  border: 2px solid #0c2a50;
 }
 
 .restroom {
@@ -160,35 +169,13 @@ h1 {
 
 .cabin {
   width: 100%;
-  background: linear-gradient(180deg, #f8fafc, #ffffff);
+  background: #0d47a1;
   border-radius: 18px;
   padding: 14px 12px 18px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.exit-left,
-.exit-right {
-  position: absolute;
-  top: 0;
-  width: var(--exit-width);
-  height: 35px;
-  background-color: #ff6b6b;
-  color: #fff;
-  font-weight: bold;
-  text-align: center;
-  line-height: 35px;
-  border-radius: 6px;
-}
-
-.exit-left {
-  left: 98px;
-}
-
-.exit-right {
-  right: 12%;
 }
 
 .controls {
@@ -200,9 +187,8 @@ h1 {
 }
 
 button {
-  background: #04457d;
-  color: #fff;
-  border: 0;
+  background: #a7cae9;
+  color: var(--text-dark);
   padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
@@ -210,6 +196,7 @@ button {
   margin-bottom: 5px;
   font-family: "Noto Serif", sans-serif;
   font-size: 16px;
+  border: 2px solid #0c2a50;
 }
 
 button:hover {
@@ -223,13 +210,13 @@ button:hover {
   margin-top: 20px;
 }
 
-.seat-status{
+.seat-status {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   font-weight: 600;
-  color: var(--text-dark);
+  color: var(--bg-light);
   font-size: 15px;
 }
 
@@ -249,11 +236,11 @@ button:hover {
 }
 
 .status.selected {
-  background-color: #022a54;
+  background-color: #f2e85f;
 }
 
 .status.booked {
-  background-color: #b0b0b0;
+  background-color: #f6b3c8;
 }
 
 
