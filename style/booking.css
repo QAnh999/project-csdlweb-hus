@@ -32,9 +32,8 @@
 
 h1 {
   background: linear-gradient(
-    rgba(135, 179, 234, 0.5),
-    rgba(43, 55, 70, 0.5)
-  );
+      rgba(178, 201, 229, 0.5),
+      #148baf80);
   backdrop-filter: blur(6px);
   color: white;
   padding: 25px;

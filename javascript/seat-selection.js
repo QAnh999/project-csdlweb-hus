@@ -59,18 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const seat = document.createElement("div");
     seat.className = "seat";
     seat.textContent = code.slice(-1); // chỉ hiện chữ cái
+    seat.dataset.code = code;   // gán mã ghế khi tạo
 
     if (bookedSeats.includes(code)) {
       seat.classList.add("booked");
     } else {
       seat.classList.add("regular");
-      seat.addEventListener("click", () => toggleSelect(seat, code));
+      seat.addEventListener("click", () => toggleSelect(seat));
     }
     return seat;
   }
 
 
-  function toggleSelect(seatEl, code) {
+  function toggleSelect(seatEl) {
     if (selectedSeat && selectedSeat !== seatEl) {
       selectedSeat.classList.remove("selected");
     }
@@ -78,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedSeat = isNow ? seatEl : null;
 
     if (selectedSeat) {
-      selectedInfo.textContent = `Bạn đã chọn: ${code}`;
+      selectedInfo.textContent = `Bạn đã chọn: ${selectedSeat.dataset.code}`;
       selectedSeat.dataset.code = code;
     } else {
       selectedInfo.textContent = "Chưa chọn ghế";
@@ -106,10 +107,22 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("confirmSeat").addEventListener("click", () => {
     if (selectedSeat && selectedSeat.dataset.code) {
       const code = selectedSeat.dataset.code;
+
+      const flightInfo = JSON.parse(localStorage.getItem("flightInfo") || {})
+
+      const bookingData = {
+        flight: flightInfo,
+        seat: code
+      };
+
       localStorage.setItem("selectedSeat", code);
-      alert(`Bạn đã chọn ghế: ${code}`);
+      localStorage.setItem("bookingData", JSON.stringify(bookingData));
+
+      window.location.href = "payment.html"
     } else {
       alert("Vui lòng chọn ghế trước khi xác nhận!");
     }
   });
 });
+
+

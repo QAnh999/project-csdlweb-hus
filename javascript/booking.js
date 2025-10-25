@@ -96,5 +96,19 @@ function renderFlights(flights, container) {
 }
 
 function xacNhanChuyenBay(maChuyenBay) {
+  const flight = window.currentFlights.find(f => (f.f_code || f.code) === maChuyenBay);
+
+  localStorage.setItem("flightInfo", JSON.stringify({
+    code: maChuyenBay,
+    from: flight.from,
+    to: flight.to,
+    airport_from: flight.airport_from,
+    airport_to: flight.airport_to,
+    time_from: flight.f_time_from,
+    time_to: flight.f_time_to,
+    type: flight.type,
+    price: flight.total_price
+  }));
+
   window.location.href = `passenger-info.html?flight=${encodeURIComponent(maChuyenBay)}`;
 }
