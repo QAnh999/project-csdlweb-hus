@@ -963,7 +963,7 @@ body.dark-mode .theme-btn {
 }
 
 /* DARK MODE */
-.dark-mode {
+body.dark-mode {
   --primary-color: #87b3ea;
   --primary-color-dark: #a2c2f2;
 
@@ -976,30 +976,30 @@ body.dark-mode .theme-btn {
   color: var(--text-dark);
 }
 
-.dark-mode .sidebar,
-.dark-mode .main-header,
-.dark-mode .kpi-card,
-.dark-mode .chart-card,
-.dark-mode .table-card,
-.dark-mode .bottom-card,
-.dark-mode .booking-item,
-.dark-mode .route-item {
+body.dark-mode .sidebar,
+body.dark-mode .main-header,
+body.dark-mode .kpi-card,
+body.dark-mode .chart-card,
+body.dark-mode .table-card,
+body.dark-mode .bottom-card,
+body.dark-mode .booking-item,
+body.dark-mode .route-item {
   background: var(--white);
   box-shadow: none;
   border-color: #374151;
 }
 
-.dark-mode .sidebar-nav a:hover,
-.dark-mode .menu-btn:hover {
+body.dark-mode .sidebar-nav a:hover,
+body.dark-mode .menu-btn:hover {
   background: #2b3746;
   color: var(--text-dark);
 }
 
-.dark-mode .bookings-table th {
+body.dark-mode .bookings-table th {
   background: #2b3746;
   color: var(--text-light);
 }
-/* ====== Theme Toggle Button ====== */
+/* Theme Toggle Button */
 .theme-toggle {
   background: none;
   border: none;
@@ -1013,30 +1013,4 @@ body.dark-mode .theme-btn {
 .theme-toggle:hover {
   transform: scale(1.2);
   color: var(--primary-color);
-}
-
-body.dark-mode {
-  --bg-color: #1f1f1f;
-  --text-dark: #f2f2f2;
-  --text-light: #cccccc;
-  --card-bg: #2a2a2a;
-  --sidebar-bg: #111;
-  background-color: var(--bg-color);
-  color: var(--text-dark);
-}
-
-body.dark-mode .sidebar {
-  background-color: var(--sidebar-bg);
-}
-
-body.dark-mode .main-content {
-  background-color: var(--bg-color);
-}
-
-body.dark-mode .kpi-card,
-body.dark-mode .chart-card,
-body.dark-mode .table-card,
-body.dark-mode .bottom-card {
-  background-color: var(--card-bg);
-  color: var(--text-light);
 }
