@@ -532,3 +532,26 @@ window.DashboardUtils = {
   highlightSearchResults,
   clearHighlights,
 };
+// Theme toggle
+const themeToggle = document.getElementById("theme-toggle");
+
+function setThemeIcon(isDark) {
+  if (isDark) {
+    themeToggle.innerHTML = '<i class="fas fa-sun" aria-hidden="true"></i>';
+  } else {
+    themeToggle.innerHTML = '<i class="far fa-moon" aria-hidden="true"></i>';
+  }
+}
+
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark-mode");
+  setThemeIcon(true);
+} else {
+  setThemeIcon(false);
+}
+
+themeToggle.addEventListener("click", () => {
+  const isDark = document.body.classList.toggle("dark-mode");
+  setThemeIcon(isDark);
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+});

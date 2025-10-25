@@ -211,7 +211,35 @@ body {
   align-items: center;
   gap: 1.5rem;
 }
+/* nút theme: khung tròn, nền trong suốt, không tô background */
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--extra-light); /* khung nhẹ */
+  background: transparent; /* KHÔNG tô nền */
+  cursor: pointer;
+  font-size: 1.05rem;
+  color: var(--text-dark);
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
 
+.theme-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary-color);
+}
+
+.theme-btn i {
+  color: inherit;
+}
+
+body.dark-mode .theme-btn {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-light);
+}
 /* Admin Profile in Header */
 .admin-profile {
   display: flex;
@@ -932,4 +960,83 @@ body {
     flex-direction: column;
     text-align: center;
   }
+}
+
+/* DARK MODE */
+.dark-mode {
+  --primary-color: #87b3ea;
+  --primary-color-dark: #a2c2f2;
+
+  --text-dark: #f3f4f6;
+  --text-light: #c5c6ca;
+  --extra-light: #1f2937;
+  --white: #111827;
+
+  background-color: var(--extra-light);
+  color: var(--text-dark);
+}
+
+.dark-mode .sidebar,
+.dark-mode .main-header,
+.dark-mode .kpi-card,
+.dark-mode .chart-card,
+.dark-mode .table-card,
+.dark-mode .bottom-card,
+.dark-mode .booking-item,
+.dark-mode .route-item {
+  background: var(--white);
+  box-shadow: none;
+  border-color: #374151;
+}
+
+.dark-mode .sidebar-nav a:hover,
+.dark-mode .menu-btn:hover {
+  background: #2b3746;
+  color: var(--text-dark);
+}
+
+.dark-mode .bookings-table th {
+  background: #2b3746;
+  color: var(--text-light);
+}
+/* ====== Theme Toggle Button ====== */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: var(--text-dark);
+  margin-right: 1.2rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.2);
+  color: var(--primary-color);
+}
+
+body.dark-mode {
+  --bg-color: #1f1f1f;
+  --text-dark: #f2f2f2;
+  --text-light: #cccccc;
+  --card-bg: #2a2a2a;
+  --sidebar-bg: #111;
+  background-color: var(--bg-color);
+  color: var(--text-dark);
+}
+
+body.dark-mode .sidebar {
+  background-color: var(--sidebar-bg);
+}
+
+body.dark-mode .main-content {
+  background-color: var(--bg-color);
+}
+
+body.dark-mode .kpi-card,
+body.dark-mode .chart-card,
+body.dark-mode .table-card,
+body.dark-mode .bottom-card {
+  background-color: var(--card-bg);
+  color: var(--text-light);
 }
