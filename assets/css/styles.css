@@ -792,16 +792,13 @@ body.dark-mode .theme-btn {
   border: 1px solid var(--extra-light);
   border-radius: var(--border-radius);
   transition: var(--transition);
+  border-color: var(--primary-color);
+  background: rgba(135, 179, 234, 0.05);
 }
 
 .route-item:hover {
-  border-color: var(--primary-color);
+  border-color: #133052;
   box-shadow: 0 2px 8px rgba(135, 179, 234, 0.1);
-}
-
-.route-item.highlighted {
-  border-color: var(--primary-color);
-  background: rgba(135, 179, 234, 0.05);
 }
 
 .route-info h4 {
