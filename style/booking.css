@@ -130,7 +130,7 @@ h1 {
 }
 
 .confirm-btn {
-  background-color: #068694;
+  background-color: var(--primary-color);
   color: white;
   padding: 8px 16px;
   border: none;

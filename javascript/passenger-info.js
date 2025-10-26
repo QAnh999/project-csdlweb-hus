@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Hiển thị/ẩn phần tùy chọn khi tick checkbox
   const services = [
     { checkbox: "baggage", options: "baggage-options" },
     { checkbox: "meal", options: "meal-options" },
@@ -13,41 +12,53 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Xử lý khi nhấn nút xác nhận
   const passengerForm = document.querySelector(".passenger-info-form");
   passengerForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    // Lấy thông tin hành khách
     const passengerData = {
       Danh_xung: document.getElementById("title").value,
-      Ho: document.getElementById("lastname").value,
-      Ten_dem_va_ten: document.getElementById("firstname").value,
+      Ho: document.getElementById("lastname").value.trim(),
+      Ten_dem_va_ten: document.getElementById("firstname").value.trim(),
       Ngay_sinh: document.getElementById("dob").value,
-      Email: document.getElementById("email").value,
-      Ma_quoc_gia: document.getElementById("countrycode").value,
-      So_dien_thoai: document.getElementById("phonenumber").value,
+      Email: document.getElementById("email").value.trim(),
+      Ma_quoc_gia: document.getElementById("countrycode").value.trim(),
+      So_dien_thoai: document.getElementById("phonenumber").value.trim(),
     };
 
-    // Lấy thông tin dịch vụ bổ sung
-    const baggage = document.getElementById("baggage").checked
-      ? document.querySelector("select[name='baggage-weight']").value
-      : "Không";
-    const meal = document.getElementById("meal").checked
-      ? document.querySelector("select[name='meal-type']").value
-      : "Không";
-    const serviceData = {
-      Hanh_ly: baggage,
-      Suat_an: meal,
+    let baggageInfo = { type: "Không", price: 0 };
+    let mealInfo = { type: "Không", price: 0 };
+
+    const baggageCheckbox = document.getElementById("baggage");
+    if (baggageCheckbox.checked) {
+      const baggageSelect = document.querySelector("select[name='baggage-weight']");
+      const selected = baggageSelect.options[baggageSelect.selectedIndex];
+      baggageInfo = {
+        type: selected.value || "Không",
+        price: Number(selected.dataset.price || 0),
+      };
+    }
+
+    const mealCheckbox = document.getElementById("meal");
+    if (mealCheckbox.checked) {
+      const mealSelect = document.querySelector("select[name='meal-type']");
+      const selected = mealSelect.options[mealSelect.selectedIndex];
+      mealInfo = {
+        type: selected.value || "Không",
+        price: Number(selected.dataset.price || 0),
+      };
+    }
+
+    const allData = {
+      passenger: passengerData,
+      services: {
+        baggage: baggageInfo,
+        meal: mealInfo,
+      },
     };
 
-    // Gộp tất cả
-    const fullData = { ...passengerData, ...serviceData };
-    console.log("Dữ liệu hành khách:", fullData);
-
-    localStorage.setItem("passengerInfo", JSON.stringify(fullData));
+    localStorage.setItem("passengerInfo", JSON.stringify(allData));
 
     window.location.href = "seat-selection.html";
   });
 });
-

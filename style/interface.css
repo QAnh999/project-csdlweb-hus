@@ -1,12 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
 
 :root {
-  --primary-color: #87b3ea;
-  --primary-color-dark: #2b3746;
-  --text-dark: #35265c;
-  --text-light: #5d5e84;
+  --primary-color: #d0e1f9;
+  --primary-color-dark: #283655;
+  --text-dark: #283655;
+  --text-light: #4d648d;
   --extra-light: #f3f4f6;
-  --white: #ffffff;
   --max-width: 1200px;
 }
 
@@ -55,8 +54,7 @@
   border: none;
   font-size: 1rem;
   white-space: nowrap;
-  color: var(--white);
-  background-color: var(--primary-color);
+  color: #fff;
   border-radius: 5rem;
   transition: 0.3s;
   cursor: pointer;
@@ -64,6 +62,7 @@
 
 .btn:hover {
   background-color: var(--primary-color-dark);
+  color: var(--text-dark);
 }
 
 .logo {
@@ -117,43 +116,7 @@ nav {
 
 .nav__logo .logo {
   font-size: 1.5rem;
-  color: var(--white);
-}
-
-.nav__menu__btn {
-  font-size: 1.5rem;
-  color: var(--white);
-  cursor: pointer;
-}
-
-.nav__links {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 2rem;
-  background-color: var(--primary-color);
-  transition: transform 0.5s;
-  z-index: 999;
-}
-
-.nav__links.open {
-  transform: translateY(100%);
-}
-
-.nav__links a {
-  font-weight: 600;
-  color: var(--white);
-  white-space: nowrap;
-}
-
-.nav__links a:hover {
-  color: var(--primary-color-dark);
+  color: var(--extra-light);
 }
 
 .nav__btns {
@@ -291,6 +254,10 @@ nav {
   border-radius: 5px;
 }
 
+.showcase__content .btn:hover {
+  color: var(--text-dark);
+}
+
 footer {
   background-color: var(--extra-light);
 }
@@ -420,10 +387,6 @@ footer {
     justify-content: center;
   }
 
-  .nav__links {
-    display: none;
-  }
-
   .nav__logo .logo {
     color: var(--text-dark) !important;
   }
@@ -464,17 +427,17 @@ footer {
     transform: none !important;
   }
 
-  .nav__links a {
+  /* .nav__links a {
     color: var(--text-dark);
   }
 
   .nav__links a:hover {
     color: var(--primary-color);
-  }
+  } */
 
-  .nav__links li:last-child {
+  /* .nav__links li:last-child {
     display: none;
-  }
+  } */
 
   .nav__btns {
     flex: 1;
@@ -604,7 +567,7 @@ footer {
 
 /* button tim chuyen bay */
 .btn {
-  background: #35265c;
+  background: var(--primary-color-dark);
   color: var(--extra-light);
   border: none;
   padding: 10px 16px;
@@ -615,7 +578,7 @@ footer {
 }
 
 .btn:hover {
-  background: #90a9c5;
+  background: var(--primary-color);
 }
 
 #return-date {
@@ -627,7 +590,8 @@ footer {
   margin-bottom: 5px;
 }
 
-.booking-group input, .booking-group select{
+.booking-group input,
+.booking-group select {
   padding: 10px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -657,11 +621,6 @@ footer {
   transition: 0.2s;
   width: 120px;
   color: var(--text-dark);
-}
-
-.passenger-box:hover {
-  border-color: #35265c;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
 }
 
 .passenger-popup {
@@ -700,7 +659,7 @@ footer {
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #35265c;
+  border-bottom: 1px solid var(--primary-color-dark);
 }
 
 .counter {
@@ -710,7 +669,7 @@ footer {
 }
 
 .counter button {
-  background: #35265c;
+  background: var(--primary-color-dark);
   color: rgb(255, 255, 255);
   border: none;
   border-radius: 50%;
@@ -722,7 +681,7 @@ footer {
 }
 
 .counter button:hover {
-  background: #5339a5;
+  background: var(--primary-color);
 }
 
 .counter span {
@@ -732,13 +691,15 @@ footer {
   color: var(--text-dark);
 }
 
-.checkin-group, .management-group {
+.checkin-group,
+.management-group {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.checkin-group input, .management-group input {
+.checkin-group input,
+.management-group input {
   padding: 10px 10px;
   border: none;
   border-radius: 8px;
@@ -748,12 +709,14 @@ footer {
   text-transform: uppercase;
 }
 
-.checkin-group label, .management-group label {
+.checkin-group label,
+.management-group label {
   font-size: 16px;
   margin-bottom: 10px;
 }
 
-.checkin-row, .management-row {
+.checkin-row,
+.management-row {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -762,12 +725,15 @@ footer {
 }
 
 @media (max-width: 600px) {
-  .checkin-row, .management-row {
+
+  .checkin-row,
+  .management-row {
     flex-direction: column;
   }
 }
 
-.checkin-container .btn , .management-container .btn{
+.checkin-container .btn,
+.management-container .btn {
   width: fit-content;
   display: block;
   justify-content: center;
@@ -838,6 +804,7 @@ footer {
   color: var(--text-dark)
 }
 
-.feedback__user small, p {
+.feedback__user small,
+p {
   color: var(--text-light);
 }
