@@ -6,10 +6,12 @@
   --aisle-w: 80px;
   --exit-width: 70px;
   --row-number-w: 30px;
-  --text-dark: #35265c;
-  --text-light: #5d5e84;
-  --primary-color: #87b3ea;
-  --bg-light: #f5f9ff;
+  --primary-color: #d0e1f9;
+  --primary-color-dark: #283655;
+  --text-dark: #283655;
+  --text-light: #4d648d;
+  --extra-light: #f3f4f6;
+  --max-width: 1200px;
 }
 
 * {
@@ -19,21 +21,21 @@
 }
 
 body {
-  background: var(--bg-light);
+  background: var(--extra-light);
   text-align: center;
   font-family: "Noto Serif", sans-serif;
   color: var(--text-dark);
 }
 
 h1 {
-  background: linear-gradient(
-      rgba(178, 201, 229, 0.5),
-      #148baf80);
+  background: linear-gradient(rgba(178, 201, 229, 0.5),
+      #58a6cd);
   backdrop-filter: blur(6px);
-  color: white;
+  color: var(--extra-light);
   padding: 25px;
   border-radius: 15px;
   text-align: center;
+  font-size: 1.8rem;
 }
 
 .note {
@@ -217,7 +219,7 @@ button:hover {
   justify-content: center;
   gap: 8px;
   font-weight: 600;
-  color: var(--bg-light);
+  color: var(--extra-light);
   font-size: 15px;
 }
 

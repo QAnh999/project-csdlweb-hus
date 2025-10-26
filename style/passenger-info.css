@@ -1,12 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
 
 :root {
-  --primary-color: #87b3ea;           /* Xanh da trời dịu */
-  --primary-color-dark: #0b3b76;      /* Xanh đậm */
-  --text-dark: #2b3746;               /* Màu chữ chính */
-  --text-light: #5d5e84;              /* Màu chữ phụ */
-  --bg-light: #f5f9ff;                /* Nền sáng nhẹ */
-  --white: #ffffff;
+ --primary-color: #d0e1f9;
+  --primary-color-dark: #283655;
+  --text-dark: #283655;
+  --text-light: #4d648d;
+  --extra-light: #f3f4f6;               
   --max-width: 1200px;
 }
 
@@ -19,16 +18,16 @@
 
 /* Tiêu đề chính */
 h1 {
-  width: 100vw;
-  background: linear-gradient(
-      rgba(178, 201, 229, 0.5),
-      #148baf80);
+  background: linear-gradient(rgba(178, 201, 229, 0.5),
+      #58a6cd);
   backdrop-filter: blur(6px);
-  color: white;
+  color: var(--extra-light);
   padding: 25px;
   border-radius: 15px;
   text-align: center;
   margin-bottom: 35px;
+  width: 100%;
+  font-size: 1.6rem;
 }
 
 /* Toàn trang */

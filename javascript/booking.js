@@ -40,6 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       });
 
+      window.currentFlights = filtered;
+      
       renderFlights(filtered, container);
     })
     .catch(err => {

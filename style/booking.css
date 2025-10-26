@@ -1,12 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
 
 :root {
-  --primary-color: #87b3ea;
-  --primary-color-dark: #2b3746;
-  --text-dark: #35265c;
-  --text-light: #5d5e84;
+  --primary-color: #d0e1f9;
+  --primary-color-dark: #283655;
+  --text-dark: #283655;
+  --text-light: #4d648d;
   --extra-light: #f3f4f6;
-  --white: #ffffff;
   --max-width: 1200px;
 }
 
@@ -17,11 +16,11 @@
 }
 
 .select_flight {
-  font-size: 1.2rem;
-  overflow: hidden;   
+  font-size: 1.8rem;
+  overflow: hidden;
   text-overflow: ellipsis;
   color: var(--text-light);
-  background: #eef1f8;          
+  background: #eef1f8;
   padding: 2rem 0;
   border-radius: 1rem;
   margin: 2rem auto;
@@ -31,14 +30,14 @@
 }
 
 h1 {
-  background: linear-gradient(
-      rgba(178, 201, 229, 0.5),
-      #148baf80);
+  background: linear-gradient(rgba(178, 201, 229, 0.5),
+      #58a6cd);
   backdrop-filter: blur(6px);
-  color: white;
+  color: var(--extra-light);
   padding: 25px;
   border-radius: 15px;
   text-align: center;
+  font-size: 1.8rem;
 }
 
 .flight-card {
@@ -50,9 +49,9 @@ h1 {
   padding: 1rem 2rem;
   margin-bottom: 1rem;
   transition: transform 0.2s ease;
-  width: 95%;              
-  max-width: 1300px;       
-  white-space: nowrap;    
+  width: 95%;
+  max-width: 1300px;
+  white-space: nowrap;
   box-sizing: border-box;
 }
 
@@ -62,12 +61,13 @@ h1 {
 
 .flight-info {
   flex: 2;
-  color: var(--text-light);
+  color: var(--text-dark);
 }
 
 .time {
   display: flex;
-  justify-content: space-between; /* căn 2 đầu */
+  justify-content: space-between;
+  /* căn 2 đầu */
   align-items: center;
   font-weight: bold;
   color: var(--text-dark);
@@ -103,9 +103,9 @@ h1 {
   background: #58a6cd;
   color: #fff;
   border-radius: 0.5rem;
-  padding-right: 1rem;      
-  width: 200px;              
-  text-align: center;       
+  padding-right: 1rem;
+  width: 200px;
+  text-align: center;
   box-sizing: border-box;
   margin-right: 0;
 }
@@ -123,15 +123,15 @@ h1 {
 #flight-list {
   display: flex;
   flex-direction: column;
-  align-items: center; 
-  justify-content: center; 
+  align-items: center;
+  justify-content: center;
   padding: 2rem 0;
   width: 100%;
 }
 
 .confirm-btn {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--primary-color-dark);
+  color: var(--extra-light);
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
@@ -141,5 +141,6 @@ h1 {
 }
 
 .confirm-btn:hover {
-  background-color: #94a4ed;
+  background-color: var(--primary-color);
+  color: var(--text-dark);
 }

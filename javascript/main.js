@@ -84,3 +84,23 @@ function changeCount(type, change) {
   const infant = parseInt(document.getElementById("infant-count").textContent);
   document.getElementById("passenger-summary").textContent = adult + child + infant;
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const bookingForm = document.getElementById("booking");
+  if (bookingForm) {
+    bookingForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const from = document.getElementById("from").value;
+      const to = document.getElementById("to").value;
+      const date = document.getElementById("departure-time").value;
+
+      if (!from || !to || !date) {
+        alert("Vui lòng chọn đầy đủ thông tin chuyến bay!");
+        return;
+      }
+
+      window.location.href = `pages/booking.html?from=${from}&to=${to}&date=${date}`;
+    });
+  }
+});
