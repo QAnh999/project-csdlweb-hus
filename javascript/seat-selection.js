@@ -108,10 +108,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectedSeat && selectedSeat.dataset.code) {
       const code = selectedSeat.dataset.code;
 
-      const flightInfo = JSON.parse(localStorage.getItem("flightInfo") || {})
+      const flightInfo = JSON.parse(localStorage.getItem("flightInfo") || '{}')
+      const passengerData = JSON.parse(localStorage.getItem("passengerInfo") || '{}');
 
       const bookingData = {
         flight: flightInfo,
+        passenger: passengerData.passenger || {},
+        services: passengerData.services || {},
         seat: code
       };
 

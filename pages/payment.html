@@ -8,18 +8,31 @@
 </head>
 
 <body>
-  <div class="container">
-    <h1>Thanh toán</h1>
-    <section class="flight-info">
-      <h2>Xác nhận thông tin</h2>
-      <div id="flight-details" class="info-box"></div>
-    </section>
+  <h1>Thanh toán vé máy bay</h1>
+  <section class="payment">
+    <div class="payment-info">
+      <div class="flight-info">
+        <h2>Xác nhận thông tin</h2>
+        <div id="flight-details" class="info-box"></div>
+      </div>
 
-    <section class="service">
-      <h2>Dịch vụ bổ sung</h2>
-      <div id="cost-summary"></div>
-    </section>
-  </div>
+      <div class="service">
+        <h2>Dịch vụ bổ sung</h2>
+        <div id="cost-summary"></div>
+      </div>
 
-  <button id="confirmFlight">Xác nhận giao dịch</button>
+      <div class="payment-method">
+        <h2>Phương thức thanh toán</h2>
+        <label><input type="radio" name="payment-method" value="atm" checked>Thẻ ATM nội địa (NAPAS)</label>
+        <label><input type="radio" name="payment-method" value="visa">Thẻ tín dụng, thẻ ghi nợ quốc tế (Visa/
+          Mastercard)</label>
+      </div>
+
+    </div>
+  </section>
+  <button id="pay-button">Xác nhận giao dịch</button>
+
+  <script src="../javascript/payment.js"></script>
 </body>
+
+</html>

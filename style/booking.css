@@ -16,7 +16,7 @@
 }
 
 .select_flight {
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--text-light);
@@ -37,7 +37,7 @@ h1 {
   padding: 25px;
   border-radius: 15px;
   text-align: center;
-  font-size: 1.8rem;
+  font-size: 2rem;
 }
 
 .flight-card {

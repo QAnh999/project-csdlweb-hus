@@ -35,7 +35,7 @@ h1 {
   padding: 25px;
   border-radius: 15px;
   text-align: center;
-  font-size: 1.8rem;
+  font-size: 2rem;
 }
 
 .note {
@@ -70,7 +70,7 @@ h1 {
   width: var(--row-number-w);
   text-align: right;
   font-weight: bold;
-  color: var(--bg-light);
+  color: var(--extra-light);
   margin-right: 6px;
 }
 
