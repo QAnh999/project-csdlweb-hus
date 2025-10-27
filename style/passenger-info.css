@@ -1,11 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
 
 :root {
- --primary-color: #d0e1f9;
+  --primary-color: #d0e1f9;
   --primary-color-dark: #283655;
   --text-dark: #283655;
   --text-light: #4d648d;
-  --extra-light: #f3f4f6;               
+  --extra-light: #f3f4f6;
   --max-width: 1200px;
 }
 
@@ -28,11 +28,12 @@ h1 {
   margin-bottom: 35px;
   width: 100%;
   font-size: 2rem;
+  font-family: "Noto Serif", serif;
 }
 
 /* Toàn trang */
 body {
-  background: var(--bg-light);
+  background: var(--extra-light);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,7 +43,7 @@ body {
 
 /* Form thông tin hành khách */
 .passenger-information {
-  background: var(--white);
+  background: #fff;
   padding: 25px 30px;
   border-radius: 15px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -160,17 +161,34 @@ button[type="submit"]:hover {
 
 .service-details {
   display: flex;
-  align-items: center;     
+  align-items: center;
   justify-content: space-between;
   margin-top: 10px;
 }
 
-.baggage-label {
+.baggage-label,
+.meal-label {
+  margin-top: 10px;
   display: flex;
   align-items: center;
-  justify-content: space-between; 
-  margin-bottom: 6px;
+  justify-content: flex-start;
+  width: 100%;
 }
+
+.baggage-label span,
+.meal-label span {
+  display: inline-block;
+  width: 400px;
+  white-space: nowrap;
+}
+
+.baggage-label input[type="checkbox"],
+.meal-label input[type="checkbox"] {
+  margin-left: auto;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
 
 .service-item select {
   width: 100%;

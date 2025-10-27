@@ -71,9 +71,9 @@ function renderFlights(flights, container) {
           </div>
 
           <div class="route">
-            <strong>${f.from}</strong> (${f.airport_from})
-            ✈........... Bay thẳng ...........✈
-            <strong>${f.to}</strong> (${f.airport_to})
+            <div class="from"><strong>${f.from}</strong> (${f.airport_from})</div>
+            <div class="direct">✈........... Bay thẳng ...........✈</div>
+            <div class="to"><strong>${f.to}</strong> (${f.airport_to})</div>
           </div>
 
           <div class="details">
