@@ -33,29 +33,16 @@ h1 {
 }
 
 h2 {
-  color: var(--primary-color-dark);
+  color: var(--text-dark);
   text-align: center;
   padding: 20px 20px;
   border-bottom: 2px solid var(--primary-color);
   font-size: 1.4rem;
 }
 
-/* ===== Khu vực chính ===== */
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  /* Căn giữa theo chiều dọc */
-  align-items: center;
-  /* Căn giữa theo chiều ngang */
-  padding: 30px 0;
-}
-
-/* ===== Khung payment ===== */
 .payment {
   max-width: 1000px;
-  display: grid;
+  display: flex;
   grid-template-columns: 1fr 0.8fr;
   gap: 25px;
   align-items: start;
@@ -74,16 +61,10 @@ main {
 }
 
 .flight h3 {
-  color: #00469b;
+  color: var(--text-dark);
   border-bottom: 2px solid #00469b;
   padding-bottom: 5px;
-  margin-bottom: 15px;
-}
-
-.services hr {
-  border: none;
-  border-top: 1px dashed #ccc;
-  margin: 12px 0;
+  margin: 15px 0 30px;
 }
 
 .detail-row {
@@ -95,20 +76,18 @@ main {
   border-bottom: 1px dotted #e0e0e0;
 }
 
-.label {
-  font-weight: 600;
-  color: #333;
+.label, .info, .price{
+  color: var(--text-dark);
 }
 
 .services .detail-row:last-child {
   border: none;
 }
 
-/* ===== Nút thanh toán ===== */
 #pay-button {
   display: block;
   margin: 40px auto 60px auto;
-  background-color: #00469b;
+  background-color: var(--primary-color-dark);
   color: white;
   border: none;
   border-radius: 6px;
@@ -116,15 +95,35 @@ main {
   font-size: 1.1em;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-family: "Noto Serif", sans-serif;
 }
 
 #pay-button:hover {
-  background-color: #00367a;
+  background-color: var(--primary-color);
+  color: var(--text-dark);
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 768px) {
-  .payment {
-    grid-template-columns: 1fr;
-  }
+.select-method label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f8f9fc;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid #e0e4f0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--text-dark);
+}
+
+.select-method label:hover {
+  background-color: #e8f0fe;
+  border-color: var(--primary-color-dark);
+}
+
+.select-method input[type="radio"] {
+  accent-color: var(--primary-color-dark); /* tô màu nút radio */
+  transform: scale(1.2);
+  cursor: pointer;
 }

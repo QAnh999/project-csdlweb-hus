@@ -725,14 +725,6 @@ footer {
   margin-top: 20px;
 }
 
-@media (max-width: 600px) {
-
-  .checkin-row,
-  .management-row {
-    flex-direction: column;
-  }
-}
-
 .checkin-container .btn,
 .management-container .btn {
   width: fit-content;

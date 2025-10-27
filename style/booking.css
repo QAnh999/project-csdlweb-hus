@@ -67,7 +67,6 @@ h1 {
 .time {
   display: flex;
   justify-content: space-between;
-  /* căn 2 đầu */
   align-items: center;
   font-weight: bold;
   color: var(--text-dark);
@@ -138,6 +137,7 @@ h1 {
   cursor: pointer;
   font-size: 14px;
   margin-top: 8px;
+  font-family: "Noto Serif", sans-serif;
 }
 
 .confirm-btn:hover {
