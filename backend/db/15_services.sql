@@ -1,0 +1,23 @@
+INSERT INTO Services (name, description, category, base_price, is_available)
+VALUES
+('Standard Meal', 'Bữa ăn tiêu chuẩn bao gồm món chính và đồ uống.', 'meal', 75000.00, TRUE),
+('Premium Meal', 'Bữa ăn cao cấp với lựa chọn đặc biệt.', 'meal', 200000.00, TRUE),
+('Vegetarian Meal', 'Bữa chay giàu dinh dưỡng và tươi sạch.', 'meal', 120000.00, TRUE),
+('Extra Legroom Seat', 'Ghế ngồi rộng chân, thoải mái hơn.', 'seat', 150000.00, TRUE),
+('Seat Selection', 'Chọn vị trí ghế ngồi trước khi bay.', 'seat', 50000.00, TRUE),
+('Extra Luggage 10kg', 'Thêm 10kg hành lý ký gửi.', 'luggage', 200000.00, TRUE),
+('Extra Luggage 20kg', 'Thêm 20kg hành lý ký gửi.', 'luggage', 350000.00, TRUE),
+('Basic Travel Insurance', 'Bảo hiểm du lịch cơ bản.', 'insurance', 45000.00, TRUE),
+('Premium Travel Insurance', 'Bảo hiểm du lịch nâng cao.', 'insurance', 120000.00, TRUE),
+('WiFi 1 Hour', 'Sử dụng Wifi trên chuyến bay trong 1 giờ.', 'entertainment', 30000.00, TRUE),
+('WiFi Full Flight', 'Truy cập Wifi không giới hạn trong chuyến bay.', 'entertainment', 80000.00, TRUE),
+('Priority Check-in', 'Ưu tiên làm thủ tục và lên máy bay.', 'priority', 180000.00, TRUE),
+('Lounge Access', 'Truy cập phòng chờ hạng thương gia.', 'priority', 350000.00, TRUE),
+('In-flight Entertainment', 'Kho phim, nhạc và trò chơi trong chuyến bay.', 'entertainment', 40000.00, TRUE),
+('Kid Entertainment Pack', 'Đồ chơi, sách và hoạt động cho trẻ em.', 'entertainment', 50000.00, TRUE),
+('Airport Transfer', 'Dịch vụ đưa đón sân bay.', 'transfer', 250000.00, TRUE),
+('Hotel Shuttle', 'Xe đưa đón khách sạn đối tác.', 'transfer', 180000.00, TRUE),
+('Seat Upgrade to Business', 'Nâng cấp lên ghế hạng thương gia.', 'seat', 1500000.00, TRUE),
+('Travel Pillow & Blanket Set', 'Bộ gối và chăn du lịch cao cấp.', 'comfort', 90000.00, TRUE),
+('Fast Track Security', 'Làm thủ tục an ninh nhanh.', 'priority', 120000.00, TRUE),
+('Extra Snack Pack', 'Đồ ăn nhẹ và nước uống thêm.', 'meal', 60000.00, TRUE);

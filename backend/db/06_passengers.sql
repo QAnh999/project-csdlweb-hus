@@ -1,0 +1,34 @@
+INSERT INTO Passengers (user_id, first_name, last_name, date_of_birth, gender, nationality, passport_number, passport_expiry, identify_number, passenger_type)
+VALUES
+(1, 'An', 'Nguyễn Văn', '1990-05-15', 'male', 'Vietnamese', 'VN12345678', '2028-12-31', '001199000123', 'adult'),
+(1, 'Hoa', 'Lê Thị', '1992-08-20', 'female', 'Vietnamese', 'VN23456789', '2029-06-30', '001199200456', 'adult'),
+(1, 'Bảo', 'Nguyễn Anh', '2018-03-10', 'male', 'Vietnamese', 'VN34567890', '2030-03-15', NULL, 'child'),
+
+(2, 'Minh', 'Phạm Văn', '1987-11-15', 'male', 'Vietnamese', NULL, NULL, '001198701234', 'adult'),
+(2, 'Anh', 'Trần Tuấn', '2020-12-05', 'male', 'Vietnamese', NULL, NULL, NULL, 'child'),
+
+(3, 'Cường', 'Lê Văn', '1992-03-10', 'male', 'Vietnamese', 'VN45678901', '2029-09-20', '001199200567', 'adult'),
+(3, 'Hương', 'Nguyễn Thị', '1994-06-25', 'female', 'Vietnamese', 'VN56789012', '2030-01-25', '001199400890', 'adult'),
+
+(4, 'Dung', 'Phạm Thị', '1988-11-05', 'female', 'Vietnamese', NULL, NULL, '001198800901', 'adult'),
+(4, 'Lan', 'Phạm Thị', '2019-07-12', 'female', 'Vietnamese', NULL, NULL, NULL, 'child'),
+(4, 'Thành', 'Nguyễn Văn', '1986-04-18', 'male', 'Vietnamese', NULL, NULL, '001198601234', 'adult'),
+
+(5, 'Sơn', 'Hoàng Văn', '1965-09-10', 'male', 'Vietnamese', 'VN67890123', '2026-05-20', '001196509101', 'adult'),
+(5, 'Liên', 'Phạm Thị', '1968-11-25', 'female', 'Vietnamese', 'VN78901234', '2027-08-15', '001196811252', 'adult'),
+
+(6, 'John', 'Smith', '1980-01-30', 'male', 'American', 'US12345678', '2027-04-15', NULL, 'adult'),
+(6, 'Lisa', 'Smith', '1982-09-22', 'female', 'American', 'US23456789', '2028-03-20', NULL, 'adult'),
+(6, 'Emma', 'Smith', '2015-11-08', 'female', 'American', 'US34567890', '2029-12-10', NULL, 'child'),
+
+(7, 'Sarah', 'Johnson', '1983-07-12', 'female', 'British', 'UK12345678', '2028-10-20', NULL, 'adult'),
+
+(8, 'Jennifer', 'Brown', '1980-04-18', 'female', 'Canadian', 'CA23456789', '2030-01-31', NULL, 'adult'),
+(8, 'Sophia', 'Brown', '2021-06-18', 'female', 'Canadian', 'CA34567890', '2030-01-31', NULL, 'infant'),
+
+(9, 'Emily', 'Davis', '1986-03-08', 'female', 'Australian', 'AU12345678', '2026-06-10', NULL, 'adult'),
+(9, 'William', 'Davis', '1984-12-15', 'male', 'Australian', 'AU23456789', '2027-11-25', NULL, 'adult'),
+
+(10, 'David', 'Wilson', '1990-08-17', 'male', 'New Zealander', 'NZ12345678', '2030-12-05', NULL, 'adult'),
+(10, 'Olivia', 'Wilson', '1992-04-03', 'female', 'New Zealander', 'NZ23456789', '2031-07-18', NULL, 'adult');
+
