@@ -1,24 +1,30 @@
-# Docker
-.dockerignore
-
+# ===========================
 # Node.js
+# ===========================
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+npm-debug.log
+yarn-debug.log
+yarn-error.log
 
-# Environment variables
-.env
-.env.local
-
-# Logs
-logs
+# ===========================
+# Docker & PostgreSQL
+# ===========================
+postgres_data/
+data/
+*.pid
 *.log
+*.tar
 
-# OS
+# ===========================
+# Environment files
+# ===========================
+.env
+*.env
+
+# ===========================
+# OS / Editor specific
+# ===========================
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
