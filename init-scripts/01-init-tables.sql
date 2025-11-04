@@ -47,7 +47,7 @@ CREATE TABLE Promotions (
     is_active BOOLEAN DEFAULT TRUE
 );
 
--- ✅ ĐÃ BỎ FOREIGN KEY FK_PU_RESERVATION
+
 CREATE TABLE Promotion_Usage (
     id SERIAL PRIMARY KEY,
     promotion_id INT NOT NULL,

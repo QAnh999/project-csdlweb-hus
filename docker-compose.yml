@@ -1,63 +1,38 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  # PostgreSQL Database
-  postgres:
+  db:
     image: postgres:15
-    container_name: postgres_db
+    container_name: lotus_pg
     environment:
-      POSTGRES_DB: myapp
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_USER: lotus_admin
+      POSTGRES_PASSWORD: "LotusTravel2025"
+      POSTGRES_DB: lotus_db
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
-    networks:
-      - app_network
-    healthcheck:  # THÊM
-      test: ["CMD-SHELL", "pg_isready -U myuser -d myapp"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - pgdata:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
-  # Node.js Application
-  app:
-    build: .
-    container_name: node_app
-    ports:
-      - "3000:3000"
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=myapp
-      - DB_USER=myuser
-      - DB_PASSWORD=mypassword
-      - NODE_ENV=development
-    depends_on:  # CẬP NHẬT
-      postgres:
-        condition: service_healthy
-    networks:
-      - app_network
-
-  # PGAdmin
   pgadmin:
-    image: dpage/pgadmin4
-    container_name: my_pgadmin
+    image: dpage/pgadmin4:7
+    container_name: lotus_pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_DEFAULT_EMAIL: lotus@admin.com
+      PGADMIN_DEFAULT_PASSWORD: "lotusadmin2025"
     ports:
-      - "5050:80"
+      - "8080:80"
     depends_on:
-      - postgres
-    networks:
-      - app_network
+      db:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
-
-networks:
-  app_network:
-    driver: bridge
+  pgdata:

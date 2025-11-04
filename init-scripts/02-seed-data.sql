@@ -16,8 +16,7 @@ INSERT INTO Users (id, email, password, first_name, last_name, address, phone, d
 (6, 'lethao@gmail.com', 'mk678', 'Lê', 'Thảo', 'Hải Phòng', '0915333444', '1996-04-03', 'female', '2025-08-13', '2025-10-02'),
 (7, 'buitrung@gmail.com', 'mk789', 'Bùi', 'Trung', 'Đà Lạt', '0916444555', '1989-11-22', 'male', '2025-08-14', '2025-10-03'),
 (8, 'hoangyen@gmail.com', 'mk890', 'Hoàng', 'Yến', 'Quy Nhơn', '0917555666', '1997-06-06', 'female', '2025-08-15', '2025-10-03'),
-(9, 'doanthang@gmail.com', 'mk901', 'Đoàn', 'Thắng', 'Phú Quốc', '0918666777', '1991-01-01', 'male', '2025-08-16', '2025-10-03'),
-(10,'vuthu@gmail.com', 'mk012', 'Vũ', 'Thư', 'Vinh', '0919777888', '1992-05-05', 'female', '2025-08-17', '2025-10-03');
+(9, 'doanthang@gmail.com', 'mk901', 'Đoàn', 'Thắng', 'Phú Quốc', '0918666777', '1991-01-01', 'male', '2025-08-16', '2025-10-03');
 
 
 INSERT INTO Promotions (id, code, name, description, discount_type, discount_value, min_order_amount, max_discount_amount, usage_limit, start_date, end_date, is_active) VALUES
