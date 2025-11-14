@@ -1,19 +1,19 @@
 # ===========================
 # Node.js
 # ===========================
-node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
+#node_modules/
+#npm-debug.log
+#yarn-debug.log
+#yarn-error.log
 
 # ===========================
 # Docker & PostgreSQL
 # ===========================
-postgres_data/
-data/
-*.pid
-*.log
-*.tar
+#postgres_data/
+#data/
+#*.pid
+#*.log
+#*.tar
 
 # ===========================
 # Environment files
@@ -24,7 +24,7 @@ data/
 # ===========================
 # OS / Editor specific
 # ===========================
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
+#.DS_Store
+#Thumbs.db
+#.vscode/
+#.idea/
