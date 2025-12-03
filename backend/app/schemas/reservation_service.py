@@ -12,6 +12,13 @@ class ReservationServiceBase(BaseModel):
 class ReservationServiceCreate(ReservationServiceBase):
     pass 
 
+class ReservationServiceUpdate(BaseModel):
+    reservation_detail_id: Optional[int] = None
+    service_id: Optional[int] = None
+    quantity: Optional[int] = None
+    unit_price: Optional[int] = None
+    total_price: Optional[float] = None
+
 class ReservationServiceResponse(ReservationServiceBase):
     id: int
 
