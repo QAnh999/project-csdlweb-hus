@@ -13,6 +13,9 @@ class TicketBase(BaseModel):
 class TicketCreate(TicketBase):
     pass 
 
+class TicketUpdate(BaseModel):
+    status: Optional[str] = None
+
 class TicketResponse(TicketBase):
     id: int
     issue_data: datetime

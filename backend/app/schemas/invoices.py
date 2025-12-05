@@ -13,7 +13,10 @@ class InvoiceBase(BaseModel):
 
 
 class InvoiceCreate(InvoiceBase):
-    pass 
+    pass
+
+class InvoiceUpdate(BaseModel):
+    status: Optional[str] = None
 
 class InvoiceResponse(InvoiceBase):
     id: int

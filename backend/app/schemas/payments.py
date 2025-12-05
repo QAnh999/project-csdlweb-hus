@@ -13,6 +13,9 @@ class PaymentBase(BaseModel):
 class PaymentCreate(PaymentBase):
     pass 
 
+class PaymentUpdate(BaseModel):
+    status: Optional[str] = None
+
 class PaymentResponse(PaymentBase):
     id: int
     created_at: datetime
