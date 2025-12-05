@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from app.database.base import Base
+from app.core.database import Base
 from datetime import datetime
 
 class Passenger(Base):

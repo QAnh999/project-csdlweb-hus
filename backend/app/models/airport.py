@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from app.database.base import Base
+from app.core.database import Base
 
 class Airport(Base):
     __tablename__ = "airports"
