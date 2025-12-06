@@ -1,29 +1,27 @@
 function handlePaymentPage() {
-    // 1. Lấy dữ liệu từ LocalStorage
     const bookingDataStr = localStorage.getItem('bookingData');
     const bookingData = bookingDataStr ? JSON.parse(bookingDataStr) : null;
 
-    // Kiểm tra dữ liệu
     if (!bookingData || !bookingData.flight || !bookingData.passenger) {
         document.querySelector('.payment').innerHTML = "<p>Lỗi: Không tìm thấy thông tin đặt chỗ. Vui lòng quay lại trang đặt vé.</p>";
         console.error("Dữ liệu đặt chỗ bị thiếu hoặc không hợp lệ.");
         return;
     }
-
-    // Phân rã dữ liệu
+    
+    
     const { flight, passenger, services, seat } = bookingData;
 
-    // Lấy các phần tử HTML theo ID mới
-    const flightDetailsEl = document.getElementById('flight-details'); // Dùng thay cho #flight-info và #user-info
-    const costSummaryEl = document.getElementById('cost-summary');     // Dùng thay cho #summary-details
+
+    const flightDetailsEl = document.getElementById('flight-details'); 
+    const costSummaryEl = document.getElementById('cost-summary');    
     const payButton = document.getElementById('pay-button');
 
-    // --- Tính toán chi phí ---
+    
     let basePrice = Number(flight.price);
     let baggagePrice = services.baggage.price;
     let mealPrice = services.meal.price;
-
-    // Các phí cố định (Mô phỏng)
+    
+    
     const system_service = 215000;
     const service_management = 410000;
     const airport_fee = 99000;
@@ -33,9 +31,7 @@ function handlePaymentPage() {
     const subTotal = basePrice + baggagePrice + mealPrice;
     const totalAmount = subTotal + system_service + service_management + airport_fee + security_screening + value_added_tax;
 
-    // -----------------------------------------------------------------
-    // A. IN THÔNG TIN CHUYẾN BAY, GHẾ & HÀNH KHÁCH (Vào #flight-details)
-    // -----------------------------------------------------------------
+    
     flightDetailsEl.innerHTML = `
     <div class="flight">
         <h3>Chi tiết chuyến bay</h3>
@@ -53,9 +49,7 @@ function handlePaymentPage() {
     </div>
     `;
 
-    // -----------------------------------------------------------------
-    // B. IN TÓM TẮT CHI PHÍ (Vào #cost-summary)
-    // -----------------------------------------------------------------
+    
     costSummaryEl.innerHTML = `
     <div class="services">
         <div class="detail-row"><span class="label">Giá vé cơ bản:</span> <span class="price">${basePrice.toLocaleString('vi-VN')} VNĐ</span></div>
@@ -70,22 +64,63 @@ function handlePaymentPage() {
     </div>
         `;
 
-    // -----------------------------------------------------------------
-    // C. CẬP NHẬT NÚT THANH TOÁN
-    // -----------------------------------------------------------------
     payButton.textContent = `Xác nhận giao dịch`;
 
 
-    // Xử lý sự kiện nút thanh toán
-    payButton.addEventListener('click', () => {
+    
+    payButton.addEventListener('click', async () => {
         const selectedPaymentMethod = document.querySelector('input[name="payment-method"]:checked');
-        if (selectedPaymentMethod) {
-            alert(`Đang tiến hành thanh toán ${totalAmount.toLocaleString('vi-VN')} VNĐ bằng phương thức: ${selectedPaymentMethod.value.toUpperCase()}. (Demo)`);
-        } else {
+        if (!selectedPaymentMethod) {
             alert("Vui lòng chọn phương thức thanh toán!");
+            return;
+        }
+        const payload = {
+            flight, passenger, services, seat, totalAmount, paymentMethod: selectedPaymentMethod.value
+        };
+
+        try {
+            const result = await new Promise(resolve => {
+            setTimeout(() => {
+                resolve({
+                    qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=PAYMENT123",
+                    bookingCode: "ABC123"
+                    });
+                }, 1000);
+            });
+
+
+            document.getElementById("qr-image").src = result.qrCode;
+            document.getElementById("qr-modal").style.display = "flex";
+
+            localStorage.setItem("paymentPending", "true");
+
+            // alert("Mã đặt chỗ của bạn: " + result.bookingCode + "\nKiểm tra email để xem thông tin chi tiết.");
+        } catch (error){
+            console.error("Lỗi khi gửi yêu cầu thanh toán:", error);
+            alert("Không thể xử lý thanh toán. Vui lòng thử lại.");
+        }
+    });
+
+    document.getElementById("close-qr").addEventListener("click", async() => {
+        document.getElementById("qr-modal").style.display = "none";
+
+        const isPending = localStorage.getItem("paymentPending");
+        if (!isPending) return;
+        
+        const paymentResult = await new Promise(resolve => {
+            setTimeout(() => {
+                resolve({
+                    status: "success",
+                    bookingCode: "BOOK" + Math.floor(Math.random() * 90000 + 10000)
+                });
+            }, 1000);
+        });
+
+        if (paymentResult.status == "success"){
+            alert("Thanh toán thành công!\nMã đặt chỗ của bạn: " + paymentResult.bookingCode);
         }
     });
 }
 
-// KHỞI TẠO: Đảm bảo hàm này chạy khi trang được tải
+
 document.addEventListener("DOMContentLoaded", handlePaymentPage);

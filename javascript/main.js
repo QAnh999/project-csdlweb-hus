@@ -94,23 +94,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const from = document.getElementById("from").value;
       const to = document.getElementById("to").value;
       const date = document.getElementById("departure-time").value;
-      const tripType = document.querySelector('input[name="trip]').value;
-      const returnDateInput = document.querySelector("#return-date input").value;
 
       if (!from || !to || !date) {
         alert("Vui lòng chọn đầy đủ thông tin chuyến bay!");
         return;
       }
 
-      if (tripType === "roundtrip" && !returnDateInput){
-        alert("Vui lòng chọn ngày về cho chuyến khứ hồi!")
-      }
-
-      const adult = parseInt(document.getElementById("adult-count").textContent);
-      const child = parseInt(document.getElementById("child-count").textContent);
-      const infant = parseInt(document.getElementById("infant-count").textContent);
-
-      window.location.href = `pages/booking.html?trip=${tripType}&from=${from}&to=${to}&depart=${date}&return=${returnDateInput}&adult=${adult}&child=${child}&infant=${infant}`;;
+      window.location.href = `pages/booking.html?from=${from}&to=${to}&date=${date}`;
     });
   }
 });
