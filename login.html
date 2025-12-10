@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng Nhập</title>
-    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/login.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
       rel="stylesheet"
@@ -14,17 +14,18 @@
     <div class="main">
       <h1>Admin Login</h1>
 
-      <form action="">
-        <label for="first"> Email: </label>
+      <form id="login-form">
+        <label for="email"> Email: </label> <br />
         <input
           type="text"
-          id="first"
-          name="first"
+          id="email"
+          name="email"
           placeholder="Nhập email của bạn"
           required
         />
+        <br />
 
-        <label for="password"> Mật khẩu: </label>
+        <label for="password"> Mật khẩu: </label> <br />
         <input
           type="password"
           id="password"
@@ -38,5 +39,6 @@
         </div>
       </form>
     </div>
+    <script src="assets/js/login.js"></script>
   </body>
 </html>
