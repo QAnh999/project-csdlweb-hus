@@ -259,6 +259,13 @@ function initializeSidebar() {
     link.addEventListener("click", function (e) {
       e.preventDefault();
 
+      // Check if this is the logout link
+      const href = this.getAttribute("href");
+      if (href === "#logout") {
+        showLogoutConfirmation();
+        return;
+      }
+
       // Remove active class from all links
       navLinks.forEach((l) => l.parentElement.classList.remove("active"));
 
@@ -417,6 +424,52 @@ function showNotification(message) {
   }, 3000);
 }
 
+// Show logout confirmation dialog
+function showLogoutConfirmation() {
+  // Create modal backdrop
+  const backdrop = document.createElement("div");
+  backdrop.className = "logout-modal-backdrop";
+
+  // Create modal dialog
+  const modal = document.createElement("div");
+  modal.className = "logout-modal";
+
+  modal.innerHTML = `
+    <h2>Xác nhận đăng xuất</h2>
+    <p>Bạn có chắc chắn muốn đăng xuất không?</p>
+    <div class="logout-modal-buttons">
+      <button class="logout-cancel">Hủy</button>
+      <button class="logout-confirm">Có</button>
+    </div>
+  `;
+
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+
+  // Handle cancel button
+  const cancelBtn = modal.querySelector(".logout-cancel");
+  cancelBtn.addEventListener("click", function () {
+    backdrop.style.animation = "fadeOut 0.2s ease";
+    setTimeout(() => {
+      if (backdrop.parentNode) {
+        backdrop.parentNode.removeChild(backdrop);
+      }
+    }, 200);
+  });
+
+  const confirmBtn = modal.querySelector(".logout-confirm");
+  confirmBtn.addEventListener("click", function () {
+    sessionStorage.clear();
+    localStorage.removeItem("isLoggedIn");
+
+    history.pushState({ loggedOut: true }, "", "login.html");
+
+    setTimeout(() => {
+      window.location.replace("login.html");
+    }, 100);
+  });
+}
+
 // Initialize animations and interactions
 function initializeAnimations() {
   // Add hover effects to cards
@@ -554,4 +607,21 @@ themeToggle.addEventListener("click", () => {
   const isDark = document.body.classList.toggle("dark-mode");
   setThemeIcon(isDark);
   localStorage.setItem("theme", isDark ? "dark" : "light");
+});
+
+window.addEventListener("pageshow", function (event) {
+  if (
+    event.persisted ||
+    (window.performance && window.performance.navigation.type === 2)
+  ) {
+    // Kiểm tra xem có còn đang đăng nhập không
+    if (
+      !localStorage.getItem("isLoggedIn") &&
+      !sessionStorage.getItem("isLoggedIn")
+    ) {
+      alert("Phiên đăng nhập đã hết hạn!");
+      window.location.replace("login.html");
+      return;
+    }
+  }
 });

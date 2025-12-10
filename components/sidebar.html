@@ -1,47 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <nav class="sidebar">
-      <h2 class="sidebar-logo">Lotus Travel</h2>
-      <ul class="sidebar-nav">
-        <li>
-          <a href="index.html" class="active"
-            ><i class="fas fa-chart-pie"></i> Dashboard</a
-          >
-        </li>
-        <li>
-          <a href="booking.html"
-            ><i class="fas fa-calendar-check"></i> Booking</a
-          >
-        </li>
-        <li>
-          <a href="flight-tracking.html"
-            ><i class="fas fa-plane"></i> Flight Tracking</a
-          >
-        </li>
-        <li>
-          <a href="service.html"
-            ><i class="fas fa-concierge-bell"></i> Service</a
-          >
-        </li>
-        <li>
-          <a href="feedback.html"><i class="fas fa-comments"></i> Feedback</a>
-        </li>
-        <li>
-          <a href="promotion.html"><i class="fas fa-gift"></i> Promotion</a>
-        </li>
-        <li>
-          <a href="managers.html"><i class="fas fa-users"></i> Managers</a>
-        </li>
-        <li>
-          <a href="#"><i class="fas fa-sign-out-alt"></i> Log out</a>
-        </li>
-      </ul>
-    </nav>
-  </body>
-</html>
+<!-- Sidebar Component -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2 class="logo">Lotus Travel</h2>
+    <button class="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul>
+      <li>
+        <a href="index.html">
+          <i class="fas fa-chart-pie"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="#booking">
+          <i class="fas fa-calendar-check"></i>
+          <span>Booking</span>
+        </a>
+      </li>
+      <li>
+        <a href="flight.html">
+          <i class="fas fa-plane"></i>
+          <span>Flight Tracking</span>
+        </a>
+      </li>
+      <li>
+        <a href="#service">
+          <i class="fas fa-concierge-bell"></i>
+          <span>Service</span>
+        </a>
+      </li>
+      <li>
+        <a href="#feedback">
+          <i class="fas fa-comment-dots"></i>
+          <span>Feedback</span>
+        </a>
+      </li>
+      <li>
+        <a href="#promotion">
+          <i class="fas fa-gift"></i>
+          <span>Promotion</span>
+        </a>
+      </li>
+      <li>
+        <a href="#managers">
+          <i class="fas fa-users-cog"></i>
+          <span>Managers</span>
+        </a>
+      </li>
+      <li>
+        <a href="#logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Log out</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</aside>

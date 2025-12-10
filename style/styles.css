@@ -1011,3 +1011,82 @@ body.dark-mode .bookings-table th {
   transform: scale(1.2);
   color: var(--primary-color);
 }
+
+/* Logout Modal */
+.logout-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+.logout-modal {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  animation: slideUp 0.3s ease;
+}
+
+.logout-modal h2 {
+  font-size: 1.25rem;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.logout-modal p {
+  color: var(--text-light);
+  margin-bottom: 2rem;
+}
+
+.logout-modal-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.logout-cancel,
+.logout-confirm {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+  border: none;
+}
+
+.logout-cancel {
+  border: 1px solid var(--extra-light);
+  background: var(--white);
+  color: var(--text-dark);
+}
+
+.logout-cancel:hover {
+  background: var(--extra-light);
+  color: var(--text-dark);
+}
+
+.logout-confirm {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.logout-confirm:hover {
+  background: #5b9ad6;
+  box-shadow: 0 4px 12px rgba(135, 179, 234, 0.3);
+}
+
+body.dark-mode .logout-modal {
+  background: var(--white);
+}

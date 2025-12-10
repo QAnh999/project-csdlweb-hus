@@ -42,3 +42,4 @@ function handleLogin() {
   //   // Nếu dữ liệu hợp lệ, gọi hàm gửi API
   //   sendLoginRequest(email, password);
 }
+localStorage.removeItem("isLoggedIn");
