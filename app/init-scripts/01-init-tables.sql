@@ -6,7 +6,7 @@ CREATE TABLE Reservations (id SERIAL PRIMARY KEY);
 
 -- === BẮT ĐẦU CÁC BẢNG CHÍNH ===
 
-CREATE TABLE Staff (
+CREATE TABLE staff (
     admin_id SERIAL PRIMARY KEY,
     admin_name VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,

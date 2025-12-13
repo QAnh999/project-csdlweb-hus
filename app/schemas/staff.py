@@ -9,8 +9,10 @@ class StaffBase(BaseModel):
     is_active: Optional[bool] = True
     avatar: Optional[str]
 
+
 class StaffCreate(StaffBase):
     password: str
+
 
 class StaffUpdate(BaseModel):
     admin_name: Optional[str]
@@ -21,8 +23,15 @@ class StaffUpdate(BaseModel):
     avatar: Optional[str]
     password: Optional[str]
 
+
 class StaffResponse(StaffBase):
     admin_id: int
 
     class Config:
         orm_mode = True
+
+
+# 🔥 THÊM CLASS NÀY ĐỂ DÙNG LOGIN
+class StaffLoginRequest(BaseModel):
+    admin_name: str
+    password: str

@@ -14,4 +14,5 @@ class Staff(Base):
     is_active = Column(Boolean, default=True)
     avatar = Column(String(255), nullable=False)
 
-    revenue_reports = relationship("RevenueReport", back_populates="generated_by_staff")
+    # ĐÚNG TÊN MODEL
+    revenue_reports = relationship("RevenueReports", back_populates="generated_by_staff")
