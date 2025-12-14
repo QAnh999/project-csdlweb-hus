@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from typing import Optional, List
-from repositories.base import BaseRepository
+from app.repositories.base import BaseRepository
 from app.models.passenger import Passenger
-from app.schemas.passengers import PassengerCreate, PassengerUpdate
+from app.schemas.passenger import PassengerCreate, PassengerUpdate
 
 
 class PassengerRepository(BaseRepository[Passenger, PassengerCreate, PassengerUpdate]):
@@ -17,7 +17,7 @@ class PassengerRepository(BaseRepository[Passenger, PassengerCreate, PassengerUp
         return db.query(Passenger).filter(Passenger.identify_number == identify_number).first()
     
     def get_by_user(self, db: Session, user_id: int) -> List[Passenger]:
-        return db.query(Passenger).filter(Passenger.user_id == user_id).all()
+        return db.query(Passenger).filter(Passenger.user_id == user_id).first()
     
     
 passenger_repository = PassengerRepository()

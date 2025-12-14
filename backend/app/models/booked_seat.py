@@ -9,6 +9,7 @@ class BookedSeat(Base):
     id_seat = Column(Integer, ForeignKey("seats.id"), primary_key=True)
     id_flight = Column(Integer, ForeignKey("flights.id"), primary_key=True)
     reservation_id = Column(Integer, ForeignKey("reservations.id"))
+    hold_expires = Column(DateTime, nullable=True)
     booked_at = Column(DateTime, default=datetime.utcnow)
     
     seat = relationship("Seat", back_populates="booked_seats")

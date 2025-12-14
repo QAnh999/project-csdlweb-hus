@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from app.models.reservation import Reservation
-from repositories.base import BaseRepository
-from app.schemas.reservations import ReservationCreate, ReservationUpdate
+from app.repositories.base import BaseRepository
+from app.schemas.reservation import ReservationCreate, ReservationUpdate
 
 class ReservationRepository(BaseRepository[Reservation, ReservationCreate, ReservationUpdate]):
     

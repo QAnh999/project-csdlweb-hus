@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Numeric, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -11,6 +11,7 @@ class Seat(Base):
     seat_class = Column(String(20), nullable=False)
     seat_type = Column(String(50), nullable=False)
     is_available = Column(Boolean, default=True)
+    price_surcharge = Column(Numeric(10,2), default=0)
     
     aircraft = relationship("Aircraft", back_populates="seats")
     reservation_details = relationship("ReservationDetail", back_populates="seat")

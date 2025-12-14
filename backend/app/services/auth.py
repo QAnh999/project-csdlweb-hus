@@ -3,7 +3,7 @@ from app.repositories.user import user_repository
 from app.core.security import verify_password, create_access_token, create_refresh_token, decode_token
 from app.models.user import User
 from app.utils.validators import detect_identifier
-from services.user import UserService
+from app.services.user import UserService
 
 class AuthService:
     def __init__(self, user_repo=user_repository):
@@ -46,10 +46,16 @@ class AuthService:
         if not user_id or refresh_token not in self.refresh_tokens_store:
             raise ValueError("Expired refresh token")
 
+        del self.refresh_tokens_store[refresh_token]
+
         new_access_token = create_access_token({"sub": user_id})
+        new_refresh_token = create_refresh_token({"sub": user_id})
+
+        self.refresh_tokens_store[new_refresh_token] = user_id
 
         return {
             "access_token": new_access_token,
+            "refresh_token": new_refresh_token,
             "token_type": "bearer"
         }
     

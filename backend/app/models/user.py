@@ -19,6 +19,6 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_login = Column(DateTime)
     
-    # passengers = relationship("Passenger", back_populates="user")
-    # reservations = relationship("Reservation", back_populates="user")
-    # invoices = relationship("Invoice", back_populates="user")
+    passengers = relationship("Passenger", back_populates="user")
+    reservations = relationship("Reservation", back_populates="user")
+    invoices = relationship("Invoice", back_populates="user")

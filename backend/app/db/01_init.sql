@@ -120,6 +120,7 @@ CREATE TABLE Seats (
     seat_class VARCHAR(20) NOT NULL, -- economy, business, first
     seat_type VARCHAR(50) NOT NULL, -- window, aisle, middle, emergency
     is_available BOOLEAN DEFAULT TRUE,
+    price_surcharge DECIMAL(10,2) DEFAULT 0,
     CONSTRAINT fk_seats_aircraft FOREIGN KEY (id_aircraft) REFERENCES Aircrafts(id),
     CONSTRAINT unique_seat_per_aircraft UNIQUE (id_aircraft, seat_number)
 );
@@ -156,6 +157,7 @@ CREATE TABLE Booked_Seats (
     id_seat INT NOT NULL,
     id_flight INT NOT NULL,
     reservation_id INT,
+    hold_expires TIMESTAMP NULL,
     booked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id_seat, id_flight),
     CONSTRAINT fk_booked_seats_seat FOREIGN KEY (id_seat) REFERENCES Seats(id),

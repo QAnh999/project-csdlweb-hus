@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from datetime import datetime, timedelta
-from app.models.flight import Flight
-from app.schemas.flights import FlightCreate, FlightUpdate
-from repositories.base import BaseRepository
+from app.models import Flight
+from app.schemas.flight import FlightCreate, FlightUpdate
+from app.repositories.base import BaseRepository
 
 class FlightRepository(BaseRepository[Flight, FlightCreate, FlightUpdate]):
 
@@ -13,14 +13,15 @@ class FlightRepository(BaseRepository[Flight, FlightCreate, FlightUpdate]):
     def get_by_flight_number(self, db: Session, flight_number: str) -> Optional[Flight]:
         return db.query(Flight).filter(Flight.flight_number == flight_number).first()
     
-    def search(self, db: Session, dep_airport: int, arr_airport: int, date: datetime) -> List[Flight]:
-        start = datetime(date.year, date.month, date.day)
+    def search(self, db: Session, dep_airport: int, arr_airport: int, dt: datetime) -> List[Flight]:
+        start = datetime(dt.year, dt.month, dt.day)
         end = start + timedelta(days=1)
         return db.query(Flight).filter(
             Flight.dep_airport == dep_airport,
             Flight.arr_airport == arr_airport,
             Flight.dep_datetime >= start,
-            Flight.dep_datetime < end
+            Flight.dep_datetime < end, 
+            Flight.status == "scheduled"
         ).all()
     
     def count_available_seats(self, db: Session, flight_id: int) -> Optional[int]:

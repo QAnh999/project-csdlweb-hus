@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.models.invoice import Invoice
-from repositories.base import BaseRepository
-from app.schemas.invoices import InvoiceCreate, InvoiceUpdate
+from app.repositories.base import BaseRepository
+from app.schemas.invoice import InvoiceCreate, InvoiceUpdate
 
 class InvoiceRepository(BaseRepository[Invoice, InvoiceCreate, InvoiceUpdate]):
     

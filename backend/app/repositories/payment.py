@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.models.payment import Payment
-from repositories.base import BaseRepository
-from app.schemas.payments import PaymentCreate, PaymentUpdate
+from app.repositories.base import BaseRepository
+from app.schemas.payment import PaymentCreate, PaymentUpdate
 
 class PaymentRepository(BaseRepository[Payment, PaymentCreate, PaymentUpdate]):
     

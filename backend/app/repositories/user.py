@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from app.repositories.base import BaseRepository
 from app.models.user import User
-from app.schemas.users import UserCreate, UserUpdate
+from app.schemas.user import UserCreate, UserUpdate
 
 
 class UserRepository(BaseRepository[User, UserCreate, UserUpdate]):

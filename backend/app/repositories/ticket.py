@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.models.ticket import Ticket
-from repositories.base import BaseRepository
-from app.schemas.tickets import TicketCreate, TicketUpdate
+from app.repositories.base import BaseRepository
+from app.schemas.ticket import TicketCreate, TicketUpdate
 
 class TicketRepository(BaseRepository[Ticket, TicketCreate, TicketUpdate]):
 

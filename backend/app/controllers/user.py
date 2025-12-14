@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional, List
 from app.services.user import UserService
 from app.repositories.user import user_repository
-from app.schemas.users import UserCreate, UserUpdate, UserResponse
+from app.schemas.user import UserCreate, UserUpdate, UserResponse
 
 class UserController:
     def __init__(self):

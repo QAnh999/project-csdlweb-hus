@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.repositories.base import BaseRepository
 from app.models.airline import Airline
-from app.schemas.airlines import AirlineCreate, AirlineUpdate
+from app.schemas.airline import AirlineCreate, AirlineUpdate
 
 class AirlineRepository(BaseRepository[Airline, AirlineCreate, AirlineUpdate]):
     
