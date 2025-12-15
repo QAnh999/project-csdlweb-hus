@@ -82,13 +82,11 @@
 // });
 
 
+
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ======================================================
-       PHẦN 1 – INDEX.HTML (FORM CHECK-IN)
-    ====================================================== */
+    // ---- PHẦN CHO index.html ----
     const btnCheckin = document.getElementById("btn-checkin");
-
     if (btnCheckin) {
         btnCheckin.addEventListener("click", () => {
             const bookingCode = document.getElementById("checkin-code").value.trim().toUpperCase();
@@ -120,19 +118,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // 🔑 LƯU MÃ ĐẶT CHỖ ĐỂ TRANG SAU DÙNG
             localStorage.setItem("current_checkin_code", bookingCode);
 
-            // 🚀 CHUYỂN SANG TRANG CHECKIN
             window.location.href = "pages/checkin.html";
         });
     }
 
-    /* ======================================================
-       PHẦN 2 – CHECKIN.HTML (XEM & XÁC NHẬN)
-    ====================================================== */
+    // ---- PHẦN CHO checkin.html ----
     const btnConfirm = document.getElementById("btn-confirm-checkin");
-    const detail = document.getElementById("checkin-detail");
+    const detail = document.getElementById("checkin-detail"); // sửa thành đúng ID HTML
 
     if (btnConfirm && detail) {
         const bookingCode = localStorage.getItem("current_checkin_code");
@@ -145,22 +139,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const booking = JSON.parse(localStorage.getItem(`booking_${bookingCode}`));
 
-        // HIỂN THỊ THÔNG TIN
+        // Hiển thị thông tin chuyến bay
         detail.innerHTML = `
-            <div class="boarding-pass">
-                <h3>Thông tin chuyến bay</h3>
+            <div class="boarding-pass-info">
+                <h2>Thông tin chuyến bay</h2>
                 <p><strong>Hành khách:</strong> ${booking.passenger.Ho} ${booking.passenger.Ten_dem_va_ten}</p>
                 <p><strong>Mã đặt chỗ:</strong> ${bookingCode}</p>
                 <p><strong>Chuyến bay:</strong> ${booking.flight.code}</p>
                 <p><strong>Từ:</strong> ${booking.flight.from}</p>
                 <p><strong>Đến:</strong> ${booking.flight.to}</p>
-                <p><strong>Ngày bay:</strong> ${booking.flight.date}</p>
-                <p><strong>Giờ bay:</strong> ${booking.flight.time}</p>
+                <p><strong>Ngày bay:</strong> ${booking.flight.time_from.split(" ")[0]}</p>
+                <p><strong>Giờ bay:</strong> ${booking.flight.time_from.split(" ")[1]}</p>
                 <p><strong>Ghế:</strong> ${booking.seat}</p>
             </div>
         `;
 
-        // XÁC NHẬN CHECK-IN
+        // Xác nhận làm thủ tục → hiển thị boarding pass
         btnConfirm.addEventListener("click", () => {
             booking.checkedIn = true;
             booking.checkinTime = new Date().toLocaleString("vi-VN");
@@ -169,11 +163,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             detail.innerHTML = `
                 <div class="boarding-pass">
-                    <h3>Thẻ lên máy bay</h3>
+                    <h2>Thẻ lên máy bay</h2>
                     <p><strong>${booking.passenger.Ho} ${booking.passenger.Ten_dem_va_ten}</strong></p>
                     <p>Chuyến bay: ${booking.flight.code}</p>
                     <p>${booking.flight.from} → ${booking.flight.to}</p>
-                    <p>${booking.flight.date} | ${booking.flight.time}</p>
+                    <p>${booking.flight.time_from.split(" ")[0]} | ${booking.flight.time_from.split(" ")[1]}</p>
                     <p>Ghế: ${booking.seat}</p>
                     <hr>
                     <p>Cửa ra máy bay đóng trước 15 phút</p>
