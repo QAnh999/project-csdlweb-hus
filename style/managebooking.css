@@ -1,0 +1,101 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
+
+:root {
+    --primary-color: #d0e1f9;
+    --primary-color-dark: #283655;
+    --text-dark: #283655;
+    --text-light: #4d648d;
+    --extra-light: #f3f4f6;
+    --max-width: 1200px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Noto Serif", serif;
+    background-color: var(--extra-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.managebooking-container {
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 24px 28px;
+    border: 1px solid #dfe3e8;
+    box-shadow: 0 10px 30px rgba(40, 54, 85, 0.08);
+}
+
+.managebooking-container h2 {
+    font-size: 1.4rem;
+    color: var(--text-dark);
+    text-align: center;
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+#managebooking-detail {
+    margin-top: 20px;
+}
+
+#managebooking-detail .flight-detail {
+    background: linear-gradient(135deg, var(--primary-color), #ffffff);
+    border-radius: 14px;
+    padding: 20px 22px;
+    border: 1px solid #dfe3e8;
+    box-shadow: 0 8px 24px rgba(40, 54, 85, 0.1);
+    margin-bottom: 20px;
+}
+
+#managebooking-detail .flight-detail h3,
+#managebooking-detail .flight-detail h2 {
+    font-size: 1.2rem;
+    color: var(--primary-color-dark);
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+#managebooking-detail .flight-detail p {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dotted #ccd6e0;
+}
+
+#managebooking-detail .flight-detail p:last-of-type {
+    border-bottom: none;
+}
+
+#managebooking-detail .flight-detail strong {
+    font-weight: 600;
+}
+
+#managebooking-detail button {
+    width: 100%;
+    background-color: var(--primary-color-dark);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+#managebooking-detail button:hover {
+    background-color: var(--primary-color);
+    color: var(--text-dark);
+}

@@ -156,14 +156,15 @@
                 <div class="management-row">
                     <div class="management-group">
                         <label>Mã đặt chỗ</label>
-                        <input type="text" placeholder="123ABC">
+                        <input type="text" id="flight-code" placeholder="123ABC">
                     </div>
                     <div class="management-group">
                         <label>Họ</label>
-                        <input type="text" placeholder="NGUYEN">
+                        <input type="text" id="flight-lastname" placeholder="NGUYEN">
                     </div>
                 </div>
-                <button type="submit" class="btn">Tìm kiếm</button>
+                <button type="button" class="btn" id="btn-search-flight">Tìm kiếm</button>
+                <div id="flight-result"></div>
             </div>
         </section>
     </div>
@@ -374,7 +375,7 @@
             </div>
         </div>
         <div class="footer__bar">
-            © 2025 Lotus Team, a project for MAT3385
+            © 2025 Lotus Team, a project for MAT3385, HUS - VNU
         </div>
     </footer>
 
@@ -382,6 +383,7 @@
     <script src="javascript/main.js"></script>
     <script src="javascript/booking.js"></script>
     <script src="javascript/checkin.js"></script>
+    <script src="javascript/managebooking.js"></script>
 </body>
 
 </html>

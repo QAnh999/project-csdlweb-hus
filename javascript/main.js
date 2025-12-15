@@ -104,3 +104,73 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btnSearch = document.getElementById("btn-search-flight");
+
+    btnSearch.addEventListener("click", () => {
+        const bookingCode = document.getElementById("flight-code").value.trim().toUpperCase();
+        const lastName = document.getElementById("flight-lastname").value.trim().toUpperCase();
+
+        if (!bookingCode || !lastName) {
+            alert("Vui lòng nhập đầy đủ thông tin!");
+            return;
+        }
+
+        const bookingStr = localStorage.getItem(`booking_${bookingCode}`);
+        if (!bookingStr) {
+            alert("Mã đặt chỗ không tồn tại");
+            return;
+        }
+
+        const booking = JSON.parse(bookingStr);
+
+        if (!booking.passenger || booking.passenger.Ho.trim().toUpperCase() !== lastName) {
+            alert("Họ không khớp với mã đặt chỗ");
+            return;
+        }
+
+        localStorage.setItem("current_booking_code", bookingCode);
+        window.location.href = "../pages/managebooking.html";
+    });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btnCheckin = document.getElementById("btn-checkin");
+    if (btnCheckin) {
+        btnCheckin.addEventListener("click", () => {
+            const bookingCode = document.getElementById("checkin-code").value.trim().toUpperCase();
+            const lastName = document.getElementById("checkin-lastname").value.trim().toUpperCase();
+            const result = document.getElementById("checkin-result");
+
+            result.innerHTML = "";
+
+            if (!bookingCode || !lastName) {
+                result.innerHTML = "<p>Vui lòng nhập đầy đủ thông tin!</p>";
+                return;
+            }
+
+            const bookingStr = localStorage.getItem(`booking_${bookingCode}`);
+            if (!bookingStr) {
+                result.innerHTML = "<p>Mã đặt chỗ không tồn tại</p>";
+                return;
+            }
+
+            const booking = JSON.parse(bookingStr);
+
+            if (!booking.passenger || booking.passenger.Ho.trim().toUpperCase() !== lastName) {
+                result.innerHTML = "<p>Họ không khớp với mã đặt chỗ</p>";
+                return;
+            }
+
+            if (booking.checkedIn) {
+                result.innerHTML = `<p style="color:red; text-align:center; margin-top:10px;">Bạn đã check-in trước đó</p>`;
+                return;
+            }
+
+            localStorage.setItem("current_checkin_code", bookingCode);
+
+            window.location.href = "../pages/checkin.html";
+        });
+    }
+  });
