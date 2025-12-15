@@ -1,0 +1,130 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
+
+:root {
+  --primary-color: #d0e1f9;
+  --primary-color-dark: #283655;
+  --text-dark: #283655;
+  --text-light: #4d648d;
+  --extra-light: #f3f4f6;
+  --max-width: 1200px;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Noto Serif", serif;
+  background-color: var(--extra-light);
+  display: flex;
+  flex-direction: column;
+}
+
+.checkin-container {
+    max-width: 520px;
+    margin: 60px;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 24px 28px;
+    border: 1px solid #dfe3e8;
+    box-shadow: 0 10px 30px rgba(40, 54, 85, 0.08);
+}
+
+.checkin-container h2 {
+    font-size: 1.4rem;
+    color: var(--text-dark);
+    text-align: center;
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+#checkin-result p {
+    background: #fff3cd;
+    color: #856404;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    border: 1px solid rgba(133,100,4,0.15);
+}
+
+.boarding-pass {
+    background: linear-gradient(135deg, var(--primary-color), #ffffff);
+    border-radius: 14px;
+    padding: 20px 22px;
+    border: 1px solid #dfe3e8;
+    box-shadow: 0 8px 24x rgba(40, 54, 85, 0.1);
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.boarding-pass::before, .boarding-pass::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    background: var(--extra-light);
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
+.boarding-pass::before{
+    left: -8px;
+}
+
+.boarding-pass::after{
+    right: -8px;
+}
+
+.boarding-pass h3 {
+    font-size: 1.2rem;
+    color: var(--primary-color-dark);
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.boarding-pass p {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dotted #ccd6e0;
+}
+
+.boarding-pass p:last-of-type{
+    border-bottom: none;
+}
+
+.boarding-pass strong {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.boarding-pass hr {
+    border: none;
+    border-top: 1px dashed var(--primary-color-dark);
+    margin: 14px 0;
+}
+
+#btn-confirm-checkin {
+    width: 100%;
+    background-color: var(--primary-color-dark);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: "Noto Serif", serif;
+}
+
+#btn-confirm-checkin:hover {
+    background-color: var(--primary-color);
+    color: var(--text-dark);
+}
+

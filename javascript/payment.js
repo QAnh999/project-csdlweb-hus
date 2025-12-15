@@ -1,5 +1,5 @@
 function handlePaymentPage() {
-    const bookingDataStr = localStorage.getItem('bookingData');
+    const bookingDataStr = localStorage.getItem('bookingDraft');
     const bookingData = bookingDataStr ? JSON.parse(bookingDataStr) : null;
 
     if (!bookingData || !bookingData.flight || !bookingData.passenger) {
@@ -18,8 +18,8 @@ function handlePaymentPage() {
 
     
     let basePrice = Number(flight.price);
-    let baggagePrice = services.baggage.price;
-    let mealPrice = services.meal.price;
+    let baggagePrice = services?.baggage?.price || 0;
+    let mealPrice = services?.meal?.price || 0;
     
     
     const system_service = 215000;
@@ -69,13 +69,13 @@ function handlePaymentPage() {
 
     
     payButton.addEventListener('click', async () => {
-        const selectedPaymentMethod = document.querySelector('input[name="payment-method"]:checked');
-        if (!selectedPaymentMethod) {
-            alert("Vui lòng chọn phương thức thanh toán!");
-            return;
-        }
+        // const selectedPaymentMethod = document.querySelector('input[name="payment-method"]:checked');
+        // if (!selectedPaymentMethod) {
+        //     alert("Vui lòng chọn phương thức thanh toán!");
+        //     return;
+        // }
         const payload = {
-            flight, passenger, services, seat, totalAmount, paymentMethod: selectedPaymentMethod.value
+            flight, passenger, services, seat, totalAmount
         };
 
         try {
@@ -83,7 +83,7 @@ function handlePaymentPage() {
             setTimeout(() => {
                 resolve({
                     qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=PAYMENT123",
-                    bookingCode: "ABC123"
+                    bookingCode: "123ABC"
                     });
                 }, 1000);
             });
@@ -101,6 +101,21 @@ function handlePaymentPage() {
         }
     });
 
+    function generateBookingCode(){
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let code = "";
+        
+        for (let i = 0; i < 3; i++){
+            code += Math.floor(Math.random() * 10);
+        }
+        
+        for (let i = 0; i < 3; i++){
+            code += letters.charAt(Math.floor(Math.random() * letters.length));       
+        }
+
+        return code;
+    }
+
     document.getElementById("close-qr").addEventListener("click", async() => {
         document.getElementById("qr-modal").style.display = "none";
 
@@ -111,15 +126,34 @@ function handlePaymentPage() {
             setTimeout(() => {
                 resolve({
                     status: "success",
-                    bookingCode: "BOOK" + Math.floor(Math.random() * 90000 + 10000)
+                    bookingCode: generateBookingCode()
                 });
             }, 1000);
         });
 
         if (paymentResult.status == "success"){
+            const passengerInfo = JSON.parse(localStorage.getItem("passengerInfo"));
+
+            const bookingInfo = {
+                bookingCode: paymentResult.bookingCode,
+                flight, 
+                passenger: passengerInfo.passenger,
+                services: passengerInfo.services,
+                seat, 
+                totalAmount,
+                checkedIn: false
+            };
+            
+            localStorage.setItem(`booking_${paymentResult.bookingCode}`, JSON.stringify(bookingInfo));
+            localStorage.removeItem("paymentPending");
+            localStorage.removeItem("bookingDraft");
             alert("Thanh toán thành công!\nMã đặt chỗ của bạn: " + paymentResult.bookingCode);
+            
+            window.location.href = "../index.html";
         }
     });
+
+
 }
 
 

@@ -202,6 +202,7 @@ h2 {
   border: 1px solid rgba(40,54,85,0.08);
   border-radius: 8px;
   cursor: pointer;
+  font-family:"Noto Serif", serif;
 }
 
 /* confirm (simulate 'đã thanh toán' or 'kiểm tra') */

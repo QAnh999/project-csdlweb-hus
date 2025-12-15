@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     let baggageInfo = { type: "Không", price: 0 };
-    let mealInfo = { name: "Không", price: 0 };
+    let mealInfo = { type: "Không", price: 0 };
 
     const baggageCheckbox = document.getElementById("baggage");
     if (baggageCheckbox.checked) {

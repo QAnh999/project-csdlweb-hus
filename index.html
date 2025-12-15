@@ -129,7 +129,7 @@
                 </form>
             </div>
 
-            <div class="checkin-container">
+            <div class="checkin-container" id="checkin-tab">
                 <p>
                     <strong>
                         Làm thủ tục trực tuyến trong khoảng 24 giờ đến 1 giờ trước khi chuyến bay khởi hành. <br>
@@ -139,21 +139,23 @@
                 <div class="checkin-row">
                     <div class="checkin-group">
                         <label>Mã đặt chỗ</label>
-                        <input type="text" placeholder="123XXX">
+                        <input type="text" id="checkin-code" placeholder="123ABC">
                     </div>
                     <div class="checkin-group">
                         <label>Họ</label>
-                        <input type="text" placeholder="NGUYEN">
+                        <input type="text" id="checkin-lastname" placeholder="NGUYEN">
                     </div>
                 </div>
-                <button type="submit" class="btn">Làm thủ tục</button>
+                <button type="button" class="btn" id="btn-checkin">Làm thủ tục</button>
+                <div id="checkin-result"></div>
+                <div id="checkin-detail" style="display:none;"></div>
             </div>
 
             <div class="management-container">
                 <div class="management-row">
                     <div class="management-group">
                         <label>Mã đặt chỗ</label>
-                        <input type="text" placeholder="123XXX">
+                        <input type="text" placeholder="123ABC">
                     </div>
                     <div class="management-group">
                         <label>Họ</label>
@@ -378,6 +380,7 @@
     <script src="https://unpkg.com/scrollreveal"></script>
     <script src="javascript/main.js"></script>
     <script src="javascript/booking.js"></script>
+    <script src="javascript/checkin.js"></script>
 </body>
 
 </html>

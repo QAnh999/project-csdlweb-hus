@@ -100,7 +100,7 @@ function renderFlights(flights, container) {
 function xacNhanChuyenBay(maChuyenBay) {
   const flight = window.currentFlights.find(f => (f.f_code || f.code) === maChuyenBay);
 
-  localStorage.setItem("flightInfo", JSON.stringify({
+  localStorage.setItem("selectedFlight", JSON.stringify({
     code: maChuyenBay,
     from: flight.from,
     to: flight.to,

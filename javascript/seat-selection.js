@@ -3,11 +3,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const rows = 40;
   const colsLeft = ["A", "B", "C"];
   const colsRight = ["D", "E", "F"];
-  const bookedSeats = ["2B", "3C", "5E", "7A", "9F"];
+  // const bookedSeats = ["2B", "3C", "5E", "7A", "9F"];
   const exitAfter = [3, 27]; // EXIT sau hàng 3 và 27
 
   let selectedSeat = null;
   const selectedInfo = document.getElementById("selectedInfo");
+
+  const bookedSeats = [];
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith("booking_")) {
+      const b = JSON.parse(localStorage.getItem(key));
+      if (b?.seat) bookedSeats.push(b.seat);
+    }
+  });
 
   // tạo từng hàng ghế
   for (let i = 1; i <= rows; i++) {
@@ -80,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (selectedSeat) {
       selectedInfo.textContent = `Bạn đã chọn: ${selectedSeat.dataset.code}`;
-      selectedSeat.dataset.code = code;
+      // selectedSeat.dataset.code = code;
     } else {
       selectedInfo.textContent = "Chưa chọn ghế";
     }
@@ -106,8 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("confirmSeat").addEventListener("click", () => {
     if (selectedSeat && selectedSeat.dataset.code) {
-      const code = selectedSeat.dataset.code;
-
       const flightInfo = JSON.parse(localStorage.getItem("flightInfo") || '{}')
       const passengerData = JSON.parse(localStorage.getItem("passengerInfo") || '{}');
 
@@ -115,11 +121,11 @@ document.addEventListener("DOMContentLoaded", () => {
         flight: flightInfo,
         passenger: passengerData.passenger || {},
         services: passengerData.services || {},
-        seat: code
+        seat: selectedSeat.dataset.code
       };
 
-      localStorage.setItem("selectedSeat", code);
-      localStorage.setItem("bookingData", JSON.stringify(bookingData));
+      // localStorage.setItem("selectedSeat", code);
+      localStorage.setItem("bookingDraft", JSON.stringify(bookingData));
 
       window.location.href = "payment.html"
     } else {
