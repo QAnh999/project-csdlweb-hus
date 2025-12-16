@@ -15,6 +15,10 @@
   box-sizing: border-box;
 }
 
+.page-content {
+  padding-top: 80px;
+}
+
 .select_flight {
   font-size: 1.2rem;
   overflow: hidden;
@@ -165,4 +169,40 @@ h1 {
 .confirm-btn:hover {
   background-color: var(--primary-color);
   color: var(--text-dark);
+}
+
+.site-header {
+  position: fixed;          
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  padding: 12px 40px;
+  background-color: rgba(255,255,255,0.85);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+}
+
+.logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;   
+  gap: 20px;             
+}
+
+.logo img {
+  height: 40px;
+  width: auto;
+  transform: scale(1.5);     
+  transform-origin: left center;
+}
+
+.logo span {
+  font-family: "Noto Serif", serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-color-dark);
 }
