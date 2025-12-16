@@ -7,6 +7,7 @@
   --text-light: #4d648d;
   --extra-light: #f3f4f6;
   --max-width: 1200px;
+  --header-color: #e9effdff;
 }
 
 * {
@@ -33,14 +34,30 @@
     box-shadow: 0 10px 30px rgba(40, 54, 85, 0.08);
 } */
 
+.page-content {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 90px; 
+}
+
 body {
-  font-family: "Noto Serif", serif;
+  /* font-family: "Noto Serif", serif;
   background-color: var(--extra-light);
+  background-image: url("../assets/background2.jpg");
   display: flex;
-  justify-content: center;  /* căn giữa theo chiều dọc */
-  align-items: center;      /* căn giữa theo chiều ngang */
+  justify-content: center; 
+  align-items: center;      
   min-height: 100vh;
-  padding: 20px;            /* khoảng cách nhỏ với mép màn hình */
+  padding: 20px;            */
+  font-family: "Noto Serif", serif;
+    margin: 0;
+    background-image: url("../assets/background2.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
 }
 
 .checkin-container {
@@ -140,4 +157,41 @@ body {
 #btn-confirm-checkin:hover {
     background-color: var(--primary-color);
     color: var(--text-dark);
+}
+
+.site-header {
+  position: fixed;          
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  padding: 12px 40px;
+  /* background-color: rgba(255,255,255,0.85);
+  backdrop-filter: blur(6px); */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+  background-color: var(--header-color);
+}
+
+.logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;   
+  gap: 20px;             
+}
+
+.logo img {
+  height: 40px;
+  width: auto;
+  transform: scale(1.5);     
+  transform-origin: left center;
+}
+
+.logo span {
+  font-family: "Noto Serif", serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-color-dark);
 }

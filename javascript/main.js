@@ -146,25 +146,25 @@ document.addEventListener("DOMContentLoaded", () => {
             result.innerHTML = "";
 
             if (!bookingCode || !lastName) {
-                result.innerHTML = "<p>Vui lòng nhập đầy đủ thông tin!</p>";
+                result.innerHTML = `<p style="color:red; text-align:center; margin-top:10px;">Vui lòng nhập đầy đủ thông tin!</p>`;
                 return;
             }
 
             const bookingStr = localStorage.getItem(`booking_${bookingCode}`);
             if (!bookingStr) {
-                result.innerHTML = "<p>Mã đặt chỗ không tồn tại</p>";
+                result.innerHTML = `<p style="color:red; text-align:center; margin-top:10px;">Mã đặt chỗ không tồn tại</p>`;
                 return;
             }
 
             const booking = JSON.parse(bookingStr);
 
             if (!booking.passenger || booking.passenger.Ho.trim().toUpperCase() !== lastName) {
-                result.innerHTML = "<p>Họ không khớp với mã đặt chỗ</p>";
+                result.innerHTML = `<p style="color:red; text-align:center; margin-top:10px;">Họ không khớp với mã đặt chỗ</p>`;
                 return;
             }
 
             if (booking.checkedIn) {
-                result.innerHTML = `<p style="color:red; text-align:center; margin-top:10px;">Bạn đã check-in trước đó</p>`;
+                result.innerHTML = `<p style="color:red; text-align:center; margin-top:10px;">Bạn đã làm thủ tục trước đó</p>`;
                 return;
             }
 
