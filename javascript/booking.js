@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const to = params.get("to");
   const date = params.get("date");
 
-  fetch("../flights_sample_102.csv")
+  fetch("../flights_processed.csv")
     .then(res => res.text())
     .then(csv => {
       const flights = Papa.parse(csv.trim(), { header: true }).data;
@@ -100,16 +100,21 @@ function renderFlights(flights, container) {
 function xacNhanChuyenBay(maChuyenBay) {
   const flight = window.currentFlights.find(f => (f.f_code || f.code) === maChuyenBay);
 
-  localStorage.setItem("selectedFlight", JSON.stringify({
-    code: maChuyenBay,
-    from: flight.from,
-    to: flight.to,
-    airport_from: flight.airport_from,
-    airport_to: flight.airport_to,
-    time_from: flight.f_time_from,
-    time_to: flight.f_time_to,
-    type: flight.type,
-    price: flight.total_price
+  localStorage.setItem("bookingDraft", JSON.stringify({
+    flight : {
+      code: maChuyenBay,
+      from: flight.from,
+      to: flight.to,
+      airport_from: flight.airport_from,
+      airport_to: flight.airport_to,
+      time_from: flight.f_time_from,
+      time_to: flight.f_time_to,
+      type: flight.type,
+      price: flight.total_price
+    },
+    passenger: null,
+    services: null,
+    seat: null
   }));
 
   window.location.href = `passenger-info.html?flight=${encodeURIComponent(maChuyenBay)}`;

@@ -113,24 +113,39 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.getElementById("confirmSeat").addEventListener("click", () => {
-    if (selectedSeat && selectedSeat.dataset.code) {
-      const flightInfo = JSON.parse(localStorage.getItem("flightInfo") || '{}')
-      const passengerData = JSON.parse(localStorage.getItem("passengerInfo") || '{}');
+    // if (selectedSeat && selectedSeat.dataset.code) {
+    //   const flightInfo = JSON.parse(localStorage.getItem("flightInfo") || '{}')
+    //   const passengerData = JSON.parse(localStorage.getItem("passengerInfo") || '{}');
 
-      const bookingData = {
-        flight: flightInfo,
-        passenger: passengerData.passenger || {},
-        services: passengerData.services || {},
-        seat: selectedSeat.dataset.code
-      };
+    //   const bookingData = {
+    //     flight: flightInfo,
+    //     passenger: passengerData.passenger || {},
+    //     services: passengerData.services || {},
+    //     seat: selectedSeat.dataset.code
+    //   };
 
-      // localStorage.setItem("selectedSeat", code);
-      localStorage.setItem("bookingDraft", JSON.stringify(bookingData));
+    //   // localStorage.setItem("selectedSeat", code);
+    //   localStorage.setItem("bookingDraft", JSON.stringify(bookingData));
 
-      window.location.href = "payment.html"
-    } else {
+    //   window.location.href = "payment.html"
+    // } else {
+    //   alert("Vui lòng chọn ghế trước khi xác nhận!");
+    // }
+
+    if (!selectedSeat){
       alert("Vui lòng chọn ghế trước khi xác nhận!");
+      return;
     }
+
+    const bookingDraft = JSON.parse(localStorage.getItem("bookingDraft"));
+    if (!bookingDraft || !bookingDraft.flight || !bookingDraft.passenger){
+      alert("Thiếu thông tin đặt chỗ.");
+      return;
+    }
+
+    bookingDraft.seat = selectedSeat.dataset.code;
+    localStorage.setItem("bookingDraft", JSON.stringify(bookingDraft));
+    window.location.href = "payment.html";
   });
 });
 

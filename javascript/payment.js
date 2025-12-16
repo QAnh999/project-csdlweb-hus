@@ -132,13 +132,13 @@ function handlePaymentPage() {
         });
 
         if (paymentResult.status == "success"){
-            const passengerInfo = JSON.parse(localStorage.getItem("passengerInfo"));
+            // const passengerInfo = JSON.parse(localStorage.getItem("passengerInfo"));
 
             const bookingInfo = {
                 bookingCode: paymentResult.bookingCode,
                 flight, 
-                passenger: passengerInfo.passenger,
-                services: passengerInfo.services,
+                passenger,
+                services,
                 seat, 
                 totalAmount,
                 checkedIn: false

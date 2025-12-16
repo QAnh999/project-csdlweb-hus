@@ -49,15 +49,30 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
-    const allData = {
-      passenger: passengerData,
-      services: {
-        baggage: baggageInfo,
-        meal: mealInfo,
-      },
+    const bookingDraft = JSON.parse(localStorage.getItem("bookingDraft"));
+
+    if (!bookingDraft || !bookingDraft.flight){
+      alert("Không tìm thấy thông tin chuyến bay.");
+      return;
+    }
+
+    bookingDraft.passenger = passengerData;
+    bookingDraft.services = {
+      baggage: baggageInfo,
+      meal: mealInfo
     };
 
-    localStorage.setItem("passengerInfo", JSON.stringify(allData));
+    localStorage.setItem("bookingDraft", JSON.stringify(bookingDraft));
+
+    // const allData = {
+    //   passenger: passengerData,
+    //   services: {
+    //     baggage: baggageInfo,
+    //     meal: mealInfo,
+    //   },
+    // };
+
+    // localStorage.setItem("passengerInfo", JSON.stringify(allData));
 
     window.location.href = "seat-selection.html";
   });
