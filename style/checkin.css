@@ -16,24 +16,6 @@
   box-sizing: border-box;
 }
 
-/* body {
-  font-family: "Noto Serif", serif;
-  background-color: var(--extra-light);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.checkin-container {
-    max-width: 520px;
-    margin: 60px;
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 24px 28px;
-    border: 1px solid #dfe3e8;
-    box-shadow: 0 10px 30px rgba(40, 54, 85, 0.08);
-} */
-
 .page-content {
     min-height: 100vh;
     display: flex;
@@ -42,15 +24,7 @@
     padding-top: 90px; 
 }
 
-body {
-  /* font-family: "Noto Serif", serif;
-  background-color: var(--extra-light);
-  background-image: url("../assets/background2.jpg");
-  display: flex;
-  justify-content: center; 
-  align-items: center;      
-  min-height: 100vh;
-  padding: 20px;            */
+body {         
   font-family: "Noto Serif", serif;
     margin: 0;
     background-image: url("../assets/background2.jpg");
@@ -61,14 +35,14 @@ body {
 }
 
 .checkin-container {
-    width: 100%;            /* chiếm hết không gian trong max-width */
-    max-width: 520px;       /* giới hạn chiều ngang */
+    width: 100%;           
+    max-width: 520px; 
     background: #ffffff;
     border-radius: 14px;
     padding: 24px 28px;
     border: 1px solid #dfe3e8;
     box-shadow: 0 10px 30px rgba(40, 54, 85, 0.08);
-    /* margin: 0; bỏ margin cũ */
+
 }
 
 .checkin-container h2 {
@@ -89,7 +63,6 @@ body {
     border: 1px solid rgba(133,100,4,0.15);
 }
 
-/* Sửa tên biến để khớp với HTML/JS */
 #checkin-detail {
     margin-top: 20px;
 }
@@ -140,7 +113,6 @@ body {
     margin: 14px 0;
 }
 
-/* Nút xác nhận khớp với HTML/JS */
 #btn-confirm-checkin {
     width: 100%;
     background-color: var(--primary-color-dark);
@@ -168,8 +140,6 @@ body {
   display: flex;
   align-items: center;
   padding: 12px 40px;
-  /* background-color: rgba(255,255,255,0.85);
-  backdrop-filter: blur(6px); */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 1.5rem;
   background-color: var(--header-color);
@@ -195,3 +165,133 @@ body {
   font-weight: 700;
   color: var(--primary-color-dark);
 }
+
+/* Container check-in */
+.checkin-container {
+    width: 100%;
+    max-width: 520px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 28px;
+    border: 1px solid #dfe3e8;
+    box-shadow: 0 12px 30px rgba(27, 58, 111, 0.08);
+}
+
+/* Tiêu đề */
+.checkin-container h2 {
+    font-family: "Noto Serif", serif;
+    font-size: 1.5rem;
+    color: var(--primary-color-dark);
+    text-align: center;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 12px;
+}
+
+#checkin-options {
+    display: flex;
+    justify-content: space-between; 
+    margin-top: 20px;
+}
+
+#checkin-options button {
+    font-family: "Noto Serif", serif;
+    padding: 14px 20px;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: none;
+    background: var(--primary-color-dark);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: 0.3s;
+    flex: unset; 
+    width: 48%; 
+}
+
+#checkin-options button:first-child {
+    margin-left: 0; 
+}
+
+#checkin-options button:last-child {
+    margin-right: 0;
+}
+
+
+#checkin-options button:hover {
+    background: var(--primary-color);
+    color: var(--text-dark);
+    transform: translateY(-2px);
+}
+
+#checkin-options button.selected {
+    background: var(--primary-color);
+    color: var(--text-dark);
+    border: 2px solid var(--primary-color-dark);
+    cursor: default;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.boarding-pass {
+    background: #fff;
+    border: 2px solid var(--primary-color);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 24px;
+    box-shadow: 0 12px 30px rgba(27, 58, 111, 0.12);
+    position: relative;
+}
+
+.boarding-pass hr {
+    border: none;
+    border-top: 2px dashed var(--primary-color-dark);
+    margin: 12px 0;
+}
+
+.boarding-pass p {
+    display: flex;
+    justify-content: space-between;
+    margin: 6px 0;
+}
+
+.boarding-pass p:last-child {
+    justify-content: center;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 12px;
+}
+
+
+#btn-confirm-checkin {
+    width: 100%;
+    padding: 14px;
+    margin-top: 16px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #fff;
+    background: var(--primary-color-dark);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+#btn-confirm-checkin:hover {
+    background: var(--primary-color);
+    color: var(--text-dark);
+    transform: translateY(-2px);
+}
+
+.cf-flights p {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    padding: 6px 0;
+    border-bottom: 1px dotted #ccd6e0;
+}
+
+.cf-flights p strong {
+    color: var(--text-dark);
+}
+

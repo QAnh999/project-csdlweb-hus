@@ -3,17 +3,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const rows = 40;
   const colsLeft = ["A", "B", "C"];
   const colsRight = ["D", "E", "F"];
-  // const bookedSeats = ["2B", "3C", "5E", "7A", "9F"];
   const exitAfter = [3, 27]; // EXIT sau hàng 3 và 27
 
   let selectedSeat = null;
   const selectedInfo = document.getElementById("selectedInfo");
+  const params = new URLSearchParams(window.location.search);
+  const leg = params.get("leg") || "oneway";
+  const bookingDraft = JSON.parse(localStorage.getItem("bookingDraft"));
 
   const bookedSeats = [];
   Object.keys(localStorage).forEach(key => {
     if (key.startsWith("booking_")) {
       const b = JSON.parse(localStorage.getItem(key));
-      if (b?.seat) bookedSeats.push(b.seat);
+      
+      if (leg === "oneway" && b?.seat) {
+        bookedSeats.push(b.seat);
+      }
+
+      if (leg === "outbound" && b?.seatOutbound) {
+        bookedSeats.push(b.seatOutbound);
+      }
+
+      if (leg === "inbound" && b?.seatInbound) {
+        bookedSeats.push(b.seatInbound);
+      }
+    } else {
+      return;
     }
   });
 
@@ -112,38 +127,41 @@ document.addEventListener("DOMContentLoaded", () => {
     return container;
   }
 
+
   document.getElementById("confirmSeat").addEventListener("click", () => {
-    // if (selectedSeat && selectedSeat.dataset.code) {
-    //   const flightInfo = JSON.parse(localStorage.getItem("flightInfo") || '{}')
-    //   const passengerData = JSON.parse(localStorage.getItem("passengerInfo") || '{}');
-
-    //   const bookingData = {
-    //     flight: flightInfo,
-    //     passenger: passengerData.passenger || {},
-    //     services: passengerData.services || {},
-    //     seat: selectedSeat.dataset.code
-    //   };
-
-    //   // localStorage.setItem("selectedSeat", code);
-    //   localStorage.setItem("bookingDraft", JSON.stringify(bookingData));
-
-    //   window.location.href = "payment.html"
-    // } else {
-    //   alert("Vui lòng chọn ghế trước khi xác nhận!");
-    // }
-
     if (!selectedSeat){
       alert("Vui lòng chọn ghế trước khi xác nhận!");
       return;
     }
 
-    const bookingDraft = JSON.parse(localStorage.getItem("bookingDraft"));
-    if (!bookingDraft || !bookingDraft.flight || !bookingDraft.passenger){
+    const isOneWay = !!bookingDraft?.flight;
+    const isRoundTrip = !!(bookingDraft?.outbound && bookingDraft?.inbound);
+    
+    if (!bookingDraft || (!isOneWay && !isRoundTrip) || !bookingDraft.passenger){
       alert("Thiếu thông tin đặt chỗ.");
       return;
     }
 
-    bookingDraft.seat = selectedSeat.dataset.code;
+    const seatCode = selectedSeat.dataset.code;
+
+    if (bookingDraft.outbound && bookingDraft.inbound){
+      if (leg === "outbound"){
+        bookingDraft.seatOutbound = seatCode;
+        localStorage.setItem("bookingDraft", JSON.stringify(bookingDraft));
+        alert("Bạn đã chọn xong ghế cho chuyến đi.\nTiếp theo: chọn ghế cho chuyến về.");
+        window.location.href = "seat-selection.html?leg=inbound";
+        return;
+      }
+
+      if (leg === "inbound"){
+        bookingDraft.seatInbound = seatCode;
+        localStorage.setItem("bookingDraft", JSON.stringify(bookingDraft));
+        window.location.href = "payment.html";
+        return;
+      }
+    }
+
+    bookingDraft.seat = seatCode;
     localStorage.setItem("bookingDraft", JSON.stringify(bookingDraft));
     window.location.href = "payment.html";
   });

@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // service options 
   const services = [
     { checkbox: "baggage", options: "baggage-options" },
     { checkbox: "meal", options: "meal-options" },
@@ -12,6 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+
+  // submit form
   const passengerForm = document.querySelector(".passenger-info-form");
   passengerForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -49,10 +52,20 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
+
+    // load bookingDraft
     const bookingDraft = JSON.parse(localStorage.getItem("bookingDraft"));
 
-    if (!bookingDraft || !bookingDraft.flight){
+    if (!bookingDraft){
       alert("Không tìm thấy thông tin chuyến bay.");
+      return;
+    }
+
+    const isOneWay = !!bookingDraft?.flight;
+    const isRoundTrip = !!(bookingDraft?.outbound && bookingDraft?.inbound);
+
+    if (!isOneWay && !isRoundTrip){
+      alert("Thiếu thông tin chuyến bay.");
       return;
     }
 
@@ -63,17 +76,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     localStorage.setItem("bookingDraft", JSON.stringify(bookingDraft));
-
-    // const allData = {
-    //   passenger: passengerData,
-    //   services: {
-    //     baggage: baggageInfo,
-    //     meal: mealInfo,
-    //   },
-    // };
-
-    // localStorage.setItem("passengerInfo", JSON.stringify(allData));
-
-    window.location.href = "seat-selection.html";
+    
+    if (isRoundTrip){
+      window.location.href = "seat-selection.html?leg=outbound";
+    } else {
+      window.location.href = "seat-selection.html";
+    }
   });
 });

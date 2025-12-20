@@ -1,3 +1,4 @@
+// doc parameter cho oneway va roundtrip
 document.addEventListener("DOMContentLoaded", () => {
   const findBtn = document.getElementById("find-flight-btn");
   if (findBtn) {
@@ -6,14 +7,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const from = document.getElementById("from").value;
       const to = document.getElementById("to").value;
       const date = document.getElementById("departure-time").value;
+      const tripType = document.querySelector('input[name="trip"]:checked').value;
+      const returnDate = document.getElementById("return-time")?.value || "";
 
       if (!from || !to || !date) {
         alert("Vui lòng chọn đầy đủ thông tin!");
         return;
       }
 
-      window.location.href = `pages/booking.html?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${encodeURIComponent(date)}`;
+      if (tripType === "roundtrip" && !returnDate){
+        alert("Vui lòng chọn ngày về!");
+        return;
+      }
+
+      let url = `pages/booking.html?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${encodeURIComponent(date)}&tripType=${tripType}`;
+
+      if (tripType === "roundtrip"){
+        url += `&returnDate=${encodeURIComponent(returnDate)}`;
+      }
+
+      window.location.href = url;
     });
+
     return;
   }
 
@@ -24,31 +39,100 @@ document.addEventListener("DOMContentLoaded", () => {
   const from = params.get("from");
   const to = params.get("to");
   const date = params.get("date");
+  const tripType = params.get("tripType") || "oneway";
+  const returnDate = params.get("returnDate");
 
   fetch("../flights_processed.csv")
     .then(res => res.text())
     .then(csv => {
       const flights = Papa.parse(csv.trim(), { header: true }).data;
 
-      const filtered = flights.filter(f => {
-        if (!f.f_time_from) return false;
-        const flightDate = f.f_time_from.split(" ")[0];
-        return (
-          f.airport_from.includes(from) &&
-          f.airport_to.includes(to) &&
-          flightDate === date
-        );
-      });
-
-      window.currentFlights = filtered;
+      // if (tripType) {
+      //   renderRoundTrip(flights, container, {from, to, date, returnDate});
+      // } else {
+      //   renderOneWay(flights, container, {from, to, date});
+      // }
       
-      renderFlights(filtered, container);
+      if (tripType === "roundtrip"){
+        renderOutbound(flights,  container, {from, to, date});
+      } else {
+        renderOneWay(flights, container, {from, to, date});
+      }
+
+
+      // const filtered = flights.filter(f => {
+      //   if (!f.f_time_from) return false;
+      //   const flightDate = f.f_time_from.split(" ")[0];
+      //   return (
+      //     f.airport_from.includes(from) &&
+      //     f.airport_to.includes(to) &&
+      //     flightDate === date
+      //   );
+      // });
+
+      // window.currentFlights = filtered;
+      
+      // renderFlights(filtered, container);
     })
     .catch(err => {
       console.error("Lỗi khi load CSV:", err);
       container.innerHTML = "<p>Lỗi khi tải dữ liệu chuyến bay.</p>";
     });
 });
+
+function renderOneWay(flights, container, {from, to, date}){
+  const filtered = flights.filter(f => {
+    if (!f.f_time_from){
+      return false;
+    }
+    const d = f.f_time_from.split(" ")[0];
+    return (f.airport_from.includes(from) && f.airport_to.includes(to) && d === date);
+  });
+  
+  window.currentFlights = filtered;
+  container.innerHTML = "<h3>Chuyến bay một chiều</h3>";
+  renderFlights(filtered, container);
+}
+
+
+function renderOutbound(flights, container, {from, to, date}){
+  localStorage.removeItem("selectedOutbound");
+
+  const outbound = flights.filter(f => {
+    const d = f.f_time_from?.split(" ")[0];
+    return (f.airport_from.includes(from) && f.airport_to.includes(to) && d === date); 
+  });
+
+  window.currentFlights = outbound;
+  container.innerHTML = "<h3>Chọn chuyến đi</h3>";
+  renderFlights(outbound, container);
+}
+
+
+function renderInbound(){
+  const params = new URLSearchParams(window.location.search);
+  
+  const from = params.get("from");
+  const to = params.get("to");
+  const returnDate = params.get("returnDate");
+
+  fetch("../flights_processed.csv")
+  .then(res => res.text())
+  .then(csv => {
+    const flights = Papa.parse(csv.trim(), {header: true}).data;
+
+    const inbound = flights.filter(f => {
+      const d = f.f_time_from?.split(" ")[0];
+      return (f.airport_from.includes(to) && f.airport_to.includes(from) && d === returnDate);
+    });
+
+    window.currentFlights = inbound;
+    const container = document.getElementById("flight-list");
+    container.innerHTML = "<h3>Chọn chuyến về</h3>";
+    renderFlights(inbound, container);
+  });
+}
+
 
 function renderFlights(flights, container) {
   container.innerHTML = "";
@@ -98,24 +182,59 @@ function renderFlights(flights, container) {
 }
 
 function xacNhanChuyenBay(maChuyenBay) {
+  const params = new URLSearchParams(window.location.search);
+  const tripType = params.get("tripType") || "oneway";
   const flight = window.currentFlights.find(f => (f.f_code || f.code) === maChuyenBay);
 
+  if (!flight){
+    return;
+  }
+
+  function normalizeFlight(f) {
+  return {
+    code: f.f_code || f.code,
+    airport_from: f.airport_from,
+    airport_to: f.airport_to,
+    time_from: f.time_from || f.f_time_from,
+    time_to: f.time_to || f.f_time_to,
+    type: f.type,
+    price: Number(f.total_price || f.price || 0)
+  };
+}
+
+  if (tripType === "roundtrip"){
+    const outbound = localStorage.getItem("selectedOutbound");
+
+    if (!outbound){
+      localStorage.setItem("selectedOutbound", JSON.stringify(normalizeFlight(flight)));
+      alert("Đã chọn chuyến đi. Vui lòng chọn chuyến về.");
+      renderInbound();
+      return;
+    }
+
+    const outboundFlight = JSON.parse(outbound);
+    const inboundFlight = normalizeFlight(flight);
+    
+    localStorage.setItem("bookingDraft", JSON.stringify({
+      outbound: outboundFlight,
+      inbound: inboundFlight,
+      passenger: null,
+      services: null,
+      seatOutbound: null,
+      seatInbound: null
+    }));
+
+    localStorage.removeItem("selectedOutbound");
+    window.location.href = "passenger-info.html";
+    return;
+  }
+
   localStorage.setItem("bookingDraft", JSON.stringify({
-    flight : {
-      code: maChuyenBay,
-      from: flight.from,
-      to: flight.to,
-      airport_from: flight.airport_from,
-      airport_to: flight.airport_to,
-      time_from: flight.f_time_from,
-      time_to: flight.f_time_to,
-      type: flight.type,
-      price: flight.total_price
-    },
+    flight: normalizeFlight(flight), 
     passenger: null,
     services: null,
     seat: null
   }));
 
-  window.location.href = `passenger-info.html?flight=${encodeURIComponent(maChuyenBay)}`;
+  window.location.href = "passenger-info.html";
 }
