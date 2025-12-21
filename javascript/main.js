@@ -265,19 +265,35 @@ document.addEventListener("DOMContentLoaded", () => {
     const btn = navBtns.querySelector(".btn");
     if (!btn) return;
 
+    const oldMyFlightBtn = navBtns.querySelector(".my-flight-btn");
+    if (oldMyFlightBtn) oldMyFlightBtn.remove();
+
     if (auth?.loggedIn) {
+        const myFlightBtn = document.createElement("button");
+        myFlightBtn.textContent = "Chuyến bay của tôi";
+        myFlightBtn.className = "btn my-flight-btn";
+
+        myFlightBtn.onclick = () => {
+            window.location.href = "../pages/my-flights.html";
+        };
+
+
+        navBtns.insertBefore(myFlightBtn, btn);
         btn.textContent = "Đăng xuất";
         btn.onclick = () => {
             localStorage.removeItem("auth");
             window.location.href = "../pages/login.html";
         };
-    } else {
+
+    } 
+    else {
         btn.textContent = "Đăng nhập";
         btn.onclick = () => {
             window.location.href = "../pages/login.html";
         };
     }
 });
+
 
 function requireLogin() {
     const auth = JSON.parse(localStorage.getItem("auth"));

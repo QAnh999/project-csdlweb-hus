@@ -7,6 +7,7 @@
     --text-light: #4d648d;
     --extra-light: #f3f4f6;
     --max-width: 1200px;
+      --header-color: #e9effdff;
 }
 
 * {
@@ -119,8 +120,7 @@ body {
   display: flex;
   align-items: center;
   padding: 12px 40px;
-  background-color: rgba(255,255,255,0.85);
-  backdrop-filter: blur(6px);
+  background-color: var(--header-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 1.5rem;
 }

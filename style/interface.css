@@ -488,11 +488,13 @@ footer {
     display: flex;
     justify-content: flex-end;
     margin-right: 2rem;
+    /* margin-left: 1rem; */
   }
 
   .nav_btns button {
     padding: 0.75rem 2rem;
     background-color: var(--text-dark);
+    margin: 10px;
   }
 
   .destination_grid {
@@ -577,8 +579,8 @@ footer {
 }
 
 .booking-tabs .tab.active {
-  border-bottom: 3px solid #007bff;
-  color: #3d79b9;
+  border-bottom: 3px solid var(--text-dark);
+  color: var(--text-dark);
   font-weight: bold;
 }
 
