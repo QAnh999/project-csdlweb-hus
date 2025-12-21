@@ -13,22 +13,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const bookedSeats = [];
   Object.keys(localStorage).forEach(key => {
-    if (key.startsWith("booking_")) {
-      const b = JSON.parse(localStorage.getItem(key));
-      
-      if (leg === "oneway" && b?.seat) {
-        bookedSeats.push(b.seat);
-      }
-
-      if (leg === "outbound" && b?.seatOutbound) {
-        bookedSeats.push(b.seatOutbound);
-      }
-
-      if (leg === "inbound" && b?.seatInbound) {
-        bookedSeats.push(b.seatInbound);
-      }
-    } else {
+    if (!key.startsWith("booking_")){
       return;
+    }
+
+    const b = JSON.parse(localStorage.getItem(key));
+    if (!b){
+      return;
+    }
+
+    const currentFlightCode = leg === "outbound" ? bookingDraft?.outbound?.code 
+      : leg === "inbound" ? bookingDraft?.inbound?.code 
+      : bookingDraft?.flight?.code;
+
+    if (leg === "oneway" && b.flight?.code === currentFlightCode && b.seat){
+      bookedSeats.push(b.seat);
+    }
+
+    if (leg === "outbound" && b.outbound?.code === currentFlightCode && b.seatOutbound){
+      bookedSeats.push(b.seatOutbound);
+    }
+
+    if (leg === "inbound" && b.inbound?.code === currentFlightCode && b.seatInbound){
+      bookedSeats.push(b.seatInbound);
     }
   });
 
