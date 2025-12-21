@@ -487,6 +487,7 @@ footer {
     flex: 1;
     display: flex;
     justify-content: flex-end;
+    margin-right: 2rem;
   }
 
   .nav_btns button {
@@ -518,7 +519,7 @@ footer {
     grid-area: unset;
   }
 }
-
+/* 
 @media (width > 1200px) {
   .header_content {
     padding-inline: 1rem 0;
@@ -527,7 +528,7 @@ footer {
   .destination_grid {
     gap: 2rem;
   }
-}
+} */
 
 
 /* phan booking */
