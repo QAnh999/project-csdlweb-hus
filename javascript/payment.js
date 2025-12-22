@@ -92,25 +92,25 @@ function handlePaymentPage() {
         flightDetailsEl.innerHTML = `
         <div class="flight">
         <h3>Thông tin hành khách</h3>
-            <div class="detail-row"><span class="label">Họ tên:</span> <span class="info"> (${passenger.Danh_xung}) ${passenger.Ho} ${passenger.Ten_dem_va_ten}</span></div>
-            <div class="detail-row"><span class="label">Email:</span> <span class="info">${passenger.Email}</span></div>
-            <div class="detail-row"><span class="label">Điện thoại:</span> <span class="info">${passenger.Ma_quoc_gia} ${passenger.So_dien_thoai.replace(/^0/, '')}</span></div>
+            <div class="detail-row"><span class="label">Họ tên:</span>&emsp;<span class="info"> (${passenger.Danh_xung}) ${passenger.Ho} ${passenger.Ten_dem_va_ten}</span></div>
+            <div class="detail-row"><span class="label">Email:</span>&emsp;<span class="info">${passenger.Email}</span></div>
+            <div class="detail-row"><span class="label">Điện thoại:</span>&emsp;<span class="info">${passenger.Ma_quoc_gia} ${passenger.So_dien_thoai.replace(/^0/, '')}</span></div>
             
             <h3>Chi tiết chặng đi</h3>
-            <div class="detail-row"><span class="label">Mã chuyến bay:</span> <span class="info">${outbound.code} (${outbound.type})</span></div>
-            <div class="detail-row"><span class="label">Chặng bay:</span> <span class="info">${outbound.airport_from} ✈ ${outbound.airport_to}</span></div>
-            <div class="detail-row"><span class="label">Khởi hành:</span> <span class="info">${outbound.time_from}</span></div>
-            <div class="detail-row"><span class="label">Ghế đã chọn:</span> <span class="info">${seatOutbound}</span></div>
-            <div class="detail-row"><span class="label">Dịch vụ (Hành lý):</span> <span class="info">${services.baggage.type}</span></div>
-            <div class="detail-row"><span class="label">Dịch vụ (Bữa ăn):</span> <span class="info">${services.meal.type}</span></div>
+            <div class="detail-row"><span class="label">Mã chuyến bay:</span>&emsp;<span class="info">${outbound.code} (${outbound.type})</span></div>
+            <div class="detail-row"><span class="label">Chặng bay:</span>&emsp;<span class="info">${outbound.airport_from} ✈ ${outbound.airport_to}</span></div>
+            <div class="detail-row"><span class="label">Khởi hành:</span>&emsp;<span class="info">${outbound.time_from}</span></div>
+            <div class="detail-row"><span class="label">Ghế đã chọn:</span>&emsp;<span class="info">${seatOutbound}</span></div>
+            <div class="detail-row"><span class="label">Dịch vụ (Hành lý):</span>&emsp;<span class="info">${services.baggage.type}</span></div>
+            <div class="detail-row"><span class="label">Dịch vụ (Bữa ăn):</span>&emsp;<span class="info">${services.meal.type}</span></div>
             
             <h3>Chi tiết chặng về</h3>
-            <div class="detail-row"><span class="label">Mã chuyến bay:</span> <span class="info">${inbound.code} (${inbound.type})</span></div>
-            <div class="detail-row"><span class="label">Chặng bay:</span> <span class="info">${inbound.airport_from} ✈ ${inbound.airport_to}</span></div>
-            <div class="detail-row"><span class="label">Khởi hành:</span> <span class="info">${inbound.time_from}</span></div>
-            <div class="detail-row"><span class="label">Ghế đã chọn:</span> <span class="info">${seatInbound}</span></div>
-            <div class="detail-row"><span class="label">Dịch vụ (Hành lý):</span> <span class="info">${services.baggage.type}</span></div>
-            <div class="detail-row"><span class="label">Dịch vụ (Bữa ăn):</span> <span class="info">${services.meal.type}</span></div>
+            <div class="detail-row"><span class="label">Mã chuyến bay:</span>&emsp;<span class="info">${inbound.code} (${inbound.type})</span></div>
+            <div class="detail-row"><span class="label">Chặng bay:</span>&emsp;<span class="info">${inbound.airport_from} ✈ ${inbound.airport_to}</span></div>
+            <div class="detail-row"><span class="label">Khởi hành:</span>&emsp;<span class="info">${inbound.time_from}</span></div>
+            <div class="detail-row"><span class="label">Ghế đã chọn:</span>&emsp;<span class="info">${seatInbound}</span></div>
+            <div class="detail-row"><span class="label">Dịch vụ (Hành lý):</span>&emsp;<span class="info">${services.baggage.type}</span></div>
+            <div class="detail-row"><span class="label">Dịch vụ (Bữa ăn):</span>&emsp;<span class="info">${services.meal.type}</span></div>
             
         </div>
         `;
@@ -212,7 +212,8 @@ function handlePaymentPage() {
                 services,
                 totalAmount,
                 checkedIn: false,
-                type: isOneWay ? "oneway" : "roundtrip"
+                type: isOneWay ? "oneway" : "roundtrip",
+                createdAt: Date.now()
             };
 
             if (isOneWay){

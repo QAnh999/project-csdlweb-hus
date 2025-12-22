@@ -103,7 +103,8 @@ body {
 
 
 .my-flight-card {
-    background: linear-gradient(135deg, var(--primary-color), #ffffff);
+    /* background: linear-gradient(135deg, var(--primary-color), #ffffff); */
+    background-color: var(--header-color);
     border-radius: 14px;
     padding: 20px 22px;
     border: 1px solid #dfe3e8;

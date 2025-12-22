@@ -25,6 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    myBookings.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+
     if (myBookings.length === 0) {
         container.innerHTML = `
             <p style="text-align:center; margin-top:20px;">
@@ -59,14 +61,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     <p><strong>Chuyến về:</strong> <span>${b.inbound.airport_from} → ${b.inbound.airport_to}</span></p>
                     <p><strong>Ghế về:</strong> <span>${b.seatInbound || "Chưa chọn"}<span></p>
                     <p><strong>Tổng tiền:</strong> <span>${b.totalAmount?.toLocaleString() || 0} VND</span></p>
-                `;
+                    <p><strong>Thời gian đặt:</strong> <span>${new Date(b.createdAt).toLocaleString("vi-VN")}</span></p>
+                    `;
             } else if (b.flight) {
                 div.innerHTML = `
                     <p><strong>Mã đặt chỗ:</strong> <span>${b.bookingCode}</span></p>
                     <p><strong>Chuyến bay:</strong> <span>${b.flight.airport_from} → ${b.flight.airport_to}</span></p>
                     <p><strong>Ghế:</strong> <span>${b.seat || "Chưa chọn"}</span></p>
                     <p><strong>Tổng tiền:</strong> <span>${b.totalAmount?.toLocaleString() || 0} VND</span></p>
-                `;
+                    <p><strong>Thời gian đặt:</strong> <span>${new Date(b.createdAt).toLocaleString("vi-VN")}</span></p>
+                    
+                    `;
             }
 
             container.appendChild(div);

@@ -521,6 +521,7 @@ footer {
     grid-area: unset;
   }
 }
+
 /* 
 @media (width > 1200px) {
   .header_content {
@@ -638,7 +639,7 @@ footer {
 }
 
 .booking-group input,
-.booking-group select {
+.booking-group select{
   padding: 10px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -843,6 +844,7 @@ footer {
   color: var(--text-dark)
 }
 
-.feedback_user small, p {
+.feedback_user small,
+p {
   color: var(--text-light);
 }

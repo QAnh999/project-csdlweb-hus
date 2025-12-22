@@ -8,7 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400..700;1,400..700&display=swap"
         rel="stylesheet">
-    <link rel="icon" type=""></link>
+    <link rel="icon" type="">
+    </link>
     <title>Lotus Travel | From Low Cost To High Trust</title>
 </head>
 
@@ -48,7 +49,9 @@
                     <div class="content-row">
                         <div class="booking-group">
                             <label>Từ</label>
-                            <select id="from" name="from">
+                            <input list="airports" id="from" name="from" placeholder="TP HCM">
+
+                            <datalist id="airports">
                                 <option value="SGN">TP HCM (SGN)</option>
                                 <option value="HAN">Hà Nội (HAN)</option>
                                 <option value="DLI">Đà Lạt (DLI)</option>
@@ -59,12 +62,17 @@
                                 <option value="THD">Thanh Hóa (THD)</option>
                                 <option value="HPH">Hải Phòng (HPH)</option>
                                 <option value="VII">Vinh (VII)</option>
-                            </select>
+                                <option value="HUI">Huế (HUI)</option>
+                                <option value="VCI">Chu Lai (VCI)</option>
+                                <option value="VCA">Cần Thơ (VCA)</option>
+                            </datalist>
+
                         </div>
 
                         <div class="booking-group">
                             <label>Đến</label>
-                            <select id="to" name="to">
+                            <input list="airports" id="to" name="to" placeholder="TP HCM">
+                            <datalist id="airports">
                                 <option value="SGN">TP HCM (SGN)</option>
                                 <option value="HAN">Hà Nội (HAN)</option>
                                 <option value="DLI">Đà Lạt (DLI)</option>
@@ -75,7 +83,11 @@
                                 <option value="THD">Thanh Hóa (THD)</option>
                                 <option value="HPH">Hải Phòng (HPH)</option>
                                 <option value="VII">Vinh (VII)</option>
-                            </select>
+                                <option value="HUI">Huế (HUI)</option>
+                                <option value="VCI">Chu Lai (VCI)</option>
+                                <option value="VCA">Cần Thơ (VCA)</option>
+                            </datalist>
+
                         </div>
 
                         <div class="booking-group">
@@ -152,7 +164,7 @@
                     </div>
                 </div>
                 <button type="button" class="btn" id="btn-checkin">Làm thủ tục</button>
-                
+
                 <div id="checkin-result"></div>
                 <div id="checkin-detail" style="display:none;"></div>
             </div>
@@ -216,7 +228,7 @@
 
     <section class="section_container showcase_container" id="package">
         <div class="showcase_image">
-            <img src="assets/ban-do-viet-nam.jpg" alt="showcase" />
+            <img src="assets/co-to-quoc.jpg" alt="showcase" />
         </div>
         <div class="showcase_content">
             <h4>Lotus Travel</h4>
@@ -238,8 +250,8 @@
             </p>
             <div class="showcase_btn">
                 <a href="#top" class="btn">
-                        Đặt vé ngay thôi
-                        <span><i class="ri-arrow-right-line"></i></span>
+                    Đặt vé ngay thôi
+                    <span><i class="ri-arrow-right-line"></i></span>
                 </a>
             </div>
         </div>
