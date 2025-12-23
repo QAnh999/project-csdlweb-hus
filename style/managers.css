@@ -108,53 +108,51 @@
 .table-section {
   background: var(--white);
   border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  overflow: hidden;
   margin-bottom: 1rem;
-  width: 100%;
+  width: 120%;
 }
 
 .table-container {
+  width: 120%;
   overflow-x: auto;
-  width: 100%;
 }
 
 .managers-table {
-  width: 160%;
+  width: 120%;
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 .managers-table th,
 .managers-table td {
-  padding: 1rem;
+  padding: 0.75rem;
   text-align: left;
   word-wrap: break-word;
 }
 
 .managers-table th:first-child,
 .managers-table td:first-child {
-  width: 25%;
+  width: 15%;
 }
 
 .managers-table th:nth-child(2),
 .managers-table td:nth-child(2) {
-  width: 40%;
+  width: 25%;
 }
 
 .managers-table th:nth-child(3),
 .managers-table td:nth-child(3) {
-  width: 40%;
+  width: 25%;
 }
 
 .managers-table th:nth-child(4),
 .managers-table td:nth-child(4) {
-  width: 30%;
+  width: 25%;
 }
 
 .managers-table th:last-child,
 .managers-table td:last-child {
-  width: 25%;
+  width: auto;
   text-align: center;
 }
 
