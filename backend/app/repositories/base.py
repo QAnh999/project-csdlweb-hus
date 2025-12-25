@@ -24,7 +24,8 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             data = obj_in
         obj = self.model(**data)
         db.add(obj)
-        db.commit()
+        # db.commit()
+        db.flush()
         db.refresh(obj)
         return obj
     
@@ -38,7 +39,8 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if hasattr(db_obj, field):
                 setattr(db_obj, field, value)
         db.add(db_obj)
-        db.commit()
+        # db.commit()
+        db.flush()
         db.refresh(db_obj)
         return db_obj
 
@@ -46,6 +48,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj = db.query(self.model).filter(self.model.id == id).first()
         if obj:
             db.delete(obj)
-            db.commit()
+            # db.commit()
+            db.flush()
         return obj
             

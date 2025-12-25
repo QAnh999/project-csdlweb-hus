@@ -6,6 +6,7 @@ class BookedSeatBase(BaseModel):
     id_seat: int
     id_flight: int
     reservation_id: int
+    # status: Optional[str] = "held"
     hold_expires: Optional[datetime] = None
 
 class BookedSeatCreate(BookedSeatBase):

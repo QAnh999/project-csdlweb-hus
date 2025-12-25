@@ -1,17 +1,20 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 from sqlalchemy.orm import Session
 from app.repositories.reservation import reservation_repository
 from app.repositories.reservation_detail import reservation_detail_repository
 from app.repositories.flight import flight_repository
 from app.repositories.passenger import passenger_repository
 from app.repositories.invoice import invoice_repository
+from app.repositories.reservation_passenger import reservation_passenger_repository
+from app.repositories.service import service_repository
+from app.repositories.reservation_service import reservation_service_repository
 from app.services.seat import seat_service
 from app.utils.calculator import calculate_total
-from app.utils.validators import validate_booking_data
-from app.utils.helper import generate_reservation_code, generate_invoice_number, generate_ticket_number
+from app.utils.generator import generate_reservation_code, generate_invoice_number
 
 class ReservationService:
-    HOLD_HOURS = 24
+    HOLD_MINUTES = 15
 
     def __init__(self):
         self.reservation_repo = reservation_repository
@@ -20,153 +23,309 @@ class ReservationService:
         self.passenger_repo = passenger_repository
         self.seat_serv = seat_service
         self.invoice_repo = invoice_repository
+        self.res_passenger_repo = reservation_passenger_repository
+        self.service_repo = service_repository
+        self.res_service_repo = reservation_service_repository
 
-    def _get_or_create_passenger(self, db: Session, user_id: int, data: dict):
-        passenger = self.passenger_repo.get_by_user(db, user_id)
+    def _assert_user(self, reservation, user_id: int):
+        if reservation.user_id != user_id:
+            raise ValueError("Bạn chưa được cấp quyền để thay đổi nội dung này")
+
+    def _get_reservation(self, db: Session, reservation_id: int):
+        reservation = self.reservation_repo.get(db, reservation_id)
+        if not reservation:
+            raise ValueError("Mã đặt chỗ không tồn tại")
+        if reservation.expires_at and reservation.expires_at < datetime.utcnow():
+            raise ValueError("Mã đặt chỗ đã hết hạn")
+        if reservation.status != "pending":
+            raise ValueError("Mã đặt chỗ không còn thay đổi được")
+        return reservation
+    
+    def _get_or_create_passenger(self, db: Session, user_id: int, passenger_data: dict):
+        passenger = self.passenger_repo.get_by_user_and_identity(
+            db=db,
+            user_id=user_id,
+            identify_number=passenger_data.get("identify_number"),
+            passport_number=passenger_data.get("passport_number")
+        )
         if passenger:
             return passenger
-        return self.passenger_repo.create(db, {"user_id": user_id, **data})
-
-    def _process_flight(self, db: Session, flight_id: int, passenger_data: list, selected_seats: list[int], seat_class: str):
-        flight = self.flight_repo.get(db, flight_id)
-        if not flight:
-            raise ValueError(f"Chuyến bay {flight_id} không tồn tại")
-
-        if selected_seats:
-            if len(selected_seats) != len(passenger_data):
-                raise ValueError("Số lượng ghế phải bằng số lượng hành khách")
-            self.seat_serv.hold_seats(db, flight.id, selected_seats)
-            seats = self.seat_serv.seat_repo.get_by_ids(db, selected_seats)
-        else:
-            seats = [None] * len(passenger_data)
-
-        pricing = calculate_total(flight, seat_class, passenger_data, seats)
-        return flight, seats, pricing
-
-    def create_reservation(self, db: Session, user_id: int, data: dict):
-        validate_booking_data(data)
-
-        main_flight, main_seats, main_pricing = self._process_flight(
-            db, data["main_flight_id"], data["passengers"], data.get("selected_seats", []), data["seat_class"]
-        )
-
-        return_flight_id = data.get("return_flight_id")
-        if return_flight_id:
-            return_flight, return_seats, return_pricing = self._process_flight(
-                db, return_flight_id, data["passengers"], data.get("return_selected_seats", []), data["seat_class"]
-            )
-        else:
-            return_flight = None
-            return_seats = []
-            return_pricing = None
-
-        expires_at = datetime.utcnow() + timedelta(hours=self.HOLD_HOURS)
-
-        reservation = self.reservation_repo.create(db, {
-            "reservation_code": generate_reservation_code(),
+        return self.passenger_repo.create(db, {
             "user_id": user_id,
-            "main_flight_id": main_flight.id,
-            "return_flight_id": return_flight.id if return_flight else None,
-            "total_passengers": len(data["passengers"]),
-            "total_amount": main_pricing["total_amount"] + (return_pricing["total_amount"] if return_pricing else 0),
-            "tax_amount": main_pricing["tax_amount"] + (return_pricing["tax_amount"] if return_pricing else 0),
-            "status": "pending",
-            "expires_at": expires_at
+            **passenger_data
         })
 
-        details = []
-        for i, p in enumerate(data["passengers"]):
-            passenger = self._get_or_create_passenger(db, user_id, p)
-            seat_id = main_seats[i].id if main_seats[i] else None
-            detail = self.detail_repo.create(db, {
-                "reservation_id": reservation.id,
-                "passenger_id": passenger.id,
-                "flight_id": main_flight.id,
-                "seat_id": seat_id,
-                "base_fare": main_pricing["base_fare_per_passenger"][i],
-                "seat_surcharge": main_pricing["seat_surcharge_per_passenger"][i],
-                "luggage_surcharge": main_pricing["luggage_surcharge_per_passenger"][i],
-                "tax_fare": main_pricing["tax_per_passenger"][i],
-                "total_fare": main_pricing["total_per_passenger"][i],
-                "checkin_status": "not_checked_in"
-            })
-            details.append(detail)
+    def start_reservation(self, db: Session, user_id: int, main_flight_id: int, return_flight_id: int = None):
+        expires_at = datetime.utcnow() + timedelta(minutes=self.HOLD_MINUTES)
 
-        if return_flight:
-            for i, p in enumerate(data["passengers"]):
+        try:
+            reservation = self.reservation_repo.create(db, {
+                "reservation_code": generate_reservation_code(),
+                "user_id": user_id,
+                "main_flight_id": main_flight_id,
+                "return_flight_id": return_flight_id,
+                "total_passengers": 0,
+                "total_amount": 0.0,
+                "tax_amount": 0.0,
+                "status": "pending",
+                "expires_at": expires_at
+            })
+            db.commit()
+            return reservation
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    def add_passengers(self, db: Session, user_id: int, reservation_id: int, passengers: list[dict]):
+        try:
+            reservation = self._get_reservation(db, reservation_id)
+            self._assert_user(reservation, user_id)
+            
+            passenger_list = []
+
+            for p in passengers:
                 passenger = self._get_or_create_passenger(db, user_id, p)
-                seat_id = return_seats[i].id if return_seats[i] else None
+                
+                exists = self.res_passenger_repo.exists(db, reservation.id, passenger.id)
+                if not exists:
+                    self.res_passenger_repo.create(db, {
+                        "reservation_id": reservation.id,
+                        "passenger_id": passenger.id
+                    })
+                passenger_list.append(passenger)
+
+            self.reservation_repo.update(db, reservation, {
+                "total_passengers": self.res_passenger_repo.count_by_reservation(db, reservation.id)
+            })
+            db.commit()
+            return passenger_list
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    def hold_seats_for_reservation(self, db: Session, user_id: int, reservation_id: int, flight_id: int, seat_ids: list[int], seat_class: str):
+        reservation = self._get_reservation(db, reservation_id)
+        self._assert_user(reservation, user_id)
+        
+        if not seat_ids:
+            raise ValueError("Danh sách ghế trống")
+        return self.seat_serv.hold_seats(db, flight_id, reservation.id, seat_ids, seat_class)
+    
+    def finalize_reservation(self, db: Session, user_id: int, reservation_id: int, seat_class: str, main_seat_ids: list[int], return_seat_ids: list[int] = []):
+        try:
+            reservation = self._get_reservation(db, reservation_id)
+            self._assert_user(reservation, user_id)
+            
+            main_flight = self.flight_repo.get(db, reservation.main_flight_id)
+            return_flight = self.flight_repo.get(db, reservation.return_flight_id) if reservation.return_flight_id else None
+
+            passengers = self.res_passenger_repo.get_by_reservation(db, reservation.id)
+            if not passengers:
+                raise ValueError("No passengers in reservation")
+
+            if not main_seat_ids:
+                raise ValueError("Vui lòng chọn ghế cho chuyến bay đi")
+            if return_flight and not return_seat_ids:
+                raise ValueError("Vui lòng chọn ghế cho chuyến bay về")
+
+            main_seats = self.seat_serv.get_held_seats_for_reservation(db, main_flight.id, reservation.id, main_seat_ids) 
+            return_seats = self.seat_serv.get_held_seats_for_reservation(db, return_flight.id, reservation.id, return_seat_ids) if return_flight else None
+            
+            if len(main_seats) != len(passengers) or (return_flight and len(return_seats) != len(passengers)):
+                raise ValueError("Số ghế chính không khớp với số hành khách")
+
+            for seat in main_seats:
+                if seat and seat.seat.seat_class != seat_class:
+                    raise ValueError("Seat class mismatch")
+            if return_seats:
+                for seat in return_seats:
+                    if seat and seat.seat.seat_class != seat_class:
+                        raise ValueError("Seat class mismatch")
+                
+            
+            main_pricing = calculate_total(main_flight, seat_class, passengers, main_seats)
+            return_pricing = calculate_total(return_flight, seat_class, passengers, return_seats) if return_flight else None
+
+            total_amount = main_pricing["total_amount"] + (return_pricing["total_amount"] if return_pricing else 0)
+            total_tax = main_pricing["tax_amount"] + (return_pricing["tax_amount"] if return_pricing else 0)
+            
+            self.reservation_repo.update(db, reservation, {
+                "total_amount": total_amount,
+                "tax_amount": total_tax
+            })
+
+            details = []
+            for i, passenger in enumerate(passengers):
+                seat = main_seats[i]
                 detail = self.detail_repo.create(db, {
                     "reservation_id": reservation.id,
                     "passenger_id": passenger.id,
-                    "flight_id": return_flight.id,
-                    "seat_id": seat_id,
-                    "base_fare": return_pricing["base_fare_per_passenger"][i],
-                    "seat_surcharge": return_pricing["seat_surcharge_per_passenger"][i],
-                    "luggage_surcharge": return_pricing["luggage_surcharge_per_passenger"][i],
-                    "tax_fare": return_pricing["tax_per_passenger"][i],
-                    "total_fare": return_pricing["total_per_passenger"][i],
+                    "flight_id": main_flight.id,
+                    "seat_id": seat.id_seat,
+                    "base_fare": main_pricing["base_fare_per_passenger"][i],
+                    "seat_surcharge": main_pricing["seat_surcharge_per_passenger"][i],
+                    "luggage_surcharge": main_pricing["luggage_surcharge_per_passenger"][i],
+                    "tax_fare": main_pricing["tax_per_passenger"][i],
+                    "total_fare": main_pricing["total_per_passenger"][i],
                     "checkin_status": "not_checked_in"
                 })
                 details.append(detail)
-        
-        details = self.detail_repo.get_by_reservation_with_seat(db, reservation.id)
 
-        invoice = self.invoice_repo.create(db, {
-            "invoice_number": generate_invoice_number(),
-            "reservation_id": reservation.id,
-            "user_id": user_id,
-            "total_amount": reservation.total_amount,
-            "tax_amount": reservation.tax_amount,
-            "due_date": expires_at,
-            "status": "unpaid"
-        })
+            if return_flight:
+                for i, passenger in enumerate(passengers):
+                    seat = return_seats[i]
+                    detail = self.detail_repo.create(db, {
+                        "reservation_id": reservation.id,
+                        "passenger_id": passenger.id,
+                        "flight_id": return_flight.id,
+                        "seat_id": seat.id_seat,
+                        "base_fare": return_pricing["base_fare_per_passenger"][i],
+                        "seat_surcharge": return_pricing["seat_surcharge_per_passenger"][i],
+                        "luggage_surcharge": return_pricing["luggage_surcharge_per_passenger"][i],
+                        "tax_fare": return_pricing["tax_per_passenger"][i],
+                        "total_fare": return_pricing["total_per_passenger"][i],
+                        "checkin_status": "not_checked_in"
+                    })
+                    details.append(detail)
 
-        booked_seats = []
-        for seat in main_seats + return_seats:
-            if seat:
-                booked_seats.append({
-                    "seat_id": seat.id,
-                    "seat_number": seat.seat_number,
-                    "seat_class": seat.seat_class,
-                    "status": "held"
+            invoice = self.invoice_repo.get_by_reservation(db, reservation_id)
+            if not invoice:
+                invoice = self.invoice_repo.create(db, {
+                    "invoice_number": generate_invoice_number(),
+                    "reservation_id": reservation.id,
+                    "user_id": reservation.user_id,
+                    "total_amount": reservation.total_amount,
+                    "tax_amount": reservation.tax_amount,
+                    "due_date": reservation.expires_at,
+                    "status": "unpaid"
+                })
+            else:
+                self.invoice_repo.update(db, invoice, {
+                    "total_amount": reservation.total_amount,
+                    "tax_amount": reservation.tax_amount
                 })
 
-        # reservation_data = {
-        #     "id": reservation.id,
-        #     "reservation_code": reservation.reservation_code,
-        #     "user_id": user_id,
-        #     "main_flight_id": main_flight.id,
-        #     "return_flight_id": return_flight.id if return_flight else None,
-        #     "total_passengers": len(data["passengers"]),
-        #     "total_amount": reservation.total_amount,
-        #     "tax_amount": reservation.tax_amount,
-        #     "status": reservation.status,
-        #     "expires_at": reservation.expires_at,
-        #     "booked_seats": booked_seats,
-        #     "invoice": {
-        #         "invoice_number": invoice.invoice_number,
-        #         "total_amount": invoice.total_amount,
-        #         "tax_amount": invoice.tax_amount,
-        #         "status": invoice.status,
-        #         "issue_date": invoice.issue_date,
-        #         "due_date": invoice.due_date
-        #     }
-        # }
+            # self.reservation_repo.update(db, reservation, {
+            #     "status": "finalized"
+            # })
+            db.commit()
+            return reservation, details, invoice
+        except Exception as e:
+            db.rollback()
+            raise e
+    
+    def add_services(self, db: Session, user_id: int, reservation_id: int, services: list[dict]):
+        try:
+            reservation = self._get_reservation(db, reservation_id)
+            self._assert_user(reservation, user_id)
+            if reservation.status != "pending":
+                raise ValueError("Không thể thêm dịch vụ sau khi xác nhận vé")
 
-        return reservation, details, invoice
+            details = self.detail_repo.get_by_reservation(db, reservation_id)
+            if not details:
+                raise ValueError("Bạn phải hoàn tất chọn ghế trước khi thêm dịch vụ")
+            
+            detail_map = {d.id: d for d in details}
+            service_rows = []
+            subtotal = Decimal(0.0)
 
-    def confirm_reservation(self, db: Session, reservation_id: int):
-        reservation = self.reservation_repo.get(db, reservation_id)
-        if not reservation:
-            raise ValueError("Mã đặt chỗ không tồn tại")
-        self.reservation_repo.update(db, reservation, {"status": "confirmed"})
+            for item in services:
+                detail_id = item.get("reservation_detail_id")
+                service_id = item.get("service_id")
+                quantity = item.get("quantity", 1)
+                
+                detail = detail_map.get(detail_id)
+                if not detail:
+                    raise ValueError("Thông tin chi tiết về booking không hợp lệ")
+                
+                service = self.service_repo.get(db, service_id)
+                if not service or not service.is_available:
+                    raise ValueError("Dịch vụ ko tồn tại hoawccj ko khả dụng")
+                
+                unit_price = Decimal(service.base_price)
+                total_price = unit_price * quantity
 
-    def cancel_reservation(self, db: Session, reservation_id: int):
-        reservation = self.reservation_repo.get(db, reservation_id)
-        if not reservation:
-            raise ValueError("Mã đặt chỗ không tồn tại")
-        self.reservation_repo.update(db, reservation, {"status": "cancelled"})
-        self.seat_serv.release_by_reservation(db, reservation_id)
+                existing = self.res_service_repo.get_by_detail_and_service(db, detail_id, service_id)
+                if existing:
+                    new_quant= existing.quantity + quantity
+                    new_total = unit_price * new_quant
+
+                    self.res_service_repo.update(db, existing, {
+                        "quantity": new_quant,
+                        "total_price": float(new_total)
+                    })
+
+                    subtotal += unit_price * quantity
+                    service_rows.append(existing)
+                else:
+                    sr = self.res_service_repo.create(db, {
+                        "reservation_detail_id": detail_id,
+                        "service_id": service_id,
+                        "quantity": quantity,
+                        "unit_price": float(unit_price),
+                        "total_price": float(total_price)
+                    })
+
+                    subtotal += total_price
+                    service_rows.append(sr)
+                
+                detail_tax = Decimal(detail.tax_fare) + total_price * Decimal(0.1)
+                detail_total = Decimal(detail.total_fare) + total_price
+                self.detail_repo.update(db, detail, {
+                    "total_fare": float(detail_total),
+                    "tax_fare": float(detail_tax)
+                })
+
+            tax = subtotal * Decimal(0.1)
+            total = subtotal + tax
+            
+            reservation_total = Decimal(reservation.total_amount) + total
+            reservation_tax = Decimal(reservation.tax_amount) + tax
+            self.reservation_repo.update(db, reservation, {
+                "total_amount": float(reservation_total),
+                "tax_amount": float(reservation_tax)
+            })
+
+            invoice = self.invoice_repo.get_by_reservation(db, reservation_id)
+            if not invoice:
+                raise ValueError("Không tìm thấy hóa đơn")
+            invoice_total = Decimal(invoice.total_amount) + total
+            invoice_tax = Decimal(invoice.tax_amount) + tax
+            self.invoice_repo.update(db, invoice, {
+                "total_amount": float(invoice_total),
+                "tax_amount": float(invoice_tax)
+            })
+
+            db.commit()
+            return {
+                "reservation_id": reservation_id,
+                "subtotal": float(subtotal),
+                "tax": float(tax),
+                "total": float(total),
+                "services": service_rows
+            }
+        except Exception as e:
+            db.rollback()
+            raise e
+            
+
+    # def confirm_reservation(self, db: Session, user_id: int, reservation_id: int):
+    #     reservation = self._get_reservation(db, reservation_id)
+    #     self._assert_user(reservation, user_id)
+
+    #     self.reservation_repo.update(db, reservation, {"status": "confirmed"})
+
+    def cancel_reservation(self, db: Session, user_id: int, reservation_id: int):
+        try:
+            reservation = self._get_reservation(db, reservation_id)
+            self._assert_user(reservation, user_id)
+
+            self.reservation_repo.update(db, reservation, {"status": "cancelled"})
+            self.seat_serv.release_by_reservation(db, reservation_id)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise e
+        
 
 reservation_service = ReservationService()

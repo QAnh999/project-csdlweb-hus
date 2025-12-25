@@ -27,8 +27,8 @@ class AuthService:
     
     def login(self, db: Session, identifier: str, password: str) -> dict:
         user = self.authenticate(db, identifier, password)
-        access_token = create_access_token({"sub": str(user.id)})
-        refresh_token = create_access_token({"sub": str(user.id)})
+        access_token = create_access_token({"user_id": user.id})
+        refresh_token = create_access_token({"user_id": user.id})
 
         self.refresh_tokens_store[refresh_token] = user.id
 
@@ -41,15 +41,15 @@ class AuthService:
     
     def refresh_access_token(self, refresh_token: str) -> dict:
         payload = decode_token(refresh_token)
-        user_id = payload.get("sub")
+        user_id = payload.get("user_id")
 
         if not user_id or refresh_token not in self.refresh_tokens_store:
             raise ValueError("Expired refresh token")
 
         del self.refresh_tokens_store[refresh_token]
 
-        new_access_token = create_access_token({"sub": user_id})
-        new_refresh_token = create_refresh_token({"sub": user_id})
+        new_access_token = create_access_token({"user_id": user_id})
+        new_refresh_token = create_refresh_token({"user_id": user_id})
 
         self.refresh_tokens_store[new_refresh_token] = user_id
 

@@ -9,14 +9,14 @@ class ReservationDetail(Base):
     id = Column(Integer, primary_key=True, index=True)
     reservation_id = Column(Integer, ForeignKey("reservations.id"), nullable=False)
     passenger_id = Column(Integer, ForeignKey("passengers.id"), nullable=False)
-    flight_id = Column(Integer, ForeignKey("flights.id"), nullable=False)
-    seat_id = Column(Integer, ForeignKey("seats.id"), nullable=False)
+    flight_id = Column(Integer, ForeignKey("flights.id"), nullable=True)
+    seat_id = Column(Integer, ForeignKey("seats.id"), nullable=True)
     
-    base_fare = Column(Numeric(10, 2), nullable=False)
+    base_fare = Column(Numeric(10, 2), nullable=True)
     seat_surcharge = Column(Numeric(10, 2), default=0)
     luggage_surcharge = Column(Numeric(10, 2), default=0)
     tax_fare = Column(Numeric(10, 2), default=0)
-    total_fare = Column(Numeric(10, 2), nullable=False)
+    total_fare = Column(Numeric(10, 2), nullable=True)
     
     luggage_count = Column(Integer, default=0)
     luggage_weight = Column(Numeric(5, 2), default=0)

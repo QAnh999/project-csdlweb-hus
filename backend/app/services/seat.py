@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import List
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from app.repositories.booked_seat import booked_seat_repository
 from app.repositories.seat import seat_repository
 
@@ -11,66 +12,101 @@ class SeatService:
         self.booked_repo = booked_seat_repository
         self.seat_repo = seat_repository
 
+    def get_held_seats_for_reservation(self, db: Session, flight_id: int, reservation_id: int, seat_ids: List[int] = None):
+        return self.booked_repo.get_held_seats_for_reservation(db, flight_id, reservation_id, seat_ids)
 
-    def get_available_seats(self, db: Session, flight_id: int, seat_class: str = None) -> List[dict]:
+    def get_available_seats(self, db: Session, flight_id: int, seat_class: str) -> List[dict]:
         """
         Trả về toàn bộ ghế của máy bay
         """
         now = datetime.utcnow()
         
-        if seat_class:
-            all_seats = self.seat_repo.get_by_flight_and_class(db, flight_id, seat_class)
-        else:
-            all_seats = self.seat_repo.get_by_flight(db, flight_id)
+        all_seats = self.seat_repo.get_by_flight_and_class(db, flight_id, seat_class)
 
-        booked_seats = self.booked_repo.get_by_flight(db, flight_id)
+        booked = self.booked_repo.get_locked_seats(
+            db, 
+            flight_id,
+            [s.id for s in all_seats],
+            now=now,
+            for_update=False
+        )
 
-        seat_status = {}
-        for bs in booked_seats:
-            if bs.reservation_id:
-                seat_status[bs.id_seat] = "booked"
-            elif bs.hold_expires and bs.hold_expires > now:
-                seat_status[bs.id_seat] = "held"
+        status_map = {}
+        for b in booked:
+            if b.reservation_id:
+                status_map[b.id_seat] = "booked"
+            elif b.hold_expires and b.hold_expires > now:
+                status_map[b.id_seat] = "held"
         
-        result = []
-        for seat in all_seats:
-            status = seat_status.get(seat.id, "available")
-
-            result.append({
+        return [
+            {
                 "seat_id": seat.id,
                 "seat_number": seat.seat_number,
                 "seat_class": seat.seat_class,
-                "status": status
-            })
+                "status": status_map.get(seat.id, "available")
+            }
+            for seat in all_seats
+        ]
 
-        return result
+    def hold_seats(self, db: Session, flight_id: int, reservation_id: int, seat_ids: List[int], seat_class: str):
+        now = datetime.utcnow()
 
-    def assert_seats_available(self, db: Session, flight_id: int, seat_ids: List[int]):
-        valid_ids = [s.id for s in self.seat_repo.get_by_flight(db, flight_id)]
-        for seat_id in seat_ids: 
-            if seat_id not in valid_ids:
-                raise ValueError(f"Ghế {seat_id} không tồn tại trên chuyến bay này")
-            
-        locked = self.booked_repo.get_locked_seats(db, flight_id, seat_ids)
-        if locked:
-            raise ValueError("Một số ghế bạn chọn đã được giữ hoặc đặt")
+        self.release_expired_holds(db, now)
+
+        hold_expires = now + timedelta(minutes=self.HOLD_MINUTES)
+
+        seats = [
+            s for s in self.seat_repo.get_by_flight_and_class(db, flight_id, seat_class)
+            if s.id in seat_ids
+        ]
         
-    def hold_seats(self, db: Session, flight_id: int, seat_ids: List[int]):
-        self.assert_seats_available(db, flight_id, seat_ids)
-
-        hold_expires = datetime.utcnow() + timedelta(minutes=self.HOLD_MINUTES)
-        for seat_id in seat_ids:
-            self.booked_repo.create_hold(db, flight_id=flight_id, seat_id=seat_id, hold_expires=hold_expires)
+        if len(seats) != len(seat_ids):
+            raise ValueError("Một hoặc nhiều ghế không tồn tại hoặc không thuộc hạng ghế được chỉ định")
+        
+        try:
+            records = self.booked_repo.create_hold(
+                db, 
+                flight_id=flight_id, 
+                reservation_id=reservation_id,
+                seat_ids=seat_ids, 
+                hold_expires=hold_expires
+            )
+            # db.commit()
+            return records
+        except Exception as e:
+            # db.rollback()
+            raise e
 
     def confirm_seats(self, db: Session, flight_id: int, reservation_id: int, seat_ids: List[int]):
-        self.booked_repo.attach_reservation(db, flight_id, reservation_id, seat_ids)
+        try:
+            records = self.booked_repo.attach_reservation(
+                db,
+                flight_id=flight_id,
+                reservation_id=reservation_id,
+                seat_ids=seat_ids
+            )
+            db.commit()
+            return records
+        except Exception as e:
+            db.rollback()
+            raise e
 
     def release_by_reservation(self, db: Session, reservation_id: int):
-        self.booked_repo.delete_by_reservation(db, reservation_id)
+        try:
+            self.booked_repo.delete_by_reservation(db, reservation_id)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise e
 
-    def release_expired_holds(self, db: Session):
-        expired_before = datetime.utcnow() - timedelta(minutes=self.HOLD_MINUTES)
-        self.booked_repo.delete_expired_holds(db, expired_before)
+    def release_expired_holds(self, db: Session, now: datetime = None):
+        now = datetime.utcnow() if now is None else now
+        try:
+            self.booked_repo.delete_expired_holds(db, now)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise
 
 
 seat_service = SeatService()

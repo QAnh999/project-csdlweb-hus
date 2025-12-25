@@ -17,4 +17,4 @@ class Payment(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     paid_at = Column(DateTime)
     
-    reservation = relationship("Reservation", back_populates="payments")
+    reservation = relationship("Reservation", back_populates="payment")

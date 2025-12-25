@@ -10,7 +10,7 @@ class Seat(Base):
     seat_number = Column(String(10), nullable=False)
     seat_class = Column(String(20), nullable=False)
     seat_type = Column(String(50), nullable=False)
-    is_available = Column(Boolean, default=True)
+    # is_available = Column(Boolean, default=True)
     price_surcharge = Column(Numeric(10,2), default=0)
     
     aircraft = relationship("Aircraft", back_populates="seats")

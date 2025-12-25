@@ -22,3 +22,4 @@ class Passenger(Base):
     
     user = relationship("User", back_populates="passengers")
     reservation_details = relationship("ReservationDetail", back_populates="passenger")
+    reservation_passenger = relationship("ReservationPassenger", back_populates="passenger")

@@ -119,7 +119,7 @@ CREATE TABLE Seats (
     seat_number VARCHAR(10) NOT NULL,
     seat_class VARCHAR(20) NOT NULL, -- economy, business, first
     seat_type VARCHAR(50) NOT NULL, -- window, aisle, middle, emergency
-    is_available BOOLEAN DEFAULT TRUE,
+    -- is_available BOOLEAN DEFAULT TRUE,
     price_surcharge DECIMAL(10,2) DEFAULT 0,
     CONSTRAINT fk_seats_aircraft FOREIGN KEY (id_aircraft) REFERENCES Aircrafts(id),
     CONSTRAINT unique_seat_per_aircraft UNIQUE (id_aircraft, seat_number)
@@ -157,13 +157,18 @@ CREATE TABLE Booked_Seats (
     id_seat INT NOT NULL,
     id_flight INT NOT NULL,
     reservation_id INT,
+    -- status VARCHAR(10) NOT NULL DEFAULT 'held' 
     hold_expires TIMESTAMP NULL,
     booked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id_seat, id_flight),
+    -- CONSTRAINT chk_booked_seat_status CHECK (status IN ('held', 'booked'))
     CONSTRAINT fk_booked_seats_seat FOREIGN KEY (id_seat) REFERENCES Seats(id),
     CONSTRAINT fk_booked_seats_flight FOREIGN KEY (id_flight) REFERENCES Flights(id),
     CONSTRAINT fk_booked_seats_reservation FOREIGN KEY (reservation_id) REFERENCES Reservations(id)
 );
+
+ALTER TABLE Booked_Seats
+ADD CONSTRAINT uq_flight_seat UNIQUE(id_flight, id_seat)
 
 
 -- 10. Reservations_Details
@@ -265,4 +270,31 @@ CREATE TABLE Reservation_Services (
     CONSTRAINT fk_rs_reservation_detail FOREIGN KEY (reservation_detail_id) REFERENCES Reservation_Details(id),
     CONSTRAINT fk_rs_service FOREIGN KEY (service_id) REFERENCES Services(id)
 );
+
+
+
+CREATE TABLE Reservation_Passengers (
+    id SERIAL PRIMARY KEY,
+    reservation_id INT NOT NULL,
+    passenger_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_rp_reservation FOREIGN KEY (reservation_id) REFERENCES Reservations(id),
+    CONSTRAINT fk_rp_passenger FOREIGN KEY (passenger_id) REFERENCES Passengers(id)
+);
+
+
+-- CREATE TABLE Hold_Seats (
+--     id SERIAL PRIMARY KEY,
+--     reservation_id INT NOT NULL,
+--     flight_id INT NOT NULL,
+--     seat_id INT NOT NULL,
+--     expire_at TIMESTAMP NOT NULL,
+--     status VARCHAR(20) DEFAULT 'held', -- held / confirmed / released
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     CONSTRAINT fk_hs_reservation FOREIGN KEY (reservation_id) REFERENCES Reservations(id),
+--     CONSTRAINT fk_hs_flight FOREIGN KEY (flight_id) REFERENCES Flights(id),
+--     CONSTRAINT fk_hs_seat FOREIGN KEY (seat_id) REFERENCES Seats(id)
+-- );
+
+
 

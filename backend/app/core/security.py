@@ -1,11 +1,14 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
-
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from app.core.config import settings 
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") 
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -26,8 +29,28 @@ def create_refresh_token(data: dict, expires_minutes: int = None):
     
 def decode_token(token: str) -> dict:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         return payload
-    except JWTError:
-        raise ValueError("Invalid token")
+    except JWTError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+
+def get_current_user_id(token: str = Depends(oauth2_scheme)) -> int:
+    try:
+        payload = decode_token(token)
+        user_id: int = payload.get("user_id")
+        
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token"
+            )
+        return user_id
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not verify user"
+        )
     

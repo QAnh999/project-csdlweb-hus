@@ -1,11 +1,15 @@
 from decimal import Decimal
 
 def calculate_total(flight, seat_class, passengers, seats):
-    base_price = {
+    base_price_map = {
         "economy": flight.base_price_economy,
         "business": flight.base_price_business or Decimal("0"),
         "first": flight.base_price_first or Decimal("0")
-    }[seat_class]
+    }
+    
+    base_price = base_price_map.get(seat_class)
+    if not base_price:
+        raise ValueError("Invalid seat class")
 
     base_fare_per_passenger = []
     seat_surcharge_per_passenger = []
@@ -13,10 +17,11 @@ def calculate_total(flight, seat_class, passengers, seats):
     tax_per_passenger = []
     total_per_passenger = []
 
+    
     for i, p in enumerate(passengers):
-        seat = seats[i] if seats else None
-        seat_surcharge = getattr(seat, "price_surcharge", Decimal("0")) if seat else Decimal("0")
-        luggage_surcharge = Decimal("0")
+        s = seats[i] if seats else None
+        seat_surcharge = getattr(s.seat, "price_surcharge") if s else Decimal("0")
+        luggage_surcharge = Decimal("0") # getattr(p, "luggage_surcharge", Decimal("0"))
         tax = base_price * Decimal("0.1")  
 
         total = base_price + seat_surcharge + luggage_surcharge + tax

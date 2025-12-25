@@ -16,5 +16,5 @@ class Invoice(Base):
     tax_amount = Column(Numeric(10, 2), default=0)
     status = Column(String(20), default='unpaid')
     
-    reservation = relationship("Reservation", back_populates="invoices")
+    reservation = relationship("Reservation", back_populates="invoice")
     user = relationship("User", back_populates="invoices")

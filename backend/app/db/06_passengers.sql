@@ -20,7 +20,6 @@ VALUES
 (8, 'Sophia', 'Brown', '2021-06-18', 'female', 'Canadian', 'CA34567890', '2030-01-31', NULL, 'infant'),
 (9, 'Emily', 'Davis', '1986-03-08', 'female', 'Australian', 'AU12345678', '2026-06-10', NULL, 'adult'),
 (9, 'William', 'Davis', '1984-12-15', 'male', 'Australian', 'AU23456789', '2027-11-25', NULL, 'adult'),
-
 (10, 'David', 'Wilson', '1990-08-17', 'male', 'New Zealander', 'NZ12345678', '2030-12-05', NULL, 'adult'),
 (10, 'Olivia', 'Wilson', '1992-04-03', 'female', 'New Zealander', 'NZ23456789', '2031-07-18', NULL, 'adult');
 

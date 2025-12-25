@@ -1,3 +1,6 @@
+# app/models/__init__.py
+
+# Import tất cả model theo thứ tự để tránh dependency issues
 from .airline import Airline
 from .airport import Airport
 from .service import Service
@@ -8,6 +11,7 @@ from .passenger import Passenger
 from .flight import Flight
 from .reservation import Reservation
 from .reservation_detail import ReservationDetail
+from .reservation_passenger import ReservationPassenger
 from .payment import Payment
 from .invoice import Invoice
 from .booked_seat import BookedSeat
@@ -22,11 +26,7 @@ __all__ = [
     "Aircraft", "User",
     "Seat", "Passenger",
     "Flight",
-    "Reservation",
-    "ReservationDetail", "Payment", "Invoice", "BookedSeat",
+    "Reservation", "ReservationDetail", "ReservationPassenger",
+    "Payment", "Invoice", "BookedSeat",
     "ReservationService", "Ticket"
 ]
-
-
-from sqlalchemy.orm import configure_mappers
-configure_mappers()
