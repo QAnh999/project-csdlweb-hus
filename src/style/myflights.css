@@ -1,0 +1,208 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
+
+:root {
+    --primary-color: #d0e1f9;
+    --primary-color-dark: #283655;
+    --text-dark: #283655;
+    --text-light: #4d648d;
+    --extra-light: #f3f4f6;
+    --max-width: 1200px;
+    --header-color: #e9effdff;
+    --bg-light: #f8fafc;
+    --card-bg: #ffffff;
+    --border-color: #e5e7eb;
+    --radius: 16px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Noto Serif", serif;
+    margin: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    background-image: url("/public/assets/background2.jpg");
+}
+
+.flights-wrapper {
+    width: 100vw;
+    min-height: 100vh;
+    /* background-image: url("/public/assets/background2.jpg"); bật lại hình nền */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* cố định background khi scroll */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* bắt đầu từ trên, tránh container tràn ra */
+    padding-top: 20px; /* tránh che header cố định */
+}
+
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 12px 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    background-color: var(--bg-light);
+}
+
+
+.logo {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo img {
+    height: 40px;
+    width: auto;
+    transform: scale(1.5);
+    transform-origin: left center;
+}
+
+.logo span {
+    font-family: "Noto Serif", serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-color-dark);
+}
+
+.my-flights {
+    width: 100%;
+    max-width: 1100px;
+    background-color: var(--bg-light);
+    border-radius: 22px;
+    padding: 30px 34px 40px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
+    margin: 70px auto 0 auto;
+}
+
+.my-flights h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    margin-bottom: 30px;
+}
+
+
+#my-flights-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+
+.my-flight-card {
+    /* background: linear-gradient(135deg, var(--primary-color), #ffffff); */
+    background-color: var(--header-color);
+    border-radius: 14px;
+    padding: 20px 22px;
+    border: 1px solid #dfe3e8;
+    box-shadow: 0 8px 24px rgba(40, 54, 85, 0.1);
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.25s ease;
+}
+
+.my-flight-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px rgba(40, 54, 85, 0.18);
+}
+
+.my-flight-card p {
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    margin: 0;
+    padding: 4px 0;
+    border-bottom: 1px dotted #ccd6e0;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.my-flight-card p span:first-child {
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+
+.my-flight-card p span:last-child {
+    color: var(--text-dark);
+    font-weight: 500;
+    text-align: right;
+    white-space: nowrap;
+}
+
+
+.my-flight-card strong {
+    color: var(--text-dark);
+}
+
+
+.my-flight-card hr {
+    border: none;
+    border-top: 1px dashed var(--border-color);
+    margin: 12px 0;
+}
+
+
+#my-flights-list>p {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 1rem;
+    color: var(--text-light);
+    padding: 40px 0;
+}
+
+
+.pagination {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.pagination button {
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background-color: var(--primary-color-dark);
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--bg-light);
+    transition: all .2s ease;
+    font-family: "Noto Serif", serif;
+}
+
+.pagination button:hover {
+    background: var(--primary-color);
+    color: var(--text-dark);
+    transform: translateY(-2px);
+}
+
+.pagination button.active {
+    background: var(--primary-color);
+    color: var(--text-dark);
+    transform: translateY(-2px);
+}
+
+.pagination button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}

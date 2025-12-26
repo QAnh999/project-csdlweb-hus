@@ -1,0 +1,345 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "../style/passengerinfo.css";
+import { getBookingDraftPartial, updateBookingDraft } from '../utils/bookingUtils';
+
+const PassengerInfoPage = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const draftStr = localStorage.getItem("bookingDraft");
+    if (!draftStr) {
+      alert("Không tìm thấy thông tin chuyến bay. Vui lòng đặt vé lại.");
+      navigate("/booking");
+      return;
+    }
+
+    let draft = JSON.parse(draftStr);
+
+    // ===== VALIDATE & MIGRATE BOOKING CŨ =====
+    if (!draft.type) {
+      if (draft.outbound || draft.inbound) {
+        draft.type = "roundtrip";
+      } else if (draft.flight) {
+        draft.type = "oneway";
+      } else {
+        alert("Dữ liệu đặt chỗ không hợp lệ.");
+        navigate("/booking");
+        return;
+      }
+    }
+
+    // Validate dữ liệu chuyến bay
+    if (draft.type === "oneway" && !draft.flight) {
+      alert("Thiếu thông tin chuyến bay một chiều.");
+      navigate("/booking");
+      return;
+    }
+
+    if (draft.type === "roundtrip") {
+      if (!draft.outbound) {
+        alert("Thiếu thông tin chặng đi.");
+        navigate("/booking");
+        return;
+      }
+      // Cho phép chưa có inbound nếu đang trong quá trình chọn
+      if (!draft.inbound) {
+        draft.inbound = null;
+      }
+    }
+
+    // Đảm bảo có đầy đủ fields
+    draft.passenger = draft.passenger || null;
+    draft.services = draft.services || null;
+
+    if (draft.type === "oneway") {
+      draft.seat = draft.seat || null;
+      draft.checkedIn = draft.checkedIn || false;
+    } else {
+      draft.seatOutbound = draft.seatOutbound || null;
+      draft.seatInbound = draft.seatInbound || null;
+      draft.checkedInOutbound = draft.checkedInOutbound || false;
+      draft.checkedInInbound = draft.checkedInInbound || false;
+    }
+
+    localStorage.setItem("bookingDraft", JSON.stringify(draft));
+  }, [navigate]);
+
+  const [passenger, setPassenger] = useState({
+    Danh_xung: "Mr",
+    Ho: "",
+    Ten_dem_va_ten: "",
+    Ngay_sinh: "",
+    Email: "",
+    Ma_quoc_gia: "",
+    So_dien_thoai: "",
+  });
+
+  const [baggageChecked, setBaggageChecked] = useState(false);
+  const [mealChecked, setMealChecked] = useState(false);
+  const [baggage, setBaggage] = useState({ type: "Không", price: 0 });
+  const [meal, setMeal] = useState({ type: "Không", price: 0 });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPassenger((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Validate form
+    if (!passenger.Ho || !passenger.Ten_dem_va_ten || !passenger.Email) {
+      alert("Vui lòng điền đầy đủ thông tin hành khách.");
+      return;
+    }
+
+    // Lấy draft và validate
+    const draftStr = localStorage.getItem("bookingDraft");
+    if (!draftStr) {
+      alert("Không tìm thấy thông tin chuyến bay.");
+      navigate("/booking");
+      return;
+    }
+
+    const bookingDraft = JSON.parse(draftStr);
+
+    // Validate type
+    if (!bookingDraft.type || !["oneway", "roundtrip"].includes(bookingDraft.type)) {
+      alert("Loại chuyến bay không hợp lệ.");
+      navigate("/booking");
+      return;
+    }
+
+    // Validate flight data
+    if (bookingDraft.type === "oneway" && !bookingDraft.flight) {
+      alert("Thiếu thông tin chuyến bay.");
+      navigate("/booking");
+      return;
+    }
+
+    if (bookingDraft.type === "roundtrip") {
+      if (!bookingDraft.outbound) {
+        alert("Thiếu thông tin chặng đi.");
+        navigate("/booking");
+        return;
+      }
+      if (!bookingDraft.inbound) {
+        alert("Thiếu thông tin chặng về.");
+        navigate("/booking");
+        return;
+      }
+    }
+
+    // Cập nhật draft với thông tin hành khách
+    bookingDraft.passenger = passenger;
+    bookingDraft.services = {
+      baggage,
+      meal,
+    };
+
+    localStorage.setItem("bookingDraft", JSON.stringify(bookingDraft));
+
+    // Navigate đến seat selection
+    if (bookingDraft.type === "roundtrip") {
+      navigate("/seatselection?leg=outbound");
+    } else {
+      navigate("/seatselection?leg=oneway");
+    }
+  };
+
+  return (
+    <>
+      <header className="site-header">
+        <a href="/" className="logo">
+          <img
+            src="/assets/Lotus_Logo-removebg-preview.png"
+            alt="Lotus Travel"
+          />
+          <span>Lotus Travel</span>
+        </a>
+      </header>
+
+
+      {/* <div className="page-content"> */}
+      <h1>Nhập thông tin hành khách</h1>
+      <section className="passenger-information">
+        <form className="passenger-info-form" onSubmit={handleSubmit}>
+          <div className="passenger-info">
+            <h2>Thông tin cơ bản</h2>
+            <div className="note">
+              <p>* là các trường bắt buộc.</p>
+              <p>Vui lòng điền thông tin cá nhân như trong hộ chiếu.</p>
+            </div>
+          </div>
+
+          <label htmlFor="title">Danh xưng *</label>
+          <select
+            id="title"
+            name="Danh_xung"
+            value={passenger.Danh_xung}
+            onChange={handleChange}
+            required
+          >
+            <option value="Mr">Ông</option>
+            <option value="Mrs">Bà</option>
+            <option value="Ms">Cô</option>
+            <option value="Child">Trẻ em</option>
+          </select>
+
+          <label htmlFor="firstname">Tên đệm và tên*</label>
+          <input
+            type="text"
+            id="firstname"
+            name="Ten_dem_va_ten"
+            value={passenger.Ten_dem_va_ten}
+            onChange={handleChange}
+            placeholder="Tên đệm và tên"
+            required
+          />
+
+          <label htmlFor="lastname">Họ *</label>
+          <input
+            type="text"
+            id="lastname"
+            name="Ho"
+            value={passenger.Ho}
+            onChange={handleChange}
+            placeholder="Họ"
+            required
+          />
+
+          <label htmlFor="dob">Ngày sinh *</label>
+          <input
+            type="date"
+            id="dob"
+            name="Ngay_sinh"
+            value={passenger.Ngay_sinh}
+            onChange={handleChange}
+            required
+          />
+
+          <label htmlFor="email">Email *</label>
+          <input
+            type="email"
+            id="email"
+            name="Email"
+            value={passenger.Email}
+            onChange={handleChange}
+            placeholder="Địa chỉ email"
+            required
+          />
+
+          <label htmlFor="countrycode">Mã quốc gia *</label>
+          <input
+            type="text"
+            id="countrycode"
+            name="Ma_quoc_gia"
+            value={passenger.Ma_quoc_gia}
+            onChange={handleChange}
+            placeholder="Mã quốc gia"
+            pattern="^\+\d{1,4}$"
+            required
+          />
+
+          <label htmlFor="phonenumber">Số điện thoại *</label>
+          <input
+            type="tel"
+            id="phonenumber"
+            name="So_dien_thoai"
+            value={passenger.So_dien_thoai}
+            onChange={handleChange}
+            placeholder="Số điện thoại"
+            pattern="^[0-9+]{8,15}$"
+            required
+          />
+
+          
+          <div className="passenger-info" style={{ marginTop: "1rem" }}>
+            <h2>Các dịch vụ bổ sung</h2>
+          </div>
+
+          <div className="service-items">
+            <div className="baggage-label">
+              <span>Thêm hành lý ký gửi</span>
+              <input
+                type="checkbox"
+                checked={baggageChecked}
+                onChange={(e) => setBaggageChecked(e.target.checked)}
+              />
+            </div>
+            {baggageChecked && (
+              <div className="service-details">
+                <select
+                  name="baggage-weight"
+                  onChange={(e) =>
+                    setBaggage({
+                      type: e.target.value || "Không",
+                      price: Number(e.target.selectedOptions[0].dataset.price || 0),
+                    })
+                  }
+                >
+                  <option value="">-- Chọn gói hành lý --</option>
+                  <option value="20kg" data-price="260000">
+                    20kg - 260.000 VND
+                  </option>
+                  <option value="30kg" data-price="390000">
+                    30kg - 390.000 VND
+                  </option>
+                  <option value="40kg" data-price="520000">
+                    40kg - 520.000 VND
+                  </option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div className="service-item">
+            <div className="meal-label">
+              <span>Thêm suất ăn trên máy bay</span>
+              <input
+                type="checkbox"
+                checked={mealChecked}
+                onChange={(e) => setMealChecked(e.target.checked)}
+              />
+            </div>
+            {mealChecked && (
+              <div className="service-details">
+                <select
+                  name="meal-type"
+                  onChange={(e) =>
+                    setMeal({
+                      type: e.target.value || "Không",
+                      price: Number(e.target.selectedOptions[0].dataset.price || 0),
+                    })
+                  }
+                >
+                  <option value="">-- Chọn suất ăn --</option>
+                  <option value="Tiêu chuẩn" data-price="120000">
+                    Suất ăn tiêu chuẩn - 120.000 VND
+                  </option>
+                  <option value="Chay" data-price="130000">
+                    Suất ăn chay - 130.000 VND
+                  </option>
+                  <option value="Thường" data-price="100000">
+                    Suất ăn cho trẻ sơ sinh và trẻ em - 100.000 VND
+                  </option>
+                  <option value="Đặc biệt" data-price="150000">
+                    Suất ăn đặc biệt - 150.000 VND
+                  </option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          <button type="submit" id="nextButton">
+            Tiếp tục chọn chỗ ngồi
+          </button>
+        </form>
+      </section>
+      {/* </div> */}
+    </>
+  );
+};
+
+export default PassengerInfoPage;

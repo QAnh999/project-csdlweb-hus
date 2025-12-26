@@ -1,0 +1,165 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
+
+:root {
+    --primary-color: #d0e1f9;
+    --primary-color-dark: #283655;
+    --text-dark: #283655;
+    --text-light: #4d648d;
+    --extra-light: #f3f4f6;
+    --max-width: 1200px;
+    --header-color: #e9effdff;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Noto Serif", serif;
+    margin: 0;
+    background-image: url("/public/assets/background2.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+}
+
+.page-content {
+    padding-top: 90px; /* chiều cao header */
+    display: flex;
+    justify-content: center;
+}
+
+
+
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 12px 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
+    background-color: var(--header-color);
+}
+
+
+.logo {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo span {
+    font-family: "Noto Serif", serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-color-dark);
+}
+
+.login-box {
+    margin-top: -100px;  
+    width: 500px;
+    background: #ffffff;
+    padding: 30px 25px;
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+}
+
+
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #283655;
+}
+
+
+.login-box label {
+    font-size: 14px;
+    color: #4d648d;
+}
+
+.login-box input {
+    font-family: "Noto Serif", serif;
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+    transition: 0.3s;
+    font-size: 1rem;
+}
+
+.login-box input:focus {
+    border-color: #4d648d;
+    box-shadow: 0 0 0 2px rgba(77, 100, 141, 0.15);
+}
+
+
+.login-box button {
+    font-family: "Noto Serif", serif;
+    width: 100%;
+    margin-top: 20px;
+    padding: 11px;
+    background: #283655;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-box button:hover {
+    background: var(--primary-color);
+    color: var(--text-dark);
+    transform: translateY(-2px);
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  height: 42px;                
+  padding: 0 40px 0 12px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  top: 0;
+  height: 42px;                
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--primary-color-dark);
+}
+
+
+
+.eye-icon:hover {
+  color: var(--text-light);         
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  width: 100%;
+  padding: 10px 40px 10px 12px;
+}

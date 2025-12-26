@@ -1,0 +1,920 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
+
+:root {
+  --primary-color: #d0e1f9;
+  --primary-color-dark: #283655;
+  --text-dark: #283655;
+  --text-light: #4d648d;
+  --extra-light: #f3f4f6;
+  --max-width: 1200px;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Phan diem den pho bien */
+.section_container {
+  max-width: var(--max-width);
+  margin: auto;
+  padding: 5rem 1rem;
+}
+
+.section_header {
+  margin-bottom: 5px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-align: center;
+}
+
+.section_description {
+  max-width: 600px;
+  margin-inline: auto;
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* phan hop thoai va tieu de trang*/
+.hero_section {
+  background-image: url("/public/assets/background2.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--extra-light);
+  padding: 3rem 2rem;
+  width: 100vw;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  outline: none;
+  border: none;
+  font-size: 1rem;
+  white-space: nowrap;
+  color: #fff;
+  border-radius: 5rem;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: var(--primary-color-dark);
+  color: var(--text-dark);
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+img {
+  display: flex;
+  width: 100%;
+}
+
+a {
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+ul {
+  list-style: none;
+}
+
+html,
+body {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "Noto Serif", sans-serif;
+}
+
+nav {
+  position: relative;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 1rem;
+  padding: 2rem;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.nav_header {
+  padding: 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav_logo .logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  font-size: 1.5rem;
+  color: var(--extra-light);
+}
+
+.nav_logo .logo img {
+  width: 60px;         /* tăng kích thước hình ảnh */
+  height: auto;
+}
+
+.logo-text {
+  display: flex !important;
+  flex-direction: column !important;
+  /* xếp dọc */
+  align-items: flex-start !important;
+  /* canh trái */
+  margin: 10px;
+}
+
+.logo-text .brand {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.logo-text .slogan {
+  font-size: 1.1rem;
+  color: var(--text-dark);
+}
+
+.nav_btns {
+  display: none;
+}
+
+/* phan diem den pho bien */
+.destination_container {
+  text-align: center;
+  padding: 60px 0;
+}
+
+.destination_container .section_header {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text-dark);
+}
+
+.destination_container .section_description {
+  color: var(--text-light);
+  margin-bottom: 40px;
+  font-size: 1rem;
+}
+
+.destination_grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.destination_card {
+  background-color: #fff;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 0.4rem;
+}
+
+.destination_card img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  transition: transform 0.4s ease;
+}
+
+.destination_card:hover img {
+  transform: scale(1.05);
+}
+
+.destination_card_details {
+  text-align: center;
+  padding: 1rem;
+  background: #fafafa;
+}
+
+.destination_card_details h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.3rem;
+}
+
+.destination_card_details p {
+  color: var(--text-light);
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+
+.destination_rating {
+  color: #f5b000;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+}
+
+.destination_card:hover .destination_rating {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 900px) {
+  .destination_grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .destination_grid {
+    grid-template-columns: 1fr;
+  }
+
+  .destination_card img {
+    height: 200px;
+  }
+}
+
+/* gioi thieu ve Lotus Travel */
+.showcase_container {
+  display: grid;
+  gap: 2rem;
+  overflow: hidden;
+}
+
+.showcase_content h4 {
+  margin-bottom: 2rem;
+  font-size: 3rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.showcase_content p {
+  margin-bottom: 1rem;
+  color: var(--text-light);
+}
+
+.showcase_content .btn {
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  font-weight: 600;
+  color: var(--extra-light);
+  background-repeat: no-repeat;
+  border-radius: 5px;
+}
+
+.showcase_content .btn:hover {
+  color: var(--text-dark);
+}
+
+footer {
+  background-color: var(--extra-light);
+}
+
+.footer_container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  align-items: flex-start;
+  justify-items: center;
+  gap: 2.5rem;
+  padding: 3rem 4rem;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.footer_col {
+  min-width: 250px;
+  margin: 10px;
+}
+
+.footer_logo {
+  display: flex;
+  align-items: center;
+}
+
+.footer_logo img {
+  width: 100px;
+  gap: 0px;
+}
+
+.footer_col p {
+  max-width: 300px;
+  margin-block: 2rem;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.footer_col h4 {
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.footer_links {
+  display: grid;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.footer_links span {
+  color: var(--text-light);
+}
+
+.footer_col form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.footer_bar {
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.footer_logo p {
+  color: var(--text-dark);
+  font-size: 1.5rem;
+  white-space: nowrap;
+}
+
+.sponsor {
+  background-color: var(--extra-light);
+}
+
+.logo_sponsors {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.logo_sponsors img {
+  width: 120px;
+  height: 70px;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.logo_sponsors img:hover {
+  transform: scale(1.05);
+}
+
+@media (width > 540px) {
+  .destination_grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .journey_grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .showcase_container {
+    grid-template-columns: repeat(2, 1fr);
+    align-items: center;
+  }
+
+  .banner_container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .discover_grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .footer_container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .footer_col:last-child {
+    grid-area: 2/1/3/2;
+  }
+}
+
+@media (max-width: 768px) {
+  nav {
+    background: rgba(255, 255, 255, 0.6) !important;
+    padding: 2rem;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+  }
+
+  .nav_header {
+    justify-content: center;
+  }
+
+  .nav_logo .logo {
+    color: var(--text-dark) !important;
+  }
+}
+
+@media (width > 768px) {
+  nav {
+    position: static;
+    padding: 2rem 1rem;
+    max-width: var(--max-width);
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .nav_header {
+    flex: 1;
+    padding: 0;
+    background-color: transparent;
+  }
+
+  .nav_logo .logo {
+    color: var(--text-dark);
+  }
+
+  .nav_menu_btn {
+    display: none;
+  }
+
+  .nav_links {
+    position: static;
+    width: fit-content;
+    padding: 0;
+    flex-direction: row;
+    background-color: transparent;
+    transform: none !important;
+  }
+
+  /* .nav_links a {
+    color: var(--text-dark);
+  }
+
+  .nav_links a:hover {
+    color: var(--primary-color);
+  } */
+
+  /* .nav_links li:last-child {
+    display: none;
+  } */
+
+  .nav_btns {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 2rem;
+    /* margin-left: 1rem; */
+  }
+
+  .nav_btns button {
+    padding: 0.75rem 2rem;
+    background-color: var(--text-dark);
+    margin: 10px;
+  }
+
+  .destination_grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .showcase_container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .showcase_content {
+    grid-column: 2/4;
+  }
+
+  .discover_grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .footer_container {
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  }
+
+  .footer_col:last-child {
+    grid-area: unset;
+  }
+}
+
+/* 
+@media (width > 1200px) {
+  .header_content {
+    padding-inline: 1rem 0;
+  }
+
+  .destination_grid {
+    gap: 2rem;
+  }
+} */
+
+
+/* phan booking */
+.booking-section {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 1rem;
+  backdrop-filter: blur(8px);
+  padding: 2rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  max-width: 1200px;
+  margin: 30px auto;
+  position: relative;
+  overflow: visible !important;
+  color: var(--primary-color-dark);
+}
+
+.booking-section .btn {
+  font-size: 1rem;
+  font-weight: 400;
+  padding: 10px 16px;
+  height: 42px;
+  align-self: flex-end;
+  margin-top: 50px;
+}
+
+.booking-container,
+.checkin-container,
+.management-container {
+  display: none;
+}
+
+.booking-container.active,
+.checkin-container.active,
+.management-container.active {
+  display: block;
+}
+
+.booking-tabs,
+.checkin-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.booking-tabs .tab {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: 0.3s;
+  font-family: "Noto Serif", sans-serif;
+  color: var(--primary-color-dark);
+}
+
+.booking-tabs .tab.active {
+  border-bottom: 3px solid var(--text-dark);
+  color: var(--text-dark);
+  font-weight: bold;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.booking-type {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  justify-content: center;
+}
+
+.booking-type label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.booking-type input[type="radio"] {
+  margin: 0;
+  vertical-align: middle;
+}
+
+
+.content-row {
+  display: flex;
+  flex-wrap: nowrap;
+  /* xuống hàng nếu không đủ chỗ */
+  gap: 15px;
+  /* khoảng cách giữa các ô */
+  justify-content: flex-start;
+  align-items: flex-start;
+  /* căn trái + trên cùng */
+}
+
+.booking-group {
+  display: flex;
+  flex-direction: column;
+  /* label trên input */
+  min-width: 160px;
+  /* tránh quá nhỏ */
+}
+
+.booking-group label {
+  font-size: 16px;
+  margin-bottom: 5px;
+  text-align: left;
+  /* label căn trái */
+}
+
+/* button tim chuyen bay */
+.btn {
+  background: var(--primary-color-dark);
+  color: var(--extra-light);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-family: "Noto Serif", sans-serif;
+}
+
+.btn:hover {
+  background: var(--primary-color);
+}
+
+#return-date {
+  transition: all 0.3s ease;
+}
+
+.booking-group input,
+.booking-group select {
+  padding: 10px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: "Noto Serif", sans-serif;
+  font-size: 16px;
+  color: var(--primary-color-dark);
+}
+
+.select-box {
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.passenger-group {
+  position: relative;
+}
+
+.passenger-box {
+  margin-top: 5px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fff;
+  transition: 0.2s;
+  width: 120px;
+  color: var(--text-dark);
+}
+
+.passenger-popup {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgb(255, 255, 255);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 14px 18px;
+  width: 260px;
+  z-index: 9999;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.passenger-popup.active {
+  display: block;
+}
+
+.passenger-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--primary-color-dark);
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.counter button {
+  background: var(--primary-color-dark);
+  color: rgb(255, 255, 255);
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.counter button:hover {
+  background: var(--primary-color);
+}
+
+.counter span {
+  width: 20px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.checkin-group,
+.management-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.checkin-group input {
+  padding: 10px 10px;
+  border: none;
+  border-radius: 8px;
+  font-family: "Noto Serif", sans-serif;
+  font-size: 16px;
+  color: var(--primary-color-dark);
+  text-transform: uppercase;
+  margin-bottom: -35px;
+}
+
+.management-group input {
+  padding: 10px 10px;
+  border: none;
+  border-radius: 8px;
+  font-family: "Noto Serif", sans-serif;
+  font-size: 16px;
+  color: var(--primary-color-dark);
+  text-transform: uppercase;
+  margin-bottom: -5px;
+}
+
+.checkin-group label,
+.management-group label {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.checkin-row,
+.management-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  /* margin-top: 5px; */
+}
+
+.checkin-container {
+  box-shadow: none !important;
+  margin: -20px auto !important;
+  margin-bottom: -30px;
+  width: 90vw;
+  border: none !important;
+  max-width: 900px;
+}
+
+.checkin-container .btn {
+  width: fit-content;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 20px;
+  margin: 20px auto 0;
+  cursor: pointer;
+  text-align: center;
+}
+
+.management-container .btn {
+  width: fit-content;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 20px;
+  margin: 20px auto 5px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.booking-group .btn {
+  width: 100%;
+}
+
+/* phan feedback */
+.feedback {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgb(255, 255, 255);
+}
+
+.feedback_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.feedback_card {
+  background: rgb(213, 231, 237);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(8, 11, 120, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.feedback_card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.feedback_rating {
+  color: #fbbc04;
+  margin-bottom: 10px;
+}
+
+.feedback_user {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.feedback_user img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.feedback_user h4 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.feedback_user h4 {
+  color: var(--text-dark)
+}
+
+.feedback_user small,
+p {
+  color: var(--text-light);
+}
