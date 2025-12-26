@@ -272,7 +272,7 @@ const MyFlightsPage = () => {
                   ) : null}
                   <p>
                     <strong>Tổng tiền:</strong>&nbsp;&nbsp; 
-                    <span>{b.totalAmount?.toLocaleString() || 0} VND</span>
+                    <span>{b.totalAmount?.toLocaleString().replace(/,/g, ".") || 0} VND</span>
                   </p>
                   <p>
                     <strong>Thời gian đặt:</strong>&nbsp;&nbsp; 
