@@ -23,10 +23,13 @@ const CheckinPage = () => {
 
     const bk = JSON.parse(bookingStr);
 
+
     if (bk.type === "roundtrip") {
       bk.checkedInOutbound = bk.checkedInOutbound ?? false;
       bk.checkedInInbound = bk.checkedInInbound ?? false;
-      setShowOptions(true);
+
+      // Chỉ hiển thị các nút chặng chưa check-in lần đầu render
+      setShowOptions(!bk.checkedInOutbound || !bk.checkedInInbound);
     } else {
       setSelectedLeg("oneway");
       setSelectedFlight(bk.flight);
@@ -38,10 +41,6 @@ const CheckinPage = () => {
     setPassenger(bk.passenger);
   }, [navigate]);
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => (document.body.style.overflow = "auto");
-  }, []);
 
   const handleSelectLeg = (leg) => {
     if (!booking) return;
@@ -55,45 +54,12 @@ const CheckinPage = () => {
       setSelectedSeat(booking.seatInbound);
     }
 
+    // Khi chọn chặng, ẩn tất cả nút chọn chặng khác
     setShowOptions(false);
+
+    // Hiển thị nút xác nhận check-in cho chặng vừa chọn
     setShowConfirmBtn(true);
   };
-
-  // const handleConfirmCheckin = () => {
-  //   if (!booking || !selectedFlight || !selectedLeg) return;
-
-  //   const bookingCode = localStorage.getItem("current_booking_code");
-  //   const updatedBooking = { ...booking };
-
-  //   if (updatedBooking.type === "oneway") {
-  //     updatedBooking.checkedIn = true;
-  //   } else {
-  //     if (selectedLeg === "outbound") updatedBooking.checkedInOutbound = true;
-  //     if (selectedLeg === "inbound") updatedBooking.checkedInInbound = true;
-  //   }
-
-  //   localStorage.setItem(`booking_${bookingCode}`, JSON.stringify(updatedBooking));
-  //   setBooking(updatedBooking);
-
-  //   if (updatedBooking.type === "roundtrip") {
-  //     const outboundDone = updatedBooking.checkedInOutbound;
-  //     const inboundDone = updatedBooking.checkedInInbound;
-
-  //     // Nếu còn chặng chưa check-in → hiện nút chọn chặng
-  //     if (!outboundDone || !inboundDone) {
-  //       setShowOptions(true);
-  //       setShowConfirmBtn(false);
-  //     } else {
-  //       setShowOptions(false);
-  //       setShowConfirmBtn(false);
-  //     }
-  //   } else {
-  //     // one-way
-  //     setShowConfirmBtn(false);
-  //   }
-  // };
-
-  // if (!booking || !passenger) return <p>Đang tải dữ liệu...</p>;
 
 
   const handleConfirmCheckin = () => {
@@ -109,22 +75,32 @@ const CheckinPage = () => {
       if (selectedLeg === "inbound") updatedBooking.checkedInInbound = true;
     }
 
-    // lưu trạng thái check-in vào localStorage
+    // Lưu trạng thái check-in
     localStorage.setItem(`booking_${bookingCode}`, JSON.stringify(updatedBooking));
     setBooking(updatedBooking);
 
-    // Roundtrip: nếu còn chặng chưa check-in, show nút chọn chặng
-    if (updatedBooking.type === "roundtrip") {
-      const outboundDone = updatedBooking.checkedInOutbound;
-      const inboundDone = updatedBooking.checkedInInbound;
-      setShowOptions(!outboundDone || !inboundDone);
-      setShowConfirmBtn(false); // sau khi check-in, ẩn nút
-      // giữ selectedFlight & selectedLeg để hiển thị boarding pass
-    } else {
-      setShowConfirmBtn(false); // one-way
-    }
+    // Sau khi check-in, ẩn tất cả nút chọn chặng
+    setShowConfirmBtn(false);
+    setShowOptions(false);
+
+    // Board pass của chặng vừa check-in vẫn hiển thị
   };
 
+  if (!booking || !passenger) return <p>Đang tải dữ liệu...</p>;
+
+  const showBoardingPass = () => {
+    if (!booking) return false;
+
+    if (booking.type === "oneway") return booking.checkedIn;
+
+    if (booking.type === "roundtrip") {
+      // Nếu đã checkin chặng đi, chọn chặng đi để hiện board pass
+      if (booking.checkedInOutbound && selectedLeg === "outbound") return true;
+      if (booking.checkedInInbound && selectedLeg === "inbound") return true;
+    }
+
+    return false;
+  };
 
   return (
     <div className="checkin-wrapper">
@@ -136,7 +112,7 @@ const CheckinPage = () => {
       </header>
 
       <div className="checkin-container">
-        {/* Thông tin chuyến bay trước khi check-in */}
+        {/* Xác nhận chuyến bay */}
         {selectedFlight && showConfirmBtn && (
           <div className="cf-flights">
             <h2>Xác nhận chuyến bay</h2>
@@ -147,7 +123,8 @@ const CheckinPage = () => {
           </div>
         )}
 
-        {/* Nút chọn chặng còn lại cho roundtrip */}
+        {/* Nút chọn chặng roundtrip, chỉ hiển thị lần đầu vào page */}
+        {/* Nút chọn chặng roundtrip, chỉ hiển thị lần đầu vào page */}
         {showOptions && booking.type === "roundtrip" && (
           <div className="checkin-options">
             {!booking.checkedInOutbound && (
@@ -159,6 +136,7 @@ const CheckinPage = () => {
           </div>
         )}
 
+
         {/* Nút xác nhận check-in */}
         {showConfirmBtn && (
           <button className="btn-confirm" onClick={handleConfirmCheckin}>
@@ -166,22 +144,16 @@ const CheckinPage = () => {
           </button>
         )}
 
-        {/* Boarding pass sau khi check-in */}
-        {selectedFlight && (
-          ((booking.type === "oneway" && booking.checkedIn) ||
-            (booking.type === "roundtrip" &&
-              ((selectedLeg === "outbound" && booking.checkedInOutbound) ||
-                (selectedLeg === "inbound" && booking.checkedInInbound)))
-          ) && (
-            <div className="boarding-pass">
-              <h3>Thẻ lên máy bay</h3>
-              <p><strong>Hành khách:</strong> {passenger.Ho} {passenger.Ten_dem_va_ten}</p>
-              <p><strong>Mã đặt chỗ:</strong> {booking.bookingCode}</p>
-              <p><strong>Chuyến bay:</strong> {selectedFlight.airport_from} → {selectedFlight.airport_to}</p>
-              <p><strong>Giờ khởi hành:</strong> {selectedFlight.f_time_from}</p>
-              <p><strong>Ghế:</strong> {selectedSeat}</p>
-            </div>
-          )
+        {/* Board pass */}
+        {showBoardingPass() && (
+          <div className="boarding-pass">
+            <h3>Thẻ lên máy bay</h3>
+            <p><strong>Hành khách:</strong> {passenger.Ho} {passenger.Ten_dem_va_ten}</p>
+            <p><strong>Mã đặt chỗ:</strong> {booking.bookingCode}</p>
+            <p><strong>Chuyến bay:</strong> {selectedFlight.airport_from} → {selectedFlight.airport_to}</p>
+            <p><strong>Giờ khởi hành:</strong> {selectedFlight.f_time_from}</p>
+            <p><strong>Ghế:</strong> {selectedSeat}</p>
+          </div>
         )}
       </div>
     </div>

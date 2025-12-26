@@ -145,9 +145,16 @@ body {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
+    gap: 20px;
+}
+
+.checkin-options > button:only-child {
+    margin: -10px auto 10px auto;
+    flex: unset; /* bỏ flex: 1 nếu có */
 }
 
 .checkin-options button {
+    /* flex: 1; */
     font-family: "Noto Serif", serif;
     padding: 14px 20px;
     font-size: 1rem;
@@ -160,7 +167,7 @@ body {
     transition: 0.3s;
     flex: unset;
     width: 48%;
-    margin-top: -10px;
+    /* margin-top: -10px; */
 }
 
 
@@ -215,6 +222,8 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: 0.3s;
 }
+
+
 
 .btn-confirm:hover {
     background-color: var(--primary-color);

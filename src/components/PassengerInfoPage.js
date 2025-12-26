@@ -168,8 +168,8 @@ const PassengerInfoPage = () => {
           <div className="passenger-info">
             <h2>Thông tin cơ bản</h2>
             <div className="note">
-              <p>* là các trường bắt buộc.</p>
-              <p>Vui lòng điền thông tin cá nhân như trong hộ chiếu.</p>
+              <p>* là các trường bắt buộc. Vui lòng điền thông tin cá nhân như trong hộ chiếu.</p>
+
             </div>
           </div>
 

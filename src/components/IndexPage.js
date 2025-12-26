@@ -83,7 +83,7 @@ const IndexPage = () => {
       alert("Ngày về phải sau ngày đi!");
       return;
     }
-    
+
     let url = `/booking?from=${from}&to=${to}&date=${departureDate}&tripType=${tripType}`;
 
     if (tripType === "roundtrip" && returnDate) {
@@ -119,9 +119,22 @@ const IndexPage = () => {
       return;
     }
 
+    
+    if (
+      (booking.type === "oneway" && booking.checkedIn) ||
+      (booking.type === "roundtrip" &&
+        booking.checkedInOutbound &&
+        booking.checkedInInbound)
+    ) {
+      alert("Bạn đã làm thủ tục cho chuyến bay này!");
+      return; 
+    }
+
+    
     localStorage.setItem("current_booking_code", code);
     navigate("/checkin");
   };
+
 
 
 
