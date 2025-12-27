@@ -23,15 +23,18 @@ class UserUpdate(BaseModel):
     phone: Optional[str] = None
     date_of_birth: Optional[datetime] = None
     gender: Optional[str] = None
+    # đổi mật khẩu
     current_password: Optional[str] = None
     new_password: Optional[str] = None
 
 class UserResponse(UserBase):
     id: int
+    status: str
     created_at: datetime
     updated_at: datetime
     last_login: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
+
 
 

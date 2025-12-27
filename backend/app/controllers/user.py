@@ -15,9 +15,9 @@ class UserController:
             raise HTTPException(404, "User not found")
         return UserResponse.model_validate(user)
     
-    def get_all_users(self, db: Session) -> List[UserResponse]:
-        users = user_repository.get_all(db)
-        return [UserResponse.model_validate(u) for u in users]
+    # def get_all_users(self, db: Session) -> List[UserResponse]:
+    #     users = user_repository.get_all(db)
+    #     return [UserResponse.model_validate(u) for u in users]
     
     def create_user(self, data: UserCreate, db: Session) -> UserResponse:
         try:
