@@ -105,7 +105,7 @@ class BookingPaymentResponse(BaseModel):
     payment: PaymentInfo
     invoice: InvoiceInfo
 
-class BookingDetailResponse(BookingBaseResponse):
+class BookingDetailResponse(BaseModel):
     reservation_id: int
     reservation_code: str
     status: str

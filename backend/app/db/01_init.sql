@@ -168,7 +168,7 @@ CREATE TABLE Booked_Seats (
 );
 
 ALTER TABLE Booked_Seats
-ADD CONSTRAINT uq_flight_seat UNIQUE(id_flight, id_seat)
+ADD CONSTRAINT uq_flight_seat UNIQUE(id_flight, id_seat);
 
 
 -- 10. Reservations_Details

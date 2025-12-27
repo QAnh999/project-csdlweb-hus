@@ -20,20 +20,22 @@ class ReservationDetailRepository(BaseRepository[ReservationDetail, ReservationD
                 .filter(ReservationDetail.reservation_id == reservation_id)\
                 .all()
     
-    def get_for_checkin(self, db: Session, reservation_code: str, personal_number: str) -> List[ReservationDetail]:
+    def get_for_checkin(self, db: Session, reservation_code: str) -> List[ReservationDetail]:
         return db.query(ReservationDetail)\
                 .join(ReservationDetail.reservation)\
                 .join(ReservationDetail.passenger)\
+                .join(ReservationDetail.flight) \
                 .options(
                     joinedload(ReservationDetail.flight),
                     joinedload(ReservationDetail.passenger),
                     joinedload(ReservationDetail.seat)
                 ).filter(
                     Reservation.reservation_code == reservation_code,
-                    (
-                        (Passenger.passport_number == personal_number) |
-                        (Passenger.identify_number == personal_number)
-                    )
+                    Reservation.status == "confirmed",
+                    # (
+                    #     (Passenger.passport_number == personal_number) |
+                    #     (Passenger.identify_number == personal_number)
+                    # )
                 ).all()
 
     def exists(self, db: Session, reservation_id: int, passenger_id: int) -> bool:

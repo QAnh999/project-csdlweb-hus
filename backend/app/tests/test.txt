@@ -1,0 +1,73 @@
+{
+    "identifier": "nguyen.van.a@email.com",
+    "password": "123456"
+}
+
+
+{
+    "main_flight_id": 1,
+    "return_flight_id": 61
+}
+
+
+{
+  "passengers": [
+    {
+      "first_name": "Nguyen",
+      "last_name": "Van A",
+      "date_of_birth": "2000-05-12",
+      "gender": "male",
+      "passport_number": "B1234567",
+      "passenger_type": "adult"
+    },
+    {
+      "first_name": "Tran",
+      "last_name": "Thi B",
+      "date_of_birth": "2001-08-20",
+      "gender": "female",
+      "passport_number": "C7654321",
+      "passenger_type": "adult"
+    }
+  ]
+}
+
+
+
+{
+    "flight_id": 1,
+    "seat_class": "economy",
+    "seat_ids": [37, 38]
+}
+
+{
+    "flight_id": 61,
+    "seat_class": "economy",
+    "seat_ids": [637, 638]
+}
+
+{
+    "main_seat_ids": [37, 38],
+    "return_seat_ids": [637, 638],
+    "seat_class": "economy"
+}
+
+
+{
+  "services": [
+    {
+      "reservation_detail_id": 14,
+      "service_id": 3,
+      "quantity": 1
+    },
+    {
+      "reservation_detail_id": 14,
+      "service_id": 6,
+      "quantity": 1
+    }
+  ]
+}
+
+
+{
+    "payment_method": "credit_card"
+}

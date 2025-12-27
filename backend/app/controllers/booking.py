@@ -28,6 +28,10 @@ from app.schemas.booking import (
 )
 
 class BookingController:
+    def __init__(self):
+        pass
+
+    
     def create_booking(self, db: Session, user_id: int, req: BookingCreate) -> BookingBaseResponse:
         reservation = reservation_service.start_reservation(
             db=db,
