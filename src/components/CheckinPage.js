@@ -1,4 +1,3 @@
-// src/components/CheckinPage.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/checkin.css";
@@ -27,8 +26,6 @@ const CheckinPage = () => {
     if (bk.type === "roundtrip") {
       bk.checkedInOutbound = bk.checkedInOutbound ?? false;
       bk.checkedInInbound = bk.checkedInInbound ?? false;
-
-      // Chỉ hiển thị các nút chặng chưa check-in lần đầu render
       setShowOptions(!bk.checkedInOutbound || !bk.checkedInInbound);
     } else {
       setSelectedLeg("oneway");
@@ -61,9 +58,7 @@ const CheckinPage = () => {
       setSelectedSeat(booking.seatInbound);
     }
 
-    // Khi chọn chặng, ẩn tất cả nút chọn chặng khác
     setShowOptions(false);
-    // Hiển thị nút xác nhận check-in cho chặng vừa chọn
     setShowConfirmBtn(true);
   };
 
@@ -81,15 +76,10 @@ const CheckinPage = () => {
       if (selectedLeg === "inbound") updatedBooking.checkedInInbound = true;
     }
 
-    // Lưu trạng thái check-in
     localStorage.setItem(`booking_${bookingCode}`, JSON.stringify(updatedBooking));
     setBooking(updatedBooking);
-
-    // Sau khi check-in, ẩn tất cả nút chọn chặng
     setShowConfirmBtn(false);
     setShowOptions(false);
-
-    // Board pass của chặng vừa check-in vẫn hiển thị
   };
 
   if (!booking || !passenger) return <p>Đang tải dữ liệu...</p>;
@@ -100,7 +90,6 @@ const CheckinPage = () => {
     if (booking.type === "oneway") return booking.checkedIn;
 
     if (booking.type === "roundtrip") {
-      // Nếu đã checkin chặng đi, chọn chặng đi để hiện board pass
       if (booking.checkedInOutbound && selectedLeg === "outbound") return true;
       if (booking.checkedInInbound && selectedLeg === "inbound") return true;
     }
@@ -110,7 +99,7 @@ const CheckinPage = () => {
 
   const generateGate = () => {
     const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
-    const number = Math.floor(Math.random() * 90) + 10; // 10-99
+    const number = Math.floor(Math.random() * 9) + 1; 
     return `${letter}${number}`;
   };
 
@@ -190,15 +179,12 @@ const CheckinPage = () => {
           </div>
         )}
 
-
-        {/* Nút xác nhận check-in */}
         {showConfirmBtn && (
           <button className="btn-confirm" onClick={handleConfirmCheckin}>
             Xác nhận làm thủ tục lên máy bay
           </button>
         )}
 
-        {/* Board pass */}
         {showBoardingPass() && (
 
           <div className="boarding-pass">

@@ -10,6 +10,10 @@
     --header-color: #e9effdff;
 }
 
+html, body, #root {
+    height: 100%;
+}
+
 * {
     padding: 0;
     margin: 0;
@@ -26,13 +30,12 @@ body {
     min-height: 100vh;
 }
 
-.page-content {
-    padding-top: 90px; /* chiều cao header */
+.login-page {
+    width: 100vw;
+    /* padding-top: 90px; chiều cao header */
     display: flex;
     justify-content: center;
 }
-
-
 
 .site-header {
     position: fixed;
@@ -64,7 +67,7 @@ body {
 }
 
 .login-box {
-    margin-top: -100px;  
+    margin-top: 30px;  
     width: 500px;
     background: #ffffff;
     padding: 30px 25px;

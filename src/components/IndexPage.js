@@ -28,18 +28,13 @@ const IndexPage = () => {
   }, []);
 
 
-  // State cho popup
   const [passengerPopup, setPassengerPopup] = useState(false);
-
-  // Tổng hành khách
   const totalPassengers = adultCount + childCount + infantCount;
 
-  // Check-in
   const [checkinCode, setCheckinCode] = useState("");
   const [checkinLastname, setCheckinLastname] = useState("");
   const [checkinResult, setCheckinResult] = useState("");
 
-  // Booking management
   const [bookingCode, setBookingCode] = useState("");
   const [bookingLastname, setBookingLastname] = useState("");
 
@@ -136,8 +131,6 @@ const IndexPage = () => {
   };
 
 
-
-
   const handleSearchBooking = () => {
     if (!bookingCode || !bookingLastname) {
       alert("Vui lòng nhập đầy đủ thông tin!");
@@ -172,14 +165,12 @@ const IndexPage = () => {
     setAuth(storedAuth);
   }, []);
 
-  // === Logout ===
   const handleLogout = () => {
     localStorage.removeItem("auth");
     setAuth(null);
     navigate("/login");
   };
 
-  // === Require login (giống function requireLogin) ===
   const requireLogin = () => {
     if (!auth?.loggedIn) {
       alert("Vui lòng đăng nhập để tiếp tục");
@@ -190,7 +181,7 @@ const IndexPage = () => {
   };
 
   return (
-    <div className="content">
+    <div id="top" className="content">
       <div className="hero_section">
         <nav>
           <div className="nav_header">
@@ -216,7 +207,6 @@ const IndexPage = () => {
               </button>
             )}
 
-            {/* Login / Logout */}
             {auth?.loggedIn ? (
               <button className="btn" onClick={handleLogout}>
                 Đăng xuất
@@ -245,7 +235,6 @@ const IndexPage = () => {
             </button>
           </div>
 
-          {/* Booking Tab */}
           {activeTab === "booking" && (
             <div className="booking-container active">
               <form className="tab-content active" onSubmit={handleBookingSubmit}>
@@ -319,7 +308,6 @@ const IndexPage = () => {
                     )}
                   </div>
 
-
                   <div className="booking-group">
                     <button type="submit" className="btn">Tìm chuyến bay</button>
                   </div>
@@ -328,7 +316,6 @@ const IndexPage = () => {
             </div>
           )}
 
-          {/* Check-in Tab */}
           <div
             className={`checkin-contain ${activeTab === "checkin" ? "active" : ""}`}
             style={{ display: activeTab === "checkin" ? "block" : "none" }}
@@ -360,7 +347,6 @@ const IndexPage = () => {
             <div dangerouslySetInnerHTML={{ __html: checkinResult }} />
           </div>
 
-          {/* Booking Management Tab */}
           <div
             className={`management-container ${activeTab === "management" ? "active" : ""}`}
             style={{ display: activeTab === "management" ? "block" : "none" }}
@@ -393,7 +379,6 @@ const IndexPage = () => {
         </section>
       </div>
       <div className="second-cotent">
-        {/* Destination Section */}
         <section className="section_container destination_container" id="about">
           <h2 className="section_header">Điểm đến phổ biến</h2>
           <p className="section_description">
@@ -433,7 +418,6 @@ const IndexPage = () => {
           </div>
         </section>
 
-        {/* Showcase Section */}
         <section className="section_container showcase_container" id="package">
           <div className="showcase_image">
             <img src="assets/co-to-quoc.jpg" alt="showcase" />
@@ -466,7 +450,6 @@ const IndexPage = () => {
           </div>
         </section>
 
-        {/* Feedback Section */}
         <section className="feedback section_container" id="feedback">
           <h2 className="section_header">Phản hồi từ khách hàng</h2>
           <p className="section_description">
@@ -544,7 +527,6 @@ const IndexPage = () => {
           </div>
         </section>
 
-        {/* Footer */}
         <footer id="contact">
           <div className="section_container footer_container">
             <div className="footer_col">

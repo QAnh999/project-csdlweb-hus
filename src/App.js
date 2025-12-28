@@ -21,7 +21,10 @@ function App() {
           <Layout bg="/assets/background2.jpg">
             <ManageBookingPage />
           </Layout>} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={
+          <Layout bg="/assets/background2.jpg">
+            <LoginPage />
+          </Layout>} />
         <Route path="/checkin" element={
           <Layout bg="/assets/background2.jpg">
             <CheckinPage />

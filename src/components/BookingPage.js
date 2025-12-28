@@ -80,7 +80,6 @@ const BookingPage = () => {
   };
 
   const handleSelectFlight = (flight) => {
-    // ===== ONEWAY - XỬ LÝ TRƯỚC =====
     if (tripType === "oneway") {
       const draft = {
         type: "oneway",
@@ -96,11 +95,8 @@ const BookingPage = () => {
       return;
     }
 
-    // ===== ROUNDTRIP: Chọn chặng đi =====
     if (tripType === "roundtrip" && phase === "outbound") {
       setSelectedOutbound(flight);
-
-      // Lưu draft với chặng đi
       const draft = {
         type: "roundtrip",
         outbound: flight,
@@ -120,7 +116,7 @@ const BookingPage = () => {
       return;
     }
 
-    // ===== ROUNDTRIP: Chọn chặng về =====
+
     if (tripType === "roundtrip" && phase === "inbound") {
       const existingDraft = JSON.parse(localStorage.getItem("bookingDraft") || "{}");
 
@@ -160,8 +156,6 @@ const BookingPage = () => {
             ? "Chọn chuyến bay về"
             : "Chọn chuyến bay"}
         </h1>
-
-        {/* Hiển thị thông tin chuyến đi đã chọn */}
         {tripType === "roundtrip" && selectedOutbound && phase === "inbound" && (
           <div style={{
             padding: "15px",
