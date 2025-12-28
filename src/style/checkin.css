@@ -223,7 +223,7 @@ body {
 
 /* LEFT STRIP */
 .bp-left {
-    background: #4b2e83;
+    background: var(--primary-color-dark);
     color: #fff;
     padding: 16px 10px;
     display: flex;

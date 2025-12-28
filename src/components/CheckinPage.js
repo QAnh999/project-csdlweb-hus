@@ -134,18 +134,17 @@ const CheckinPage = () => {
   const { date, hour } = parseTime(selectedFlight?.f_time_from);
 
 
-  const getCabinClass = (flight) => {
-    if (!flight || !flight.f_type) return "ECONOMY";
+ const getCabinClass = (flight) => {
+  if (!flight) return "ECONOMY";
 
-    const t = flight.f_type.toLowerCase();
+  const t = (flight.type || "").toLowerCase();
 
-    if (t.includes("business")) return "BUSINESS";
-    if (t.includes("eco")) return "ECONOMY";
-    if (t.includes("first")) return "FIRST";
+  if (t.includes("first")) return "FIRST";
+  if (t.includes("business") || t.includes("buz")) return "BUSINESS";
+  if (t.includes("eco")) return "ECONOMY";
 
-    return "ECONOMY"; 
-  };
-
+  return "ECONOMY";
+};
 
 
   return (
@@ -196,7 +195,7 @@ const CheckinPage = () => {
             <div className="bp-right">
               <div className="bp-header">
                 <span>BOARDING PASS</span>
-                <span>{getCabinClass(selectedFlight.type)}</span>
+                <span>{getCabinClass(selectedFlight)}</span>
               </div>
 
               <div className="bp-row big">
@@ -231,7 +230,7 @@ const CheckinPage = () => {
                 </div>
                 <div>
                   <label>BOARDING TIME</label>
-                  <strong>{subtractMinutes(selectedFlight.f_time_from, 30)}</strong>
+                  <strong>{subtractMinutes(selectedFlight.f_time_from, 15)}</strong>
                 </div>
               </div>
 
