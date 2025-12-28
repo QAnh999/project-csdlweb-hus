@@ -14,6 +14,11 @@
     --radius: 16px;
 }
 
+html, body, #root {
+    height: 100%;
+}
+
+
 * {
     margin: 0;
     padding: 0;
@@ -26,18 +31,18 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    min-height: 100vh;
+    /* min-height: 100vh; */
     background-image: url("/public/assets/background2.jpg");
 }
 
 .flights-wrapper {
     width: 100vw;
-    min-height: 100vh;
+    min-height: calc(100vh - 70px); 
     /* background-image: url("/public/assets/background2.jpg"); bật lại hình nền */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed; /* cố định background khi scroll */
+    /* background-attachment: fixed; cố định background khi scroll */
     display: flex;
     justify-content: center;
     align-items: flex-start; /* bắt đầu từ trên, tránh container tràn ra */

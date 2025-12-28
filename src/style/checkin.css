@@ -148,9 +148,10 @@ body {
     gap: 20px;
 }
 
-.checkin-options > button:only-child {
+.checkin-options>button:only-child {
     margin: -10px auto 10px auto;
-    flex: unset; /* bỏ flex: 1 nếu có */
+    flex: unset;
+    /* bỏ flex: 1 nếu có */
 }
 
 .checkin-options button {
@@ -185,8 +186,9 @@ body {
     /* box-shadow: 0 2px 6px rgba(103, 61, 218, 0.05); */
 }
 
+/* 
 .boarding-pass {
-    /* background: #fff; */
+   
     border: 2px solid var(--primary-color);
     border-radius: 16px;
     padding: 20px;
@@ -206,7 +208,103 @@ body {
     display: flex;
     justify-content: space-between;
     margin: 6px 0;
+} */
+
+.boarding-pass {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 20px 0;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+    font-family: "Noto Serif", serif;
 }
+
+/* LEFT STRIP */
+.bp-left {
+    background: #4b2e83;
+    color: #fff;
+    padding: 16px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bp-logo {
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.bp-alliance {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* RIGHT CONTENT */
+.bp-right {
+    padding: 16px 20px;
+}
+
+.bp-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+}
+
+.bp-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.bp-row.big {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.bp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 10px 0;
+    gap: 12px;
+}
+
+.bp-grid div {
+    text-align: left;
+}
+
+.bp-grid label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    color: #666;
+}
+
+.bp-grid strong {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+/* BARCODE */
+.bp-barcode {
+    margin-top: 16px;
+    height: 50px;
+    background: repeating-linear-gradient(90deg,
+            #000,
+            #000 2px,
+            transparent 2px,
+            transparent 4px);
+}
+
 
 .btn-confirm {
     width: 100%;

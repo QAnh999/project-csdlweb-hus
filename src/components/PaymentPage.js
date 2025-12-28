@@ -170,7 +170,7 @@ const PaymentPage = () => {
       <div className="payment-container">
         <div className="passenger-info-form">
           <h2>Thông tin hành khách</h2>
-          <p><span className="label">Họ tên:</span> <span className="value">({passenger.Danh_xung}) {passenger.Ho} {passenger.Ten_dem_va_ten}</span></p>
+          <p><span className="label">Họ tên:</span> <span className="value">({passenger.Danh_xung}) {(passenger.Ho + " " + passenger.Ten_dem_va_ten).toUpperCase()}</span></p>
           <p><span className="label">Email:</span> <span className="value">{passenger.Email}</span></p>
           <p><span className="label">Điện thoại:</span> <span className="value">{passenger.Ma_quoc_gia} {passenger.So_dien_thoai?.replace(/^0/, "")}</span></p>
 

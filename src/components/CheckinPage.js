@@ -5,7 +5,7 @@ import "../style/checkin.css";
 
 const CheckinPage = () => {
   const navigate = useNavigate();
-
+  const [gate, setGate] = useState("");
   const [booking, setBooking] = useState(null);
   const [passenger, setPassenger] = useState(null);
   const [selectedLeg, setSelectedLeg] = useState(null);
@@ -41,6 +41,13 @@ const CheckinPage = () => {
     setPassenger(bk.passenger);
   }, [navigate]);
 
+  useEffect(() => {
+    if (selectedFlight) {
+      setGate(generateGate());
+    }
+  }, [selectedFlight]);
+
+
 
   const handleSelectLeg = (leg) => {
     if (!booking) return;
@@ -56,7 +63,6 @@ const CheckinPage = () => {
 
     // Khi chọn chặng, ẩn tất cả nút chọn chặng khác
     setShowOptions(false);
-
     // Hiển thị nút xác nhận check-in cho chặng vừa chọn
     setShowConfirmBtn(true);
   };
@@ -102,6 +108,57 @@ const CheckinPage = () => {
     return false;
   };
 
+  const generateGate = () => {
+    const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
+    const number = Math.floor(Math.random() * 90) + 10; // 10-99
+    return `${letter}${number}`;
+  };
+
+
+  const parseTime = (time) => {
+    if (!time || typeof time !== "string") {
+      return { date: "", hour: "" };
+    }
+
+    const [date = "", hour = ""] = time.split(" ");
+    return { date, hour };
+  };
+
+
+  const subtractMinutes = (timeStr, minutes) => {
+    if (!timeStr) return "";
+
+    const timePart = timeStr.includes(" ")
+      ? timeStr.split(" ")[1]
+      : timeStr;
+
+    const [h, m, s] = timePart.split(":").map(Number);
+
+    const d = new Date();
+    d.setHours(h, m - minutes, s || 0);
+
+    return `${String(d.getHours()).padStart(2, "0")}:${String(
+      d.getMinutes()
+    ).padStart(2, "0")}`;
+  };
+
+  const { date, hour } = parseTime(selectedFlight?.f_time_from);
+
+
+  const getCabinClass = (flight) => {
+    if (!flight || !flight.f_type) return "ECONOMY";
+
+    const t = flight.f_type.toLowerCase();
+
+    if (t.includes("business")) return "BUSINESS";
+    if (t.includes("eco")) return "ECONOMY";
+    if (t.includes("first")) return "FIRST";
+
+    return "ECONOMY"; 
+  };
+
+
+
   return (
     <div className="checkin-wrapper">
       <header className="site-header">
@@ -112,19 +169,16 @@ const CheckinPage = () => {
       </header>
 
       <div className="checkin-container">
-        {/* Xác nhận chuyến bay */}
         {selectedFlight && showConfirmBtn && (
           <div className="cf-flights">
             <h2>Xác nhận chuyến bay</h2>
-            <p><strong>Hành khách:</strong> {passenger.Ho} {passenger.Ten_dem_va_ten}</p>
+            <p><strong>Hành khách:</strong> {(passenger.Ho + " " + passenger.Ten_dem_va_ten).toUpperCase()}</p>
             <p><strong>Chuyến bay:</strong> {selectedFlight.airport_from} → {selectedFlight.airport_to}</p>
             <p><strong>Giờ khởi hành:</strong> {selectedFlight.f_time_from}</p>
             <p><strong>Ghế:</strong> {selectedSeat}</p>
           </div>
         )}
 
-        {/* Nút chọn chặng roundtrip, chỉ hiển thị lần đầu vào page */}
-        {/* Nút chọn chặng roundtrip, chỉ hiển thị lần đầu vào page */}
         {showOptions && booking.type === "roundtrip" && (
           <div className="checkin-options">
             {!booking.checkedInOutbound && (
@@ -146,14 +200,59 @@ const CheckinPage = () => {
 
         {/* Board pass */}
         {showBoardingPass() && (
+
           <div className="boarding-pass">
-            <h3>Thẻ lên máy bay</h3>
-            <p><strong>Hành khách:</strong> {passenger.Ho} {passenger.Ten_dem_va_ten}</p>
-            <p><strong>Mã đặt chỗ:</strong> {booking.bookingCode}</p>
-            <p><strong>Chuyến bay:</strong> {selectedFlight.airport_from} → {selectedFlight.airport_to}</p>
-            <p><strong>Giờ khởi hành:</strong> {selectedFlight.f_time_from}</p>
-            <p><strong>Ghế:</strong> {selectedSeat}</p>
+            <div className="bp-left">
+              <span className="bp-logo">LOTUS</span>
+              <span className="bp-alliance">STAR ALLIANCE</span>
+            </div>
+
+            <div className="bp-right">
+              <div className="bp-header">
+                <span>BOARDING PASS</span>
+                <span>{getCabinClass(selectedFlight.type)}</span>
+              </div>
+
+              <div className="bp-row big">
+                {(passenger.Ho + " " + passenger.Ten_dem_va_ten).toUpperCase()}
+              </div>
+
+              <div className="bp-row">
+                <span>{selectedFlight.airport_from}</span>
+                <span>→</span>
+                <span>{selectedFlight.airport_to}</span>
+              </div>
+
+              <div className="bp-grid">
+                <div>
+                  <label>FLIGHT</label>
+                  <strong>{selectedFlight.f_code}</strong>
+                </div>
+                <div>
+                  <label>DATE</label>
+                  <strong>{date}</strong>
+                </div>
+                <div>
+                  <label>SEAT</label>
+                  <strong>{selectedSeat}</strong>
+                </div>
+              </div>
+
+              <div className="bp-grid">
+                <div>
+                  <label>GATE</label>
+                  <strong>{gate}</strong>
+                </div>
+                <div>
+                  <label>BOARDING TIME</label>
+                  <strong>{subtractMinutes(selectedFlight.f_time_from, 30)}</strong>
+                </div>
+              </div>
+
+              <div className="bp-barcode"></div>
+            </div>
           </div>
+
         )}
       </div>
     </div>

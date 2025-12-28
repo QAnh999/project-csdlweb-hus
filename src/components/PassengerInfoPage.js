@@ -194,7 +194,7 @@ const PassengerInfoPage = () => {
             name="Ten_dem_va_ten"
             value={passenger.Ten_dem_va_ten}
             onChange={handleChange}
-            placeholder="Tên đệm và tên"
+            style={{ textTransform: "uppercase" }}
             required
           />
 
@@ -205,7 +205,7 @@ const PassengerInfoPage = () => {
             name="Ho"
             value={passenger.Ho}
             onChange={handleChange}
-            placeholder="Họ"
+            style={{ textTransform: "uppercase" }}
             required
           />
 
@@ -226,7 +226,6 @@ const PassengerInfoPage = () => {
             name="Email"
             value={passenger.Email}
             onChange={handleChange}
-            placeholder="Địa chỉ email"
             required
           />
 
@@ -237,7 +236,6 @@ const PassengerInfoPage = () => {
             name="Ma_quoc_gia"
             value={passenger.Ma_quoc_gia}
             onChange={handleChange}
-            placeholder="Mã quốc gia"
             pattern="^\+\d{1,4}$"
             required
           />
@@ -249,7 +247,6 @@ const PassengerInfoPage = () => {
             name="So_dien_thoai"
             value={passenger.So_dien_thoai}
             onChange={handleChange}
-            placeholder="Số điện thoại"
             pattern="^[0-9+]{8,15}$"
             required
           />

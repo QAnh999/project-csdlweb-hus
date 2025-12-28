@@ -116,7 +116,7 @@ const ManageBookingPage = () => {
           {/* Thông tin đặt chỗ */}
           <div className="flight-detail">
             <h3>Thông tin đặt chỗ</h3>
-            <p><strong>Hành khách:</strong> {booking.passenger.Ho} {booking.passenger.Ten_dem_va_ten}</p>
+            <p><strong>Hành khách:</strong> {(booking.passenger.Ho + " " + booking.passenger.Ten_dem_va_ten).toUpperCase()}</p>
             <p><strong>Mã đặt chỗ:</strong> {bookingCode}</p>
             <p><strong>Loại vé:</strong> {booking.type === "oneway" ? "Một chiều" : "Khứ hồi"}</p>
           </div>
