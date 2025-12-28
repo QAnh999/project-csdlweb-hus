@@ -1,0 +1,9 @@
+# app/models/__init__.py
+from .user import User
+from .staff import Staff
+from .airport import Airport
+from .airline import Airline
+from .aircraft import Aircraft
+from .flight import Flight
+
+__all__ = ["User", "Staff", "Airport", "Airline", "Aircraft", "Flight"]
