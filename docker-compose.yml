@@ -1,12 +1,10 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:15
     container_name: lotus_pg
     environment:
       POSTGRES_USER: lotus_admin
-      POSTGRES_PASSWORD: "LotusTravel2025"
+      POSTGRES_PASSWORD: LotusTravel2025
       POSTGRES_DB: lotus_db
     ports:
       - "5432:5432"
@@ -15,18 +13,30 @@ services:
       - ./backend/db:/docker-entrypoint-initdb.d:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h localhost"]
+      test: ["CMD-SHELL", "pg_isready -U lotus_admin -d lotus_db"]
       interval: 5s
       timeout: 5s
       retries: 10
       start_period: 5s
+
+  backend:
+    build: ./backend
+    container_name: lotus_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://lotus_admin:LotusTravel2025@db:5432/lotus_db
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
 
   pgadmin:
     image: dpage/pgadmin4:7
     container_name: lotus_pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: lotus@admin.com
-      PGADMIN_DEFAULT_PASSWORD: "lotusadmin2025"
+      PGADMIN_DEFAULT_PASSWORD: lotusadmin2025
     ports:
       - "8080:80"
     depends_on:
