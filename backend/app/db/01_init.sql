@@ -48,10 +48,10 @@ CREATE TABLE Users (
     phone VARCHAR(20),
     date_of_birth DATE,
     gender VARCHAR(10) CHECK (gender IN ('male', 'female', 'other')),
-    status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'banned', 'deleted'))
+    status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'banned', 'deleted')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
+    deleted_at TIMESTAMP,
     last_login TIMESTAMP
 );
 
@@ -68,7 +68,7 @@ CREATE TABLE Passengers (
     passport_number VARCHAR(50) UNIQUE,
     passport_expiry DATE,
     identify_number VARCHAR(50), -- CCCD
-    passenger_type VARCHAR(20) DEFAULT 'adult', -- adult, child, infant
+    passenger_type VARCHAR(20) DEFAULT 'adult' CHECK (passenger_type IN ('adult', 'child', 'infant')), -- adult, child, infant
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_passengers_user FOREIGN KEY (user_id) REFERENCES Users(id)
@@ -100,7 +100,7 @@ CREATE TABLE Flights (
     available_seats_business INT DEFAULT 0,
     available_seats_first INT DEFAULT 0,
     
-    status VARCHAR(20) DEFAULT 'scheduled', -- scheduled, boarding, departed, arrived, cancelled, delayed
+    status VARCHAR(20) DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'boarding', 'departed', 'arrived', 'cancelled', 'delayed')), -- scheduled, boarding, departed, arrived, cancelled, delayed
     gate VARCHAR(10),
     terminal VARCHAR(10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -110,7 +110,27 @@ CREATE TABLE Flights (
     CONSTRAINT fk_flights_aircraft FOREIGN KEY (id_aircraft) REFERENCES Aircrafts(id),
     CONSTRAINT fk_flights_dep_airport FOREIGN KEY (dep_airport) REFERENCES Airports(id),
     CONSTRAINT fk_flights_arr_airport FOREIGN KEY (arr_airport) REFERENCES Airports(id),
-    CONSTRAINT chk_valid_dates CHECK (arr_datetime > dep_datetime)
+    CONSTRAINT chk_valid_dates CHECK (arr_datetime > dep_datetime)--,
+    -- CONSTRAINT chk_prices_non_negative CHECK (
+    --     base_price_economy >= 0 AND
+    --     (base_price_business IS NULL OR base_price_business >= 0) AND
+    --     (base_price_first IS NULL OR base_price_first >= 0)
+    -- ),
+    -- CONSTRAINT chk_fees_non_negative CHECK(
+    --     luggage_fee_per_kg >= 0 AND
+    --     free_luggage_weight >= 0 AND
+    --     overweight_fee_per_kg >= 0
+    -- ),
+    -- CONSTRAINT chk_seats_non_negative CHECK (
+    --     total_seats > 0 AND
+    --     available_seats_economy >= 0 AND
+    --     available_seats_business >= 0 AND
+    --     available_seats_first >= 0
+    -- ),
+    -- CONSTRAINT chk_seats_consistency CHECK (
+    --     (available_seats_economy + available_seats_business + available_seats_first) <= total_seats
+    -- ),
+    -- CONSTRAINT chk_duration_positive CHECK (duration_minutes > 0)
 );
 
 
@@ -119,8 +139,8 @@ CREATE TABLE Seats (
     id SERIAL PRIMARY KEY,
     id_aircraft INT NOT NULL,
     seat_number VARCHAR(10) NOT NULL,
-    seat_class VARCHAR(20) NOT NULL, -- economy, business, first
-    seat_type VARCHAR(50) NOT NULL, -- window, aisle, middle, emergency
+    seat_class VARCHAR(20) NOT NULL CHECK (seat_class IN ('economy', 'business', 'first')), -- economy, business, first
+    seat_type VARCHAR(50) NOT NULL CHECK (seat_type IN ('window', 'aisle', 'middle', 'emergency')), -- window, aisle, middle, emergency
     -- is_available BOOLEAN DEFAULT TRUE,
     price_surcharge DECIMAL(10,2) DEFAULT 0,
     CONSTRAINT fk_seats_aircraft FOREIGN KEY (id_aircraft) REFERENCES Aircrafts(id),
@@ -144,13 +164,22 @@ CREATE TABLE Reservations (
     discount_amount DECIMAL(10,2) DEFAULT 0,	
     tax_amount DECIMAL(10,2) DEFAULT 0,
     
-    status VARCHAR(50) DEFAULT 'pending', -- pending, confirmed, cancelled, completed
+    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed')), -- pending, confirmed, cancelled, completed
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP,
     CONSTRAINT fk_reservations_user FOREIGN KEY (user_id) REFERENCES Users(id),
     CONSTRAINT fk_reservations_main_flight FOREIGN KEY (main_flight_id) REFERENCES Flights(id),
-    CONSTRAINT fk_reservations_return_flight FOREIGN KEY (return_flight_id) REFERENCES Flights(id)
+    CONSTRAINT fk_reservations_return_flight FOREIGN KEY (return_flight_id) REFERENCES Flights(id)--,
+    -- CONSTRAINT chk_amounts_non_negative CHECK (
+    --     total_amount >= 0 AND
+    --     paid_amount >= 0 AND
+    --     discount_amount >= 0 AND
+    --     tax_amount >= 0
+    -- ),
+    -- CONSTRAINT chk_paid_not_exceed_total CHECK (paid_amount <= total_amount),
+    -- CONSTRAINT chk_expired_after_created CHECK (expires_at > created_at),
+    -- CONSTRAINT chk_passengers_positive CHECK (total_passengers > 0)
 );
 
 
@@ -194,17 +223,31 @@ CREATE TABLE Reservation_Details (
     
     -- Check-in Online
     checkin_time TIMESTAMP,             -- Thời điểm check-in (NULL nếu chưa check-in)
-    checkin_method VARCHAR(20) DEFAULT 'none', 
+    checkin_method VARCHAR(20) DEFAULT 'none' CHECK (checkin_method IN ('none', 'online', 'counter')), 
     -- none / online / counter
     boarding_pass_code VARCHAR(50) UNIQUE, -- Mã boarding pass (QR hoặc mã số)
-    checkin_status VARCHAR(20) DEFAULT 'not_checked_in',
+    checkin_status VARCHAR(20) DEFAULT 'not_checked_in' CHECK (checkin_status IN ('not_checked_in', 'checked_in', 'cancelled')),
     -- not_checked_in / checked_in / cancelled
     
     -- Ràng buộc khóa ngoại
     CONSTRAINT fk_rd_reservation FOREIGN KEY (reservation_id) REFERENCES Reservations(id),
     CONSTRAINT fk_rd_passenger FOREIGN KEY (passenger_id) REFERENCES Passengers(id),
     CONSTRAINT fk_rd_flight FOREIGN KEY (flight_id) REFERENCES Flights(id),
-    CONSTRAINT fk_rd_seat FOREIGN KEY (seat_id) REFERENCES Seats(id)
+    CONSTRAINT fk_rd_seat FOREIGN KEY (seat_id) REFERENCES Seats(id)--,
+    -- CONSTRAINT chk_fares_non_negative CHECK (
+    --     base_fare >= 0 AND 
+    --     seat_surcharge >= 0 AND
+    --     luggage_surcharge >= 0 AND
+    --     tax_fare >= 0 AND
+    --     total_fare >= 0
+    -- ),
+    -- CONSTRAINT chk_total_fare_calculation CHECK (
+    --     total_fare = base_fare + seat_surcharge + luggage_surcharge + tax_fare
+    -- ),
+    -- CONSTRAINT chk_luggage_non_negative CHECK (
+    --     luggage_count >= 0 AND
+    --     luggage_weight >= 0
+    -- )
 );
 
 
@@ -214,7 +257,7 @@ CREATE TABLE Tickets (
     ticket_number VARCHAR(20) UNIQUE NOT NULL,  -- Mã vé riêng, ví dụ: 738-1234567890
     reservation_detail_id INT NOT NULL,         -- Gắn với 1 hành khách cụ thể
     issue_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-    status VARCHAR(20) DEFAULT 'active',        -- active, used, refunded, cancelled
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'used', 'refunded', 'cancelled')),        -- active, used, refunded, cancelled
     qr_code_url VARCHAR(255),                   -- Link QR cho check-in
     pdf_url VARCHAR(255),                       -- Vé điện tử PDF (nếu có)
     CONSTRAINT fk_tickets_reservation_detail 
@@ -225,16 +268,20 @@ CREATE TABLE Tickets (
 CREATE TABLE Payments (
     id SERIAL PRIMARY KEY,
     reservation_id INT NOT NULL,
-    payment_method VARCHAR(50) NOT NULL, -- credit_card, bank_transfer, e_wallet
+    payment_method VARCHAR(50) NOT NULL CHECK (payment_method IN ('credit_card', 'bank_transfer', 'e_wallet')), -- credit_card, bank_transfer, e_wallet
     payment_gateway VARCHAR(100),
     transaction_id VARCHAR(255) UNIQUE,
     -- amount DECIMAL(12,2) NOT NULL,
     currency VARCHAR(3) DEFAULT 'VND',
-    status VARCHAR(50) DEFAULT 'pending', -- pending, completed, failed, refunded
+    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'failed', 'refunded')), -- pending, completed, failed, refunded
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     paid_at TIMESTAMP,
-    CONSTRAINT fk_payments_reservation FOREIGN KEY (reservation_id) REFERENCES Reservations(id)
+    CONSTRAINT fk_payments_reservation FOREIGN KEY (reservation_id) REFERENCES Reservations(id)--,
+    -- CONSTRAINT chk_paid_at_logic CHECK (
+    --     (status = 'completed' AND paid_at IS NOT NULL) OR
+    --     (status != 'completed' AND paid_at IS NULL)
+    -- )
 );
 
 
@@ -247,16 +294,21 @@ CREATE TABLE Invoices (
     due_date TIMESTAMP NOT NULL, -- thoi han cuoi cung de thanh toan
     total_amount DECIMAL(12,2) NOT NULL,
     tax_amount DECIMAL(10,2) DEFAULT 0,
-    status VARCHAR(20) DEFAULT 'unpaid', -- unpaid, paid, overdue, cancelled
+    status VARCHAR(20) DEFAULT 'unpaid' CHECK (status IN ('unpaid', 'paid', 'overdue', 'cancelled')), -- unpaid, paid, overdue, cancelled
     CONSTRAINT fk_invoices_reservation FOREIGN KEY (reservation_id) REFERENCES Reservations(id),
-    CONSTRAINT fk_invoices_user FOREIGN KEY (user_id) REFERENCES Users(id)
+    CONSTRAINT fk_invoices_user FOREIGN KEY (user_id) REFERENCES Users(id)--,
+    -- CONSTRAINT chk_amounts_non_negative CHECK (
+    --     total_amount >= 0 AND
+    --     tax_amount >= 0
+    -- ),
+    -- CONSTRAINT chk_due_date_after_issue CHECK (due_date > issue_date)
 );
 
 CREATE TABLE Services (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    category VARCHAR(100) NOT NULL, -- meal, luggage, insurance, entertainment
+    category VARCHAR(100) NOT NULL, -- CHECK (category IN ('meal', 'luggage', 'insurance', 'entertainment')), -- meal, luggage, insurance, entertainment
     base_price DECIMAL(10,2) NOT NULL,
     is_available BOOLEAN DEFAULT TRUE
 );
@@ -270,7 +322,13 @@ CREATE TABLE Reservation_Services (
     unit_price DECIMAL(10,2) NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,
     CONSTRAINT fk_rs_reservation_detail FOREIGN KEY (reservation_detail_id) REFERENCES Reservation_Details(id),
-    CONSTRAINT fk_rs_service FOREIGN KEY (service_id) REFERENCES Services(id)
+    CONSTRAINT fk_rs_service FOREIGN KEY (service_id) REFERENCES Services(id),
+    CONSTRAINT chk_quantitie_positive CHECK (quantity > 0)--,
+    -- CONSTRAINT chk_prices_non_negative CHECK (
+    --     unit_price >= 0 AND
+    --     total_price >= 0
+    -- ),
+    -- CONSTRAINT chk_total_price_calculation CHECK (total_price = unit_price * quantity)
 );
 
 

@@ -1,6 +1,15 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, Literal
 from datetime import datetime, date
+from enum import Enum
+
+class FlightStatus(str, Enum):
+    scheduled = "scheduled"
+    boarding = "boarding"
+    departed = "departed"
+    arrived = "arrived"
+    cancelled = "cancelled"
+    delayed = "delayed"
 
 class FlightBase(BaseModel):
     flight_number: str
@@ -25,7 +34,7 @@ class FlightBase(BaseModel):
     available_seats_business: int = 0
     available_seats_first: int = 0
 
-    status: str = "scheduled"
+    status: str = FlightStatus.scheduled
     gate: Optional[str] = None
     terminal: Optional[str] = None
 
@@ -55,7 +64,7 @@ class FlightUpdate(BaseModel):
     available_seats_business: Optional[int] = None
     available_seats_first: Optional[int] = None
 
-    status: Optional[str] = None
+    status: Optional[FlightStatus] = None
     gate: Optional[str] = None
     terminal: Optional[str] = None
 
@@ -67,6 +76,14 @@ class FlightResponse(FlightBase):
     
     model_config = ConfigDict(from_attributes=True)
 
+class PassengerSummary(BaseModel):
+    adult: int
+    child: int
+    infant: int
+
+    def total(self) -> int:
+        return self.adult + self.child + self.infant
+
 class FlightSearchRequest(BaseModel):
     from_airport: int
     to_airport: int
@@ -77,7 +94,7 @@ class FlightSearchRequest(BaseModel):
     cabin_class: Literal["economy", "business", "first"] = "economy"
 
     adult: int = 1
-    children: int = 0
+    child: int = 0
     infant: int = 0
 
 
@@ -101,6 +118,7 @@ class FlightSearchResult(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class FlightSearchResponse(BaseModel):
+    passengers: PassengerSummary
     main_flights: list[FlightSearchResult]
     return_flights: Optional[list[FlightSearchResult]] = None
 

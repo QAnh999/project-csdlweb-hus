@@ -1,6 +1,17 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
+from enum import Enum
+
+class CheckinMethod(str, Enum):
+    none = "none"
+    online = "online"
+    counter = "counter"
+
+class CheckinStatus(str, Enum):
+    not_checked_in = "not_checked_in"
+    checked_in = "checked_in" 
+    cancelled = "cancelled" 
 
 class ReservationDetailBase(BaseModel):
     reservation_id: int
@@ -18,9 +29,9 @@ class ReservationDetailBase(BaseModel):
     luggage_weight: Optional[float] = 0
 
     checkin_time: Optional[datetime] = None
-    checkin_method: Optional[str] = "none"
+    checkin_method: Optional[CheckinMethod] = CheckinMethod.none
     boarding_pass_code: Optional[str] = None
-    checkin_status: Optional[str] = "not_checked_in"
+    checkin_status: Optional[CheckinStatus] = CheckinStatus.not_checked_in
 
 class ReservationDetailCreate(ReservationDetailBase):
     pass 
@@ -41,9 +52,9 @@ class ReservationDetailUpdate(BaseModel):
     luggage_weight: Optional[float] = None
 
     checkin_time: Optional[datetime] = None
-    checkin_method: Optional[str] = None
+    checkin_method: Optional[CheckinMethod] = None
     boarding_pass_code: Optional[str] = None
-    checkin_status: Optional[str] = None
+    checkin_status: Optional[CheckinStatus] = None
 
 
 class ReservationDetailResponse(ReservationDetailBase):

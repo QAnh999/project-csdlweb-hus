@@ -62,14 +62,14 @@ class FlightService:
             dep_date: date, 
             cabin_class: str, 
             adult: int,
-            children: int,
+            child: int,
             infant: int, 
             trip_type: str = "one-way",
             ret_date: Optional[date] = None
     ) -> Dict[str, List[dict]]:
         
         infant = 0  # Ignore infants for seat availability
-        num_seats = adult + children + infant
+        num_seats = adult + child + infant
 
         outbound = self._search_one_way(
             db=db,
@@ -100,8 +100,8 @@ class FlightService:
                 raise ValueError("No suitable inbound flights found")
             
         return {
-            "outbound": outbound,
-            "inbound": inbound
+            "main_flights": outbound,
+            "return_flights": inbound
         }
     
 flight_service = FlightService()

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional, List
 from app.services.user import UserService
 from app.repositories.user import user_repository
-from app.schemas.user import UserCreate, UserUpdate, UserResponse
+from app.schemas.user import UserCreate, UserUpdate, UserResponse, UserPassword
 
 class UserController:
     def __init__(self):
@@ -38,10 +38,10 @@ class UserController:
         user = user_repository.get(db, user_id)
         if not user:
             raise HTTPException(404, "User not found")
-        user_repository.delete(db, user_id)
+        user_repository.delete_user(db, user_id)
         return {"message": "User deleted successfully"}
     
-    def change_password(self, user_id: int, data: UserUpdate, db: Session) -> dict:
+    def change_password(self, user_id: int, data: UserPassword, db: Session) -> dict:
         try:
             self.service.change_password(
                 db=db,

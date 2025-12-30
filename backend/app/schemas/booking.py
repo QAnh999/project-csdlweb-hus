@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List, Optional   
+from typing import List, Optional, Literal
 from datetime import datetime
 
 class BookingCreate(BaseModel):
@@ -16,6 +16,7 @@ class BookingBaseResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class SeatStatus(BaseModel):
+    flight_id: int
     seat_id: int
     seat_number: str
     seat_class: str
@@ -43,13 +44,54 @@ class PassengerInfo(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class PassengerResponse(BaseModel):
+    passenger_id: int
+    first_name: str
+    last_name: str
+    date_of_birth: datetime
+    gender: Optional[str]
+    passport_number: Optional[str]
+    identify_number: Optional[str]
+    passenger_type: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+class FlightSeatResponse(BaseModel):
+    seat_id: int
+    seat_number: str
+    seat_class: str
+
+class FlightBookingResponse(BaseModel):
+    flight_id: int
+    direction: str  # "main" | "return"
+    seats: List[FlightSeatResponse]
+
+# class BookingPassengerRequest(BaseModel):
+#     passengers: List[PassengerInfo]
+
+class PassengerCount(BaseModel):
+    adult: int
+    child: int
+    infant: int
+
 class BookingPassengerRequest(BaseModel):
     passengers: List[PassengerInfo]
+    passenger_count: PassengerCount
+
+class PassengerSeatMap(BaseModel):
+    passenger_id: int
+    seat_id: Optional[int]
 
 class BookingFinalizeRequest(BaseModel):
     seat_class: str
-    main_seat_ids: List[Optional[int]]
-    return_seat_ids: Optional[List[Optional[int]]] = None
+    main_seat_map: List[PassengerSeatMap]
+    return_seat_map: Optional[List[PassengerSeatMap]] = None
+
+
+# class BookingFinalizeRequest(BaseModel):
+#     seat_class: str
+#     main_seat_ids: List[Optional[int]]
+#     return_seat_ids: Optional[List[Optional[int]]] = None
 
 class InvoiceInfo(BaseModel):
     invoice_number: str
@@ -60,16 +102,30 @@ class InvoiceInfo(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+# class BookingFinalizeResponse(BaseModel):
+#     total_passengers: int
+#     total_amount: float
+#     tax_amount: float
+#     invoice: InvoiceInfo
+
+class PassengerDetailSeat(BaseModel):
+    passenger_id: int
+    seat_id: Optional[int]
+    total_fare: float
+
 class BookingFinalizeResponse(BaseModel):
     total_passengers: int
     total_amount: float
     tax_amount: float
     invoice: InvoiceInfo
+    passenger_details: List[PassengerDetailSeat]
+
 
 class BookingPaymentRequest(BaseModel):
     payment_method: str 
 
 class PaymentInfo(BaseModel):
+    payment_id: int
     payment_method: str
     status: str
     paid_at: Optional[datetime] = None
@@ -111,15 +167,13 @@ class BookingDetailResponse(BaseModel):
     status: str
     expires_at: Optional[datetime]
 
-    main_flight_id: int
-    return_flight_id: Optional[int]
+    flights: List[FlightBookingResponse]
+    passengers: List[PassengerResponse]
 
     total_passengers: int
     total_amount: float
     tax_amount: float
 
-    seats: List[SeatStatus]
-    passengers: List[PassengerInfo]
     invoice: Optional[InvoiceInfo]
     payment: Optional[PaymentInfo]
 

@@ -1,6 +1,12 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional
+from enum import Enum
+
+class PassengerType(str, Enum):
+    adult = "adult"
+    child = "child"
+    infant = "infant"
 
 
 class PassengerBase(BaseModel):
@@ -13,7 +19,7 @@ class PassengerBase(BaseModel):
     passport_number: Optional[str] = None
     passport_expiry: Optional[datetime] = None
     identify_number: Optional[str] = None
-    passenger_type: Optional[str] = "adult"
+    passenger_type: Optional[PassengerType] = PassengerType.adult
 
 class PassengerCreate(PassengerBase):
     pass

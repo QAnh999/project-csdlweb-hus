@@ -1,6 +1,14 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
+from enum import Enum
+
+
+class ReservationStatus(str, Enum):
+    pending = "pending"
+    confirmed = "confirmed"
+    cancelled = "cancelled"
+    completed = "completed"
 
 class ReservationBase(BaseModel):
     reservation_cpde: str
@@ -15,7 +23,7 @@ class ReservationBase(BaseModel):
     discount_amount: Optional[float] = 0
     tax_amount: Optional[float] = 0
 
-    status: Optional[str] = "pending"
+    status: Optional[str] = ReservationStatus.pending
     expires_at: Optional[datetime] = None
 
 class ReservationCreate(ReservationBase):
@@ -35,7 +43,7 @@ class ReservationUpdate(BaseModel):
     discount_amount: Optional[float] = None
     tax_amount: Optional[float] = None
 
-    status: Optional[str] = None
+    status: Optional[ReservationStatus] = None
     expires_at: Optional[datetime] = None
 
 

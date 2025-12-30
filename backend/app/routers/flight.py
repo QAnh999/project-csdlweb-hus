@@ -4,7 +4,7 @@ from app.controllers.flight import flight_controller
 from app.schemas.flight import FlightSearchRequest, FlightSearchResponse
 from app.core.database import get_db
 
-router = APIRouter(prefix="/flights", tags=["Flights"])
+router = APIRouter(prefix="/flight", tags=["Flight"])
 
 @router.post("/search", response_model=FlightSearchResponse)
 def search_flight(params: FlightSearchRequest, db: Session = Depends(get_db)):

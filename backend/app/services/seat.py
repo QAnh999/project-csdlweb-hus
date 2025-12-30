@@ -62,7 +62,11 @@ class SeatService:
         
         if len(seats) != len(seat_ids):
             raise ValueError("Một hoặc nhiều ghế không tồn tại hoặc không thuộc hạng ghế được chỉ định")
-        
+
+        for seat_id in seat_ids:
+            if self.booked_repo.exists_for_reservation(db, reservation_id, seat_id):
+                raise ValueError(f"Ghế {seat_id} đã được giữ bởi bạn trước đó")
+
         try:
             records = self.booked_repo.create_hold(
                 db, 
@@ -76,6 +80,11 @@ class SeatService:
         except Exception as e:
             # db.rollback()
             raise e
+        
+    def count_held_seats(self, db: Session, reservation_id: int, flight_id: int) -> int:
+        now = datetime.utcnow()
+        held_seats = self.booked_repo.get_held_seats_for_reservation(db, flight_id, reservation_id)
+        return len([s for s in held_seats if s.hold_expires and s.hold_expires > now])
 
     def confirm_seats(self, db: Session, flight_id: int, reservation_id: int, seat_ids: List[int]):
         try:

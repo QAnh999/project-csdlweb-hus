@@ -1,7 +1,13 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
+from enum import Enum
 
+class TicketStatus(str, Enum):
+    active = "active"
+    used = "used"
+    refunded = "refunded"
+    cancelled = "cancelled"
 
 class TicketBase(BaseModel):
     ticket_number: str

@@ -24,7 +24,7 @@ class UserRepository(BaseRepository[User, UserCreate, UserUpdate]):
         ).first()
 
         if not user:
-            raise ValueError("User not found or already deleted")
+            raise ValueError("User not found")
         
         user.status = UserStatus.DELETED
         user.deleted_at = datetime.utcnow()

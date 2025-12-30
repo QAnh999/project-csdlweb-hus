@@ -24,7 +24,12 @@ from app.schemas.booking import (
     BookingServiceRequest,
     BookingServiceResponse,
     ServiceItemRequest,
-    ServiceItemResponse
+    ServiceItemResponse,
+    PassengerResponse,
+    FlightBookingResponse,
+    FlightSeatResponse,
+    PassengerDetailSeat,
+    PassengerSeatMap,
 )
 
 class BookingController:
@@ -83,7 +88,8 @@ class BookingController:
             db=db,
             user_id=user_id,
             reservation_id=reservation_id,
-            passengers=[p.model_dump() for p in req.passengers]
+            passengers=[p.model_dump() for p in req.passengers],
+            passenger_count=req.passenger_count.model_dump()
         )
 
         return [PassengerInfo(
@@ -102,8 +108,11 @@ class BookingController:
             user_id=user_id,
             reservation_id=reservation_id,
             seat_class=req.seat_class,
-            main_seat_ids=req.main_seat_ids,
-            return_seat_ids=req.return_seat_ids or []
+            # main_seat_ids=req.main_seat_ids,
+            # return_seat_ids=req.return_seat_ids or []
+            main_seat_map=[s.model_dump() for s in req.main_seat_map],
+            return_seat_map=[s.model_dump() for s in req.return_seat_map] if req.return_seat_map else None
+
         )
 
         invoice_info = InvoiceInfo(
@@ -113,23 +122,29 @@ class BookingController:
             due_date=invoice.due_date,
             status=invoice.status
         )
+
+        passenger_details=[
+            PassengerDetailSeat(
+                passenger_id=d.passenger_id,
+                seat_id=d.seat_id,
+                total_fare=d.total_fare
+            ) for d in details
+        ]
+
+
         return BookingFinalizeResponse(
             total_passengers=reservation.total_passengers,
             total_amount=reservation.total_amount,
             tax_amount=reservation.tax_amount,
             invoice=invoice_info,
-            passenger_details=[{
-                "passenger_id": d.passenger_id,
-                "seat_id": d.seat_id,
-                "total_fare": d.total_fare
-            } for d in details]
+            passenger_details=passenger_details
         )
     def create_payment(self, db: Session, user_id: int, reservation_id: int, req: BookingPaymentRequest) -> BookingPaymentResponse:
         payment = payment_service.create_payment(
             db=db,
             user_id=user_id,
             reservation_id=reservation_id,
-            method=req.payment_method
+            payment_method=req.payment_method
         )
 
         reservation = reservation_repository.get(db, reservation_id)
@@ -143,6 +158,7 @@ class BookingController:
         ) if invoice else None
 
         payment_info = PaymentInfo(
+            payment_id=payment.id,
             payment_method=payment.payment_method,
             status=payment.status,
             paid_at=getattr(payment, "paid_at", datetime.utcnow())
@@ -170,27 +186,78 @@ class BookingController:
             services=[ServiceItemResponse.model_validate(s) for s in result["services"]]
         )
     
-    def get_booking_details(self, db: Session, reservation_id: int) -> BookingDetailResponse:
+    def get_booking_details(self, db: Session, user_id: int, reservation_id: int) -> BookingDetailResponse:
         reservation = reservation_repository.get(db, reservation_id)
+        if not reservation:
+            raise HTTPException(status_code=404, detail="Vé không tồn tại")
+        
+        if reservation.expires_at and reservation.expires_at < datetime.utcnow():
+            raise HTTPException(status_code=400, detail="Vé đã hết hạn. Bạn ko xem đc đâu")
+
+        if reservation.status == "cancelled":
+            raise HTTPException(status_code=400, detail="Vé đã hủy. Bạn ko xem đc đâu")
+
+        if reservation.user_id != user_id:
+            raise ValueError("Bạn chưa được cấp quyền để thay đổi nội dung này")
 
         booked_seats = seat_service.booked_repo.get_by_reservation(db, reservation_id)
-        seats = [SeatStatus(
-            seat_id=bs.id_seat,
-            seat_number=bs.seat.seat_number,
-            seat_class=bs.seat.seat_class,
-            status="booked"
-        ) for bs in booked_seats]
+        # seats = [SeatStatus(
+        #     seat_id=bs.id_seat,
+        #     seat_number=bs.seat.seat_number,
+        #     seat_class=bs.seat.seat_class,
+        #     status="booked"
+        # ) for bs in booked_seats]
+        flight_map = {}
+        for bs in booked_seats:
+            fid = bs.id_flight
+            if fid not in flight_map:
+                flight_map[fid] = []
+            flight_map[fid].append(
+                FlightSeatResponse(
+                    seat_id=bs.id_seat,
+                    seat_number=bs.seat.seat_number,
+                    seat_class=bs.seat.seat_class
+                )
+            )
+
+        flights = []
+        for fid, seats in flight_map.items():
+            flights.append(
+                FlightBookingResponse(
+                    flight_id=fid,
+                    direction="inbound" if fid == reservation.main_flight_id else "outbound",
+                    seats=seats
+                )
+            )
 
         details = reservation_service.detail_repo.get_by_reservation(db, reservation_id)
-        passengers = [PassengerInfo(
-            first_name=d.passenger.first_name,
-            last_name=d.passenger.last_name,
-            date_of_birth=d.passenger.date_of_birth,
-            gender=getattr(d.passenger, "gender", None),
-            passport_number=getattr(d.passenger, "passport_number", None),
-            identify_number=getattr(d.passenger, "identify_number", None),
-            passenger_type=getattr(d.passenger, "passenger_type", "adult")
-        ) for d in details]
+        # passengers = [PassengerInfo(
+        #     first_name=d.passenger.first_name,
+        #     last_name=d.passenger.last_name,
+        #     date_of_birth=d.passenger.date_of_birth,
+        #     gender=getattr(d.passenger, "gender", None),
+        #     passport_number=getattr(d.passenger, "passport_number", None),
+        #     identify_number=getattr(d.passenger, "identify_number", None),
+        #     passenger_type=getattr(d.passenger, "passenger_type", "adult")
+        # ) for d in details]
+        passenger_map = {}
+        for d in details:
+            p = d.passenger
+            passenger_map[p.id] = p
+        
+        passengers = [
+            PassengerResponse(
+                passenger_id=p.id,
+                first_name=p.first_name,
+                last_name=p.last_name,
+                date_of_birth=p.date_of_birth,
+                gender=getattr(p, "gender", None),
+                passport_number=getattr(p, "passport_number", None),
+                identify_number=getattr(p, "identify_number", None),
+                passenger_type=getattr(p, "passenger_type", "adult")
+            )
+            for p in passenger_map.values()
+        ]
 
         invoice = reservation.invoice
         invoice_info = InvoiceInfo(
@@ -203,6 +270,7 @@ class BookingController:
 
         payment = reservation.payment
         payment_info = PaymentInfo(
+            payment_id=payment.id,
             payment_method=payment.payment_method,
             status=payment.status,
             paid_at=getattr(payment, "paid_at", datetime.utcnow())
@@ -213,13 +281,12 @@ class BookingController:
             reservation_code=reservation.reservation_code,
             status=reservation.status,
             expires_at=reservation.expires_at,
-            main_flight_id=reservation.main_flight_id,
-            return_flight_id=reservation.return_flight_id,
+            flights=flights,
+            passengers=passengers,
             total_passengers=reservation.total_passengers,
             total_amount=reservation.total_amount,
             tax_amount=reservation.tax_amount,
             seats=seats,
-            passengers=passengers,
             invoice=invoice_info,
             payment=payment_info
         )

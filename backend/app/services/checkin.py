@@ -70,7 +70,6 @@ class CheckinService:
                 "qr_code_url": qr_code_url
             })
 
-            
             db.commit()
             return {
                 "boarding_pass_code": boarding_pass_code,

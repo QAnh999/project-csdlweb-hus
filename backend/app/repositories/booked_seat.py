@@ -67,6 +67,7 @@ class BookedSeatRepository(BaseRepository[BookedSeat, BookedSeatCreate, BookedSe
         ]
         try:
             db.add_all(records)
+            # db.flush()
             db.commit()
             for record in records:
                 db.refresh(record)
@@ -126,7 +127,11 @@ class BookedSeatRepository(BaseRepository[BookedSeat, BookedSeatCreate, BookedSe
 
         return result
         
-    
+    def exists_for_reservation(self, db: Session, reservation_id: int, seat_id: int) -> bool:
+        return db.query(BookedSeat).filter(
+            BookedSeat.reservation_id == reservation_id,
+            BookedSeat.id_seat == seat_id
+        ).first() is not None
 
     def delete_by_reservation(self, db: Session, reservation_id: int) -> int:
         """

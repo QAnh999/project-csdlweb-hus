@@ -56,8 +56,8 @@ def confirm_payment(payment_id: int, user_id: int = Depends(get_current_user_id)
     return booking_controller.confirm_payment(db, user_id, payment_id)
 
 @router.get("/{reservation_id}", response_model=BookingDetailResponse)
-def get_booking_detail(reservation_id: int, db: Session = Depends(get_db)):
-    return booking_controller.get_booking_details(db, reservation_id)
+def get_booking_detail(reservation_id: int, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
+    return booking_controller.get_booking_details(db, user_id, reservation_id)
 
 @router.post("/{reservation_id}/cancel")
 def cancel_booking(reservation_id: int, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
