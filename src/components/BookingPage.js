@@ -24,6 +24,7 @@ const BookingPage = () => {
     const d = params.get("date");
     const r = params.get("returnDate");
     const type = params.get("tripType") || "oneway";
+    const passengerCount = Number(params.get("passengers")) || 1;
 
     if (f && t && d) {
       setFrom(f);
@@ -33,6 +34,13 @@ const BookingPage = () => {
       setTripType(type);
       setPhase("outbound");
       setSelectedOutbound(null);
+
+      localStorage.setItem(
+        "bookingDraft",
+        JSON.stringify({
+          passengerCount
+        })
+      );
 
       fetchFlights(f, t, d);
     }
@@ -90,7 +98,19 @@ const BookingPage = () => {
         checkedIn: false
       };
 
-      localStorage.setItem("bookingDraft", JSON.stringify(draft));
+      localStorage.setItem(
+        "bookingDraft",
+        JSON.stringify({
+          ...JSON.parse(localStorage.getItem("bookingDraft") || "{}"),
+          type: "oneway",
+          flight,
+          seat: null,
+          passenger: null,
+          services: null,
+          checkedIn: false
+        })
+      );
+
       navigate("/passengerinfo");
       return;
     }
@@ -109,7 +129,21 @@ const BookingPage = () => {
         checkedInInbound: false
       };
 
-      localStorage.setItem("bookingDraft", JSON.stringify(draft));
+      localStorage.setItem(
+        "bookingDraft",
+        JSON.stringify({
+          ...JSON.parse(localStorage.getItem("bookingDraft") || "{}"),
+          type: "roundtrip",
+          outbound: flight,
+          inbound: null,
+          seatOutbound: null,
+          seatInbound: null,
+          passenger: null,
+          services: null,
+          checkedInOutbound: false,
+          checkedInInbound: false
+        })
+      );
 
       setPhase("inbound");
       setFlights([]);
@@ -132,8 +166,18 @@ const BookingPage = () => {
         checkedInInbound: false
       };
 
-      localStorage.setItem("bookingDraft", JSON.stringify(draft));
+      localStorage.setItem(
+        "bookingDraft",
+        JSON.stringify({
+          ...JSON.parse(localStorage.getItem("bookingDraft") || "{}"),
+          inbound: flight,
+          seatInbound: null,
+          checkedInInbound: false
+        })
+      );
+
       navigate("/passengerinfo");
+
       return;
     }
   };
@@ -168,7 +212,7 @@ const BookingPage = () => {
             <h4 style={{ margin: "0 0 10px 0", color: "#283655" }}>
               Chuyến bay đi đã chọn:
             </h4>
-            <p style={{ margin: 0}}>
+            <p style={{ margin: 0 }}>
               <strong>{selectedOutbound.f_code}</strong> - {selectedOutbound.airport_from} → {selectedOutbound.airport_to}
               {" | "}
               {selectedOutbound.f_time_from} - {selectedOutbound.f_time_to}
@@ -233,4 +277,3 @@ const BookingPage = () => {
 };
 
 export default BookingPage;
-

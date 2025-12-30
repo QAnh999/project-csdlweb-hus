@@ -24,6 +24,7 @@ const Seat = ({ code, booked, selected, onSelect }) => {
 const SeatSelectionPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const passengerIndex = Number(searchParams.get("index")) || 0;
 
   const [bookingDraft, setBookingDraft] = useState(null);
   const [bookedSeats, setBookedSeats] = useState([]);
@@ -77,15 +78,17 @@ const SeatSelectionPage = () => {
 
     const draft = JSON.parse(draftStr);
 
-    if (!draft.seatOutbound) {
+    const passenger = draft.passengers?.[passengerIndex];
+
+    if (!passenger?.seatOutbound) {
       alert("Vui lòng chọn ghế chặng đi trước");
-      navigate("/seatselection");
+      navigate(`/seatselection?leg=outbound&index=${passengerIndex}`);
     }
+
   }, [leg, navigate]);
 
 
 
-  // ================= LOAD BOOKED SEATS THEO CHUYẾN BAY =================
   useEffect(() => {
     if (!bookingDraft) return;
 
@@ -95,11 +98,7 @@ const SeatSelectionPage = () => {
       return bookingDraft.flight;
     })();
 
-
     if (!currentFlight) return;
-
-    setSelectedSeat(null);
-    setBookedSeats([]);
 
     const seats = [];
 
@@ -107,90 +106,108 @@ const SeatSelectionPage = () => {
       if (!key.startsWith("booking_")) return;
 
       const b = JSON.parse(localStorage.getItem(key));
-      if (!b || !b.bookingCode) return;
+      if (!b || !Array.isArray(b.passengers)) return;
 
-      if (b.flight && isSameFlight(b.flight, currentFlight) && b.seat) {
-        seats.push(b.seat);
-      }
-
-      if (b.outbound && isSameFlight(b.outbound, currentFlight) && b.seatOutbound) {
-        seats.push(b.seatOutbound);
-      }
-
-
-      if (b.inbound && isSameFlight(b.inbound, currentFlight) && b.seatInbound) {
-        seats.push(b.seatInbound);
-      }
+      b.passengers.forEach((p) => {
+        if (b.flight && isSameFlight(b.flight, currentFlight) && p.seatOneway) {
+          seats.push(p.seatOneway);
+        }
+        if (b.outbound && isSameFlight(b.outbound, currentFlight) && p.seatOutbound) {
+          seats.push(p.seatOutbound);
+        }
+        if (b.inbound && isSameFlight(b.inbound, currentFlight) && p.seatInbound) {
+          seats.push(p.seatInbound);
+        }
+      });
     });
-
 
     setBookedSeats(seats);
   }, [bookingDraft, leg]);
 
+
+
   useEffect(() => {
     if (!bookingDraft) return;
+
+    const passenger = bookingDraft.passengers?.[passengerIndex];
+    if (!passenger) return;
 
     if (leg === "outbound") {
-      setSelectedSeat(bookingDraft.seatOutbound || null);
+      setSelectedSeat(passenger.seatOutbound || null);
     } else if (leg === "inbound") {
-      setSelectedSeat(bookingDraft.seatInbound || null);
+      setSelectedSeat(passenger.seatInbound || null);
     } else {
-      setSelectedSeat(bookingDraft.seat || null);
+      setSelectedSeat(passenger.seatOneway || null);
     }
-  }, [bookingDraft, leg]);
+  }, [bookingDraft, leg, passengerIndex]);
+
 
   useEffect(() => {
     if (!bookingDraft) return;
+
+    const passenger = bookingDraft.passengers?.[passengerIndex];
 
     if (
       bookingDraft.type === "roundtrip" &&
       leg === "inbound" &&
-      bookingDraft.seatOutbound &&
+      passenger?.seatOutbound &&
       !hasAlertedInbound.current
     ) {
       alert("Tiếp tục chọn ghế chuyến về");
       hasAlertedInbound.current = true;
     }
+
   }, [bookingDraft, leg]);
 
 
   const confirmSeat = () => {
     if (!bookingDraft || !selectedSeat) return;
 
-    if (bookingDraft.type === "oneway") {
-      const updated = {
-        ...bookingDraft,
-        seat: selectedSeat,
-      };
+    const updated = {
+      ...bookingDraft,
+      passengers: [...bookingDraft.passengers]
+    };
+
+    const passenger = updated.passengers[passengerIndex];
+
+    if (!passenger) return;
+
+    // ===== ONEWAY =====
+    if (updated.type === "oneway") {
+      passenger.seatOneway = selectedSeat;
 
       localStorage.setItem("bookingDraft", JSON.stringify(updated));
-      setBookingDraft(updated);
-      navigate("/payment");
+
+      // sang hành khách tiếp theo
+      if (passengerIndex + 1 < updated.passengers.length) {
+        navigate(`/seatselection?leg=oneway&index=${passengerIndex + 1}`);
+      } else {
+        navigate("/payment");
+      }
       return;
     }
 
     // ===== ROUNDTRIP =====
     if (leg === "outbound") {
-      const updated = {
-        ...bookingDraft,
-        seatOutbound: selectedSeat,
-      };
+      passenger.seatOutbound = selectedSeat;
 
       localStorage.setItem("bookingDraft", JSON.stringify(updated));
-      setBookingDraft(updated);
-      navigate("/seatselection?leg=inbound");
+
+      navigate(`/seatselection?leg=inbound&index=${passengerIndex}`);
       return;
     }
 
     if (leg === "inbound") {
-      const updated = {
-        ...bookingDraft,
-        seatInbound: selectedSeat,
-      };
+      passenger.seatInbound = selectedSeat;
 
       localStorage.setItem("bookingDraft", JSON.stringify(updated));
-      setBookingDraft(updated);
-      navigate("/payment");
+
+      // sang hành khách tiếp theo
+      if (passengerIndex + 1 < updated.passengers.length) {
+        navigate(`/seatselection?leg=outbound&index=${passengerIndex + 1}`);
+      } else {
+        navigate("/payment");
+      }
     }
   };
 

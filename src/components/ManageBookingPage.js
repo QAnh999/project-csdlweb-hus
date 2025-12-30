@@ -8,25 +8,27 @@ const ManageBookingPage = () => {
 
   useEffect(() => {
     const code = localStorage.getItem("current_booking_code");
-    setBookingCode(code);
-
     if (!code) return;
 
-    const bookingStr = localStorage.getItem(`booking_${code}`);
+    setBookingCode(code);
+
+    // ✅ lấy trực tiếp theo passengerCode
+    const bookingStr = localStorage.getItem(code);
     if (!bookingStr) return;
 
     const parsedBooking = JSON.parse(bookingStr);
 
-    // Khởi tạo trạng thái check-in nếu chưa có
+    // init checkin
     if (parsedBooking.type === "roundtrip") {
-      parsedBooking.checkedInOutbound = parsedBooking.checkedInOutbound ?? false;
-      parsedBooking.checkedInInbound = parsedBooking.checkedInInbound ?? false;
+      parsedBooking.checkedInOutbound ??= false;
+      parsedBooking.checkedInInbound ??= false;
     } else {
-      parsedBooking.checkedIn = parsedBooking.checkedIn ?? false;
+      parsedBooking.checkedIn ??= false;
     }
 
     setBooking(parsedBooking);
   }, []);
+
 
   if (!bookingCode) {
     return <p>Không tìm thấy thông tin đặt chỗ.</p>;
@@ -55,15 +57,14 @@ const ManageBookingPage = () => {
           <p><strong>Hành trình:</strong> {booking.flight.airport_from} → {booking.flight.airport_to}</p>
           <p><strong>Ngày khởi hành:</strong> {date}</p>
           <p><strong>Giờ khởi hành:</strong> {hour}</p>
-          <p><strong>Ghế:</strong> {booking.seat || "Chưa chọn"}</p>
-          <p><strong>Hành lý:</strong> {booking.services?.baggage?.type || "Không"}</p>
-          <p><strong>Bữa ăn:</strong> {booking.services?.meal?.type || "Không"}</p>
+          <p><strong>Ghế:</strong> {booking.passenger.seatOneway || "Chưa chọn"}</p>
+          <p><strong>Hành lý:</strong> {booking.passenger.services?.baggage?.type || "Không"}</p>
+          <p><strong>Bữa ăn:</strong> {booking.passenger.services?.meal?.type || "Không"}</p>
           <p><strong>Trạng thái check-in:</strong> {booking.checkedIn ? "Đã check-in" : "Chưa check-in"}</p>
         </div>
       );
     }
 
-    // ===== ROUND TRIP =====
     if (booking.type === "roundtrip") {
       const outboundTime = parseTime(booking.outbound.f_time_from);
       const inboundTime = parseTime(booking.inbound.f_time_from);
@@ -76,9 +77,9 @@ const ManageBookingPage = () => {
             <p><strong>Hành trình:</strong> {booking.outbound.airport_from} → {booking.outbound.airport_to}</p>
             <p><strong>Ngày:</strong> {outboundTime.date}</p>
             <p><strong>Giờ:</strong> {outboundTime.hour}</p>
-            <p><strong>Ghế:</strong> {booking.seatOutbound || "Chưa chọn"}</p>
-            <p><strong>Hành lý:</strong> {booking.services?.baggage?.type || "Không"}</p>
-            <p><strong>Bữa ăn:</strong> {booking.services?.meal?.type || "Không"}</p>
+            <p><strong>Ghế:</strong> {booking.passenger.seatOutbound || "Chưa chọn"}</p>
+            <p><strong>Hành lý:</strong> {booking.passenger.services?.baggage?.type || "Không"}</p>
+            <p><strong>Bữa ăn:</strong> {booking.passenger.services?.meal?.type || "Không"}</p>
             <p><strong>Trạng thái check-in:</strong> {booking.checkedInOutbound ? "Đã check-in" : "Chưa check-in"}</p>
           </div>
 
@@ -88,9 +89,9 @@ const ManageBookingPage = () => {
             <p><strong>Hành trình:</strong> {booking.inbound.airport_from} → {booking.inbound.airport_to}</p>
             <p><strong>Ngày:</strong> {inboundTime.date}</p>
             <p><strong>Giờ:</strong> {inboundTime.hour}</p>
-            <p><strong>Ghế:</strong> {booking.seatInbound || "Chưa chọn"}</p>
-            <p><strong>Hành lý:</strong> {booking.services?.baggage?.type || "Không"}</p>
-            <p><strong>Bữa ăn:</strong> {booking.services?.meal?.type || "Không"}</p>
+            <p><strong>Ghế:</strong> {booking.passenger.seatInbound || "Chưa chọn"}</p>
+            <p><strong>Hành lý:</strong> {booking.passenger.services?.baggage?.type || "Không"}</p>
+            <p><strong>Bữa ăn:</strong> {booking.passenger.services?.meal?.type || "Không"}</p>
             <p><strong>Trạng thái check-in:</strong> {booking.checkedInInbound ? "Đã check-in" : "Chưa check-in"}</p>
           </div>
         </>
@@ -116,7 +117,7 @@ const ManageBookingPage = () => {
           {/* Thông tin đặt chỗ */}
           <div className="flight-detail">
             <h3>Thông tin đặt chỗ</h3>
-            <p><strong>Hành khách:</strong> {(booking.passenger.Ho + " " + booking.passenger.Ten_dem_va_ten).toUpperCase()}</p>
+            <p><strong>Hành khách:</strong> {(booking.passenger.info.Ho + " " + booking.passenger.info.Ten_dem_va_ten).toUpperCase()}</p>
             <p><strong>Mã đặt chỗ:</strong> {bookingCode}</p>
             <p><strong>Loại vé:</strong> {booking.type === "oneway" ? "Một chiều" : "Khứ hồi"}</p>
           </div>

@@ -14,29 +14,36 @@ const CheckinPage = () => {
   const [showConfirmBtn, setShowConfirmBtn] = useState(false);
 
   useEffect(() => {
-    const bookingCode = localStorage.getItem("current_booking_code");
-    if (!bookingCode) return navigate("/");
+    const passengerCode = localStorage.getItem("current_booking_code");
+    if (!passengerCode) {
+      navigate("/");
+      return;
+    }
 
-    const bookingStr = localStorage.getItem(`booking_${bookingCode}`);
-    if (!bookingStr) return navigate("/");
+    const bookingStr = localStorage.getItem(passengerCode);
+    if (!bookingStr) {
+      alert("Mã đặt chỗ không tồn tại");
+      navigate("/");
+      return;
+    }
 
     const bk = JSON.parse(bookingStr);
 
-
-    if (bk.type === "roundtrip") {
-      bk.checkedInOutbound = bk.checkedInOutbound ?? false;
-      bk.checkedInInbound = bk.checkedInInbound ?? false;
-      setShowOptions(!bk.checkedInOutbound || !bk.checkedInInbound);
-    } else {
-      setSelectedLeg("oneway");
-      setSelectedFlight(bk.flight);
-      setSelectedSeat(bk.seat);
-      setShowConfirmBtn(!bk.checkedIn);
-    }
-
     setBooking(bk);
     setPassenger(bk.passenger);
+
+    if (bk.type === "oneway") {
+      setSelectedLeg("oneway");
+      setSelectedFlight(bk.flight);
+      setSelectedSeat(bk.passenger.seatOneway);
+      setShowConfirmBtn(!bk.checkedIn);
+    } else {
+      setShowOptions(!bk.checkedInOutbound || !bk.checkedInInbound);
+    }
+
   }, [navigate]);
+
+
 
   useEffect(() => {
     if (selectedFlight) {
@@ -52,10 +59,10 @@ const CheckinPage = () => {
     setSelectedLeg(leg);
     if (leg === "outbound") {
       setSelectedFlight(booking.outbound);
-      setSelectedSeat(booking.seatOutbound);
+      setSelectedSeat(booking.passenger.seatOutbound);
     } else {
       setSelectedFlight(booking.inbound);
-      setSelectedSeat(booking.seatInbound);
+      setSelectedSeat(booking.passenger.seatInbound);
     }
 
     setShowOptions(false);
@@ -64,42 +71,38 @@ const CheckinPage = () => {
 
 
   const handleConfirmCheckin = () => {
-    if (!booking || !selectedFlight || !selectedLeg) return;
+    const updated = { ...booking };
 
-    const bookingCode = localStorage.getItem("current_booking_code");
-    const updatedBooking = { ...booking };
-
-    if (updatedBooking.type === "oneway") {
-      updatedBooking.checkedIn = true;
+    if (updated.type === "oneway") {
+      updated.checkedIn = true;
     } else {
-      if (selectedLeg === "outbound") updatedBooking.checkedInOutbound = true;
-      if (selectedLeg === "inbound") updatedBooking.checkedInInbound = true;
+      if (selectedLeg === "outbound") updated.checkedInOutbound = true;
+      if (selectedLeg === "inbound") updated.checkedInInbound = true;
     }
 
-    localStorage.setItem(`booking_${bookingCode}`, JSON.stringify(updatedBooking));
-    setBooking(updatedBooking);
+    localStorage.setItem(updated.bookingCode, JSON.stringify(updated));
+
+    setBooking(updated);
     setShowConfirmBtn(false);
-    setShowOptions(false);
   };
 
+
   if (!booking || !passenger) return <p>Đang tải dữ liệu...</p>;
-
+  
   const showBoardingPass = () => {
-    if (!booking) return false;
-
     if (booking.type === "oneway") return booking.checkedIn;
-
     if (booking.type === "roundtrip") {
-      if (booking.checkedInOutbound && selectedLeg === "outbound") return true;
-      if (booking.checkedInInbound && selectedLeg === "inbound") return true;
+      return selectedLeg === "outbound"
+        ? booking.checkedInOutbound
+        : booking.checkedInInbound;
     }
-
     return false;
   };
 
+
   const generateGate = () => {
     const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
-    const number = Math.floor(Math.random() * 9) + 1; 
+    const number = Math.floor(Math.random() * 9) + 1;
     return `${letter}${number}`;
   };
 
@@ -134,17 +137,17 @@ const CheckinPage = () => {
   const { date, hour } = parseTime(selectedFlight?.f_time_from);
 
 
- const getCabinClass = (flight) => {
-  if (!flight) return "ECONOMY";
+  const getCabinClass = (flight) => {
+    if (!flight) return "ECONOMY";
 
-  const t = (flight.type || "").toLowerCase();
+    const t = (flight.type || "").toLowerCase();
 
-  if (t.includes("first")) return "FIRST";
-  if (t.includes("business") || t.includes("buz")) return "BUSINESS";
-  if (t.includes("eco")) return "ECONOMY";
+    if (t.includes("first")) return "FIRST";
+    if (t.includes("business") || t.includes("buz")) return "BUSINESS";
+    if (t.includes("eco")) return "ECONOMY";
 
-  return "ECONOMY";
-};
+    return "ECONOMY";
+  };
 
 
   return (
@@ -160,7 +163,7 @@ const CheckinPage = () => {
         {selectedFlight && showConfirmBtn && (
           <div className="cf-flights">
             <h2>Xác nhận chuyến bay</h2>
-            <p><strong>Hành khách:</strong> {(passenger.Ho + " " + passenger.Ten_dem_va_ten).toUpperCase()}</p>
+            <p><strong>Hành khách:</strong> {(passenger.info.Ho + " " + passenger.info.Ten_dem_va_ten).toUpperCase()}</p>
             <p><strong>Chuyến bay:</strong> {selectedFlight.airport_from} → {selectedFlight.airport_to}</p>
             <p><strong>Giờ khởi hành:</strong> {selectedFlight.f_time_from}</p>
             <p><strong>Ghế:</strong> {selectedSeat}</p>
@@ -199,7 +202,7 @@ const CheckinPage = () => {
               </div>
 
               <div className="bp-row big">
-                {(passenger.Ho + " " + passenger.Ten_dem_va_ten).toUpperCase()}
+                {(passenger.info.Ho + " " + passenger.info.Ten_dem_va_ten).toUpperCase()}
               </div>
 
               <div className="bp-row">

@@ -1,69 +1,86 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/passengerinfo.css";
-import { getBookingDraftPartial, updateBookingDraft } from '../utils/bookingUtils';
+import { useSearchParams } from "react-router-dom";
+// import { getBookingDraftPartial, updateBookingDraft } from '../utils/bookingUtils';
 
 const PassengerInfoPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const passengerIndex = Number(searchParams.get("index")) || 0;
+
 
   useEffect(() => {
     const draftStr = localStorage.getItem("bookingDraft");
     if (!draftStr) {
-      alert("Không tìm thấy thông tin chuyến bay. Vui lòng đặt vé lại.");
+      alert("Không tìm thấy thông tin chuyến bay.");
       navigate("/booking");
       return;
     }
 
-    let draft = JSON.parse(draftStr);
+    const draft = JSON.parse(draftStr);
 
-    // ===== VALIDATE & MIGRATE BOOKING CŨ =====
+    // xác định type
     if (!draft.type) {
-      if (draft.outbound || draft.inbound) {
-        draft.type = "roundtrip";
-      } else if (draft.flight) {
-        draft.type = "oneway";
-      } else {
+      if (draft.outbound || draft.inbound) draft.type = "roundtrip";
+      else if (draft.flight) draft.type = "oneway";
+      else {
         alert("Dữ liệu đặt chỗ không hợp lệ.");
         navigate("/booking");
         return;
       }
     }
 
-    // Validate dữ liệu chuyến bay
-    if (draft.type === "oneway" && !draft.flight) {
-      alert("Thiếu thông tin chuyến bay một chiều.");
-      navigate("/booking");
-      return;
+    const passengerCount = Number(draft.passengerCount) || 1;
+
+    // init passengers array
+    if (!Array.isArray(draft.passengers)) {
+      draft.passengers = Array.from({ length: passengerCount }, () => ({
+        info: null,
+        services: null,
+        seatOneway: null,
+        seatOutbound: null,
+        seatInbound: null,
+      }));
     }
 
-    if (draft.type === "roundtrip") {
-      if (!draft.outbound) {
-        alert("Thiếu thông tin chặng đi.");
-        navigate("/booking");
-        return;
-      }
-      // Cho phép chưa có inbound nếu đang trong quá trình chọn
-      if (!draft.inbound) {
-        draft.inbound = null;
-      }
-    }
+    // nếu passenger này đã nhập rồi → load lại lên form
+    const currentPassenger = draft.passengers[passengerIndex];
+    if (currentPassenger?.info) {
+      setPassenger(currentPassenger.info);
+      setBaggage(currentPassenger.services?.baggage || { type: "Không", price: 0 });
+      setMeal(currentPassenger.services?.meal || { type: "Không", price: 0 });
 
-    // Đảm bảo có đầy đủ fields
-    draft.passenger = draft.passenger || null;
-    draft.services = draft.services || null;
+      setBaggageChecked(
+        currentPassenger.services?.baggage?.type &&
+        currentPassenger.services.baggage.type !== "Không"
+      );
 
-    if (draft.type === "oneway") {
-      draft.seat = draft.seat || null;
-      draft.checkedIn = draft.checkedIn || false;
+      setMealChecked(
+        currentPassenger.services?.meal?.type &&
+        currentPassenger.services.meal.type !== "Không"
+      );
+
     } else {
-      draft.seatOutbound = draft.seatOutbound || null;
-      draft.seatInbound = draft.seatInbound || null;
-      draft.checkedInOutbound = draft.checkedInOutbound || false;
-      draft.checkedInInbound = draft.checkedInInbound || false;
+      // reset form cho hành khách mới
+      setPassenger({
+        Danh_xung: "Mr",
+        Ho: "",
+        Ten_dem_va_ten: "",
+        Ngay_sinh: "",
+        Email: "",
+        Ma_quoc_gia: "",
+        So_dien_thoai: "",
+      });
+      setBaggage({ type: "Không", price: 0 });
+      setMeal({ type: "Không", price: 0 });
+      setBaggageChecked(false);
+      setMealChecked(false);
     }
 
     localStorage.setItem("bookingDraft", JSON.stringify(draft));
-  }, [navigate]);
+  }, [navigate, passengerIndex]);
+
 
   const [passenger, setPassenger] = useState({
     Danh_xung: "Mr",
@@ -131,21 +148,31 @@ const PassengerInfoPage = () => {
       }
     }
 
-    // Cập nhật draft với thông tin hành khách
-    bookingDraft.passenger = passenger;
-    bookingDraft.services = {
-      baggage,
-      meal,
+    bookingDraft.passengers[passengerIndex] = {
+      info: passenger,
+      services: {
+        baggage,
+        meal
+      },
+      seatOneway: bookingDraft.passengers[passengerIndex]?.seatOneway || null,
+      seatOutbound: bookingDraft.passengers[passengerIndex]?.seatOutbound || null,
+      seatInbound: bookingDraft.passengers[passengerIndex]?.seatInbound || null
     };
+
 
     localStorage.setItem("bookingDraft", JSON.stringify(bookingDraft));
 
-    // Navigate đến seat selection
-    if (bookingDraft.type === "roundtrip") {
-      navigate("/seatselection?leg=outbound");
-    } else {
-      navigate("/seatselection?leg=oneway");
+    if (passengerIndex + 1 < bookingDraft.passengers.length) {
+      navigate(`/passengerinfo?index=${passengerIndex + 1}`);
+      return;
     }
+
+    if (bookingDraft.type === "roundtrip") {
+      navigate("/seatselection?leg=outbound&index=0");
+    } else {
+      navigate("/seatselection?leg=oneway&index=0");
+    }
+
   };
 
   return (
@@ -251,7 +278,7 @@ const PassengerInfoPage = () => {
             required
           />
 
-          
+
           <div className="passenger-info" style={{ marginTop: "1rem" }}>
             <h2>Các dịch vụ bổ sung</h2>
           </div>
@@ -330,7 +357,7 @@ const PassengerInfoPage = () => {
           </div>
 
           <button type="submit" id="nextButton">
-            Tiếp tục chọn chỗ ngồi
+            Tiếp tục
           </button>
         </form>
       </section>
