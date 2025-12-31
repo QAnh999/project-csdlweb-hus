@@ -324,4 +324,17 @@ class BookingController:
         }
 
 
+    def get_booking_history(self, db: Session, user_id: int) -> List[BookingBaseResponse]:
+        reservations = reservation_repository.get_by_user(db, user_id)
+
+        return [
+            BookingBaseResponse(
+                reservation_id=r.id,
+                reservation_code=r.reservation_code,
+                status=r.status,
+                expires_at=r.expires_at
+            )
+            for r in reservations
+        ]
+
 booking_controller = BookingController()

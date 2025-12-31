@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
-from app.core.security import get_current_user_id
+from app.core.dependency import get_current_user_id
 from app.core.database import get_db
 from app.controllers.booking import booking_controller
 from app.schemas.booking import (
@@ -54,6 +54,10 @@ def create_payment(reservation_id: int, req: BookingPaymentRequest, user_id: int
 @router.post("/payment/{payment_id}/confirm", response_model=BookingPaymentResponse)
 def confirm_payment(payment_id: int, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
     return booking_controller.confirm_payment(db, user_id, payment_id)
+
+@router.get("/history", response_model=List[BookingBaseResponse])
+def get_booking_history(user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
+    return booking_controller.get_booking_history(db, user_id)
 
 @router.get("/{reservation_id}", response_model=BookingDetailResponse)
 def get_booking_detail(reservation_id: int, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):

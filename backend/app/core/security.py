@@ -1,9 +1,13 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status #, Depends
 from fastapi.security import OAuth2PasswordBearer
-from app.core.config import settings 
+# from sqlalchemy.orm import Session
+from app.core.config import settings
+# from app.core.database import get_db
+# from app.repositories.user import user_repository
+# from app.models.user import User
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") 
@@ -37,20 +41,40 @@ def decode_token(token: str) -> dict:
             detail="Invalid token"
         )
 
-def get_current_user_id(token: str = Depends(oauth2_scheme)) -> int:
-    try:
-        payload = decode_token(token)
-        user_id: int = payload.get("user_id")
+# def get_current_user_id(token: str = Depends(oauth2_scheme)) -> int:
+#     try:
+#         payload = decode_token(token)
+#         user_id: int = payload.get("user_id")
         
-        if user_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token"
-            )
-        return user_id
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not verify user"
-        )
+#         if user_id is None:
+#             raise HTTPException(
+#                 status_code=status.HTTP_401_UNAUTHORIZED,
+#                 detail="Invalid token"
+#             )
+#         return user_id
+#     except Exception:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Could not verify user"
+#         )
+    
+
+
+# def get_user_by_refresh_token(refresh_token: str, db: Session = Depends(get_db)) -> User:
+#     try:
+#         payload = decode_token(refresh_token)
+#         user_id = payload.get("user_id")
+#     except Exception:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+
+#     if not user_id:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+
+#     user = user_repository.get(db, user_id)
+#     if not user or not user.is_active:
+#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User inactive or deleted")
+
+#     return user
+
+
     

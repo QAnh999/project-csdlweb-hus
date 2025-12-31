@@ -4,6 +4,7 @@ from app.controllers.auth import auth_controller
 from app.schemas.auth import LoginRequest, RefreshRequest, LogoutRequest, LoginResponse, TokenResponse
 from app.core.database import get_db
 
+
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 

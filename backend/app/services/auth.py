@@ -28,7 +28,7 @@ class AuthService:
     def login(self, db: Session, identifier: str, password: str) -> dict:
         user = self.authenticate(db, identifier, password)
         access_token = create_access_token({"user_id": user.id})
-        refresh_token = create_access_token({"user_id": user.id})
+        refresh_token = create_refresh_token({"user_id": user.id})
 
         self.refresh_tokens_store[refresh_token] = user.id
 
@@ -59,15 +59,42 @@ class AuthService:
             "token_type": "bearer"
         }
     
+    # def refresh_access_token(self, user: User) -> dict:
+    #     # payload = decode_token(refresh_token)
+    #     # user_id = payload.get("user_id")
+
+    #     # if not user_id or refresh_token not in self.refresh_tokens_store:
+    #     #     raise ValueError("Expired refresh token")
+
+    #     # del self.refresh_tokens_store[refresh_token]
+
+    #     new_access_token = create_access_token({"user_id": user.id})
+    #     new_refresh_token = create_refresh_token({"user_id": user.id})
+
+    #     self.refresh_tokens_store[new_refresh_token] = user.id
+
+    #     return {
+    #         "access_token": new_access_token,
+    #         "refresh_token": new_refresh_token,
+    #         "token_type": "bearer"
+    #     }
 
     def logout(self, refresh_token: str):
         if refresh_token in self.refresh_tokens_store:
             del self.refresh_tokens_store[refresh_token]
         return {"message": "Logged out successfully"}
     
+    # def logout(self, user: User):
+    #     # if refresh_token in self.refresh_tokens_store:
+    #     #     del self.refresh_tokens_store[refresh_token]
+    #     tokens_to_delete = [t for t, uid in self.refresh_tokens_store.items() if uid == user.id]
+    #     for t in tokens_to_delete:
+    #         del self.refresh_tokens_store[t]
+    #     return {"message": "Logged out successfully"}
+    
     def verify_access_token(self, token: str) -> int:
         payload = decode_token(token)
-        user_id = payload.get("sub")
+        user_id = payload.get("user_id")
         if not user_id:
             raise ValueError("Invalid token")
         return int(user_id)
