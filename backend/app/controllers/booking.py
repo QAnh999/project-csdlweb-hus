@@ -4,6 +4,7 @@ from typing import List
 from datetime import datetime
 from app.services.reservation import reservation_service
 from app.repositories.reservation import reservation_repository
+from app.repositories.service import service_repository
 from app.services.payment import payment_service
 from app.services.seat import seat_service
 from app.schemas.booking import (
@@ -30,6 +31,8 @@ from app.schemas.booking import (
     FlightSeatResponse,
     PassengerDetailSeat,
     PassengerSeatMap,
+    ServiceDisplayResponse
+    # ServiceDisplayRequest
 )
 
 class BookingController:
@@ -212,14 +215,18 @@ class BookingController:
         if not reservation:
             raise HTTPException(status_code=404, detail="Vé không tồn tại")
         
-        if reservation.expires_at and reservation.expires_at < datetime.utcnow():
-            raise HTTPException(status_code=400, detail="Vé đã hết hạn. Bạn ko xem đc đâu")
+        if reservation.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Bạn ko phải người đặt vé. Bạn ko xem đc đâu")
 
         if reservation.status == "cancelled":
             raise HTTPException(status_code=400, detail="Vé đã hủy. Bạn ko xem đc đâu")
 
-        if reservation.user_id != user_id:
-            raise HTTPException(status_code=403, detail="Bạn chưa được cấp quyền để thay đổi nội dung này")
+        if reservation.status == "confirmed":
+            pass
+
+        if reservation.status == "pending": 
+            if reservation.expires_at and reservation.expires_at < datetime.utcnow():
+                raise HTTPException(status_code=400, detail="Vé đã hết hạn. Bạn ko xem đc đâu")
 
         booked_seats = seat_service.booked_repo.get_by_reservation(db, reservation_id)
         # seats = [SeatStatus(
@@ -357,5 +364,23 @@ class BookingController:
             )
             for r in reservations
         ]
+    
+    def list_services(self, db: Session) -> List[ServiceDisplayResponse]:
+        services = service_repository.list(db)
+
+        grouped = {}
+        for s in services: 
+            if s.category not in grouped:
+                grouped[s.category] = []
+            grouped[s.category].append(
+                ServiceDisplayResponse(
+                    service_id=s.id,
+                    service_name=s.name,
+                    description=s.description,
+                    base_price=s.base_price
+                )
+            )
+
+        return grouped
 
 booking_controller = BookingController()

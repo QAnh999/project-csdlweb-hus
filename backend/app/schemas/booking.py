@@ -178,3 +178,14 @@ class BookingDetailResponse(BaseModel):
     payment: Optional[PaymentInfo]
 
     model_config = ConfigDict(from_attributes=True)
+
+# class ServiceDisplayRequest(BaseModel):
+#     category: str
+
+class ServiceDisplayResponse(BaseModel):
+    service_id: int
+    service_name: str
+    description: str
+    base_price: float
+
+    model_config = ConfigDict(from_attributes=True)

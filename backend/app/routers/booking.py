@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Dict #, Optional
 from datetime import datetime
 from app.core.dependency import get_current_user_id
 from app.core.database import get_db
@@ -18,7 +18,8 @@ from app.schemas.booking import (
     BookingPaymentResponse,
     BookingDetailResponse,
     BookingServiceRequest,
-    BookingServiceResponse
+    BookingServiceResponse,
+    ServiceDisplayResponse
 )
 
 router = APIRouter(prefix="/booking", tags=["Booking"])
@@ -67,3 +68,6 @@ def get_booking_detail(reservation_id: int, user_id: int = Depends(get_current_u
 def cancel_booking(reservation_id: int, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
     return booking_controller.cancel_booking(db, user_id, reservation_id)
     
+@router.get("/list-services", response_model=Dict[str, List[ServiceDisplayResponse]])
+def list_service(db: Session = Depends(get_db)): 
+    return booking_controller.list_services(db)

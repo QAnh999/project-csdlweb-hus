@@ -11,4 +11,6 @@ class ServiceRepository(BaseRepository[Service, ServiceCreate, ServiceUpdate]):
     def get_by_category(self, db: Session, category: str) -> List[Service]:
         return db.query(Service).filter(Service.category == category).all()
     
+    def list(self, db: Session) -> List[Service]:
+        return db.query(Service).filter(Service.is_available == True).all()
 service_repository = ServiceRepository()

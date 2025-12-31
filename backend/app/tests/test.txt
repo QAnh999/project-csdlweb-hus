@@ -53,12 +53,12 @@
 {
   "seat_class": "economy",
   "main_seat_map": [
-    {"passenger_id": 101, "seat_id": 37},
-    {"passenger_id": 102, "seat_id": 38}
+    {"passenger_id": 23, "seat_id": 37},
+    {"passenger_id": 24, "seat_id": 38}
   ],
   "return_seat_map": [
-    {"passenger_id": 101, "seat_id": 637},
-    {"passenger_id": 102, "seat_id": 638}
+    {"passenger_id": 23, "seat_id": 637},
+    {"passenger_id": 24, "seat_id": 638}
   ]
 }
 

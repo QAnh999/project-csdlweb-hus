@@ -4,6 +4,7 @@ from typing import List
 from datetime import datetime
 from app.repositories.base import BaseRepository
 from app.models.booked_seat import BookedSeat
+from app.models.reservation import Reservation
 from app.schemas.booked_seat import BookedSeatCreate, BookedSeatUpdate
 
 
@@ -28,18 +29,36 @@ class BookedSeatRepository(BaseRepository[BookedSeat, BookedSeatCreate, BookedSe
         if now is None:
             now = datetime.utcnow()
 
-        q = db.query(BookedSeat).filter(
-            BookedSeat.id_flight == flight_id,
-            BookedSeat.id_seat.in_(seat_ids),
-            or_(
-                (BookedSeat.reservation_id.isnot(None)),
-                and_(
-                    BookedSeat.reservation_id.is_(None),
-                    BookedSeat.hold_expires.isnot(None),
-                    BookedSeat.hold_expires > now
+        # q = db.query(BookedSeat).filter(
+        #     BookedSeat.id_flight == flight_id,
+        #     BookedSeat.id_seat.in_(seat_ids),
+        #     or_(
+        #         (BookedSeat.reservation_id.isnot(None)),
+        #         and_(
+        #             BookedSeat.reservation_id.is_(None),
+        #             BookedSeat.hold_expires.isnot(None),
+        #             BookedSeat.hold_expires > now
+        #         )
+        #     )
+        # )
+
+        q = (
+            db.query(BookedSeat)
+            .join(Reservation, BookedSeat.reservation_id == Reservation.id, isouter=True)
+            .filter(
+                BookedSeat.id_flight == flight_id,
+                BookedSeat.id_seat.in_(seat_ids),
+                or_(
+                    Reservation.status == "confirmed",
+                    and_(
+                         Reservation.status == "pending",
+                         BookedSeat.hold_expires.isnot(None),
+                         BookedSeat.hold_expires > now
+                    )
                 )
             )
         )
+
         if for_update:
             q = q.with_for_update()
         
