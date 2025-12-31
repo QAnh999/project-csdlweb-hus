@@ -38,12 +38,16 @@ class BookingController:
 
     
     def create_booking(self, db: Session, user_id: int, req: BookingCreate) -> BookingBaseResponse:
-        reservation = reservation_service.start_reservation(
-            db=db,
-            user_id=user_id,
-            main_flight_id=req.main_flight_id,
-            return_flight_id=req.return_flight_id
-        )
+        try:
+            reservation = reservation_service.start_reservation(
+                db=db,
+                user_id=user_id,
+                main_flight_id=req.main_flight_id,
+                return_flight_id=req.return_flight_id
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        
         return BookingBaseResponse(
             reservation_id=reservation.id,
             reservation_code=reservation.reservation_code,
@@ -52,7 +56,11 @@ class BookingController:
         )
     
     def get_available_seats(self, db: Session, flight_id: int, seat_class: str) -> BookingSeatResponse:
-        seats = seat_service.get_available_seats(db, flight_id, seat_class)
+        try:
+            seats = seat_service.get_available_seats(db, flight_id, seat_class)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        
         seat_list = [SeatStatus.model_validate(s) for s in seats]
         return BookingSeatResponse(flight_id=flight_id, seat_class=seat_class, seats=seat_list)
     
@@ -68,6 +76,7 @@ class BookingController:
             )
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
+        
         return {
             "message": "Giữ chỗ thành công",
             "held_seats": [
@@ -84,13 +93,16 @@ class BookingController:
             ]}
     
     def add_passengers(self, db: Session, user_id: int, reservation_id: int, req: BookingPassengerRequest) -> List[PassengerInfo]:
-        passengers = reservation_service.add_passengers(
-            db=db,
-            user_id=user_id,
-            reservation_id=reservation_id,
-            passengers=[p.model_dump() for p in req.passengers],
-            passenger_count=req.passenger_count.model_dump()
-        )
+        try:
+            passengers = reservation_service.add_passengers(
+                db=db,
+                user_id=user_id,
+                reservation_id=reservation_id,
+                passengers=[p.model_dump() for p in req.passengers],
+                passenger_count=req.passenger_count.model_dump()
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
         return [PassengerInfo(
             first_name=p.first_name,
@@ -103,17 +115,19 @@ class BookingController:
         ) for p in passengers]
     
     def finalize_booking(self, db: Session, user_id: int, reservation_id: int, req: BookingFinalizeRequest) -> BookingFinalizeResponse:
-        reservation, details, invoice = reservation_service.finalize_reservation(
-            db=db,
-            user_id=user_id,
-            reservation_id=reservation_id,
-            seat_class=req.seat_class,
-            # main_seat_ids=req.main_seat_ids,
-            # return_seat_ids=req.return_seat_ids or []
-            main_seat_map=[s.model_dump() for s in req.main_seat_map],
-            return_seat_map=[s.model_dump() for s in req.return_seat_map] if req.return_seat_map else None
-
-        )
+        try:
+            reservation, details, invoice = reservation_service.finalize_reservation(
+                db=db,
+                user_id=user_id,
+                reservation_id=reservation_id,
+                seat_class=req.seat_class,
+                # main_seat_ids=req.main_seat_ids,
+                # return_seat_ids=req.return_seat_ids or []
+                main_seat_map=[s.model_dump() for s in req.main_seat_map],
+                return_seat_map=[s.model_dump() for s in req.return_seat_map] if req.return_seat_map else None
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
         invoice_info = InvoiceInfo(
             invoice_number=invoice.invoice_number,
@@ -140,15 +154,19 @@ class BookingController:
             passenger_details=passenger_details
         )
     def create_payment(self, db: Session, user_id: int, reservation_id: int, req: BookingPaymentRequest) -> BookingPaymentResponse:
-        payment = payment_service.create_payment(
-            db=db,
-            user_id=user_id,
-            reservation_id=reservation_id,
-            payment_method=req.payment_method
-        )
+        try:
+            payment = payment_service.create_payment(
+                db=db,
+                user_id=user_id,
+                reservation_id=reservation_id,
+                payment_method=req.payment_method
+            )
 
-        reservation = reservation_repository.get(db, reservation_id)
-        invoice = reservation.invoice
+            reservation = reservation_repository.get(db, reservation_id)
+            invoice = reservation.invoice
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
         invoice_info = InvoiceInfo(
             invoice_number=invoice.invoice_number,
             total_amount=invoice.total_amount,
@@ -170,12 +188,15 @@ class BookingController:
         )
     
     def add_services_to_booking(self, db: Session, user_id: int, reservation_id: int, req: BookingServiceRequest) -> BookingServiceResponse:
-        result = reservation_service.add_services(
-            db=db, 
-            user_id=user_id, 
-            reservation_id=reservation_id, 
-            services=[s.model_dump() for s in req.services]
-        )
+        try:
+            result = reservation_service.add_services(
+                db=db, 
+                user_id=user_id, 
+                reservation_id=reservation_id, 
+                services=[s.model_dump() for s in req.services]
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
         
         return BookingServiceResponse(
             reservation_id=reservation_id,
@@ -198,7 +219,7 @@ class BookingController:
             raise HTTPException(status_code=400, detail="Vé đã hủy. Bạn ko xem đc đâu")
 
         if reservation.user_id != user_id:
-            raise ValueError("Bạn chưa được cấp quyền để thay đổi nội dung này")
+            raise HTTPException(status_code=403, detail="Bạn chưa được cấp quyền để thay đổi nội dung này")
 
         booked_seats = seat_service.booked_repo.get_by_reservation(db, reservation_id)
         # seats = [SeatStatus(
@@ -286,7 +307,6 @@ class BookingController:
             total_passengers=reservation.total_passengers,
             total_amount=reservation.total_amount,
             tax_amount=reservation.tax_amount,
-            seats=seats,
             invoice=invoice_info,
             payment=payment_info
         )
@@ -299,6 +319,7 @@ class BookingController:
 
         return BookingPaymentResponse(
             payment=PaymentInfo(
+                payment_id=payment.id,
                 payment_method=payment.payment_method,
                 status=payment.status,
                 paid_at=payment.paid_at

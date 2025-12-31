@@ -20,7 +20,7 @@ class SeatStatus(BaseModel):
     seat_id: int
     seat_number: str
     seat_class: str
-    status: str  # available, held, booked
+    status: Optional[str] = None # available, held, booked
 
     model_config = ConfigDict(from_attributes=True)
 

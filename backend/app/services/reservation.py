@@ -515,7 +515,9 @@ class ReservationService:
         if any(d.checkin_status == "checked_in" for d in details):
             raise ValueError("Đã hoàn tất thủ tục. Không thể hủy")
 
-        invoice = self.invoice_repo.get_by_reservation(db, reservation_id)        
+        invoice = self.invoice_repo.get_by_reservation(db, reservation_id)
+        if not invoice:
+            raise ValueError("Không tìm thấy hóa đơn. Bạn chưa xác nhận đặt vé")        
         payment = self.payment_repo.get_by_reversation(db, reservation_id)
 
         try:

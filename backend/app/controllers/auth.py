@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from app.models.user import User
+# from app.models.user import User
 from app.services.auth import AuthService
 from app.repositories.user import user_repository
 from app.schemas.auth import LoginResponse, TokenResponse
