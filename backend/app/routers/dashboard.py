@@ -1,57 +1,72 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc
-from .. import models, database, auth, schemas
+from sqlalchemy import select, func, desc
+from datetime import date, timedelta
+from .. import models
+from ..database import get_db
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
-# 1. Overview (Dùng bảng DailyStats để lấy số liệu nhanh)
-@router.get("/overview", dependencies=[Depends(auth.check_role(["Admin", "Super Admin"]))])
-async def get_overview(db: AsyncSession = Depends(database.get_db)):
-    # Lấy bản ghi DailyStats mới nhất
-    result = await db.execute(select(models.DailyStats).order_by(desc(models.DailyStats.stat_date)).limit(1))
-    stats = result.scalars().first()
+@router.get("/stats")
+async def dashboard_stats(target_date: date = Query(default=date.today()), db: AsyncSession = Depends(get_db)):
+    # 1. Active Flights
+    q_active = select(func.count(models.Flight.id)).where(models.Flight.status.in_(['scheduled', 'boarding', 'departed']))
+    active = (await db.execute(q_active)).scalar() or 0
     
-    if not stats:
-        # Trả về data mặc định nếu chưa có thống kê
-        return {
-            "completedFlights": 0, "activeFlights": 0, "cancelledFlights": 0,
-            "totalRevenue": 0, "ticketsSold": 0,
-            "growthRates": {"revenue": 0, "bookings": 0}
-        }
+    # 2. Cancelled Flights
+    q_cancelled = select(func.count(models.Flight.id)).where(models.Flight.status == 'cancelled')
+    cancelled = (await db.execute(q_cancelled)).scalar() or 0
+    
+    # 3. Revenue
+    q_rev = select(func.sum(models.Reservation.total_amount))\
+            .where(func.date(models.Reservation.created_at) == target_date)\
+            .where(models.Reservation.status.in_(['confirmed', 'completed']))
+    revenue = (await db.execute(q_rev)).scalar() or 0
 
-    # Tính tỉ lệ tăng trưởng giả định (hoặc lấy từ DB nếu đã tính sẵn)
-    growth_revenue = 0
-    if stats.prev_revenue > 0:
-        growth_revenue = ((stats.total_revenue - stats.prev_revenue) / stats.prev_revenue) * 100
+    return {"active_flights": active, "cancelled_flights": cancelled, "revenue": revenue, "date": target_date}
 
-    return {
-        "completedFlights": stats.completed_flights,
-        "activeFlights": stats.active_flights,
-        "cancelledFlights": stats.cancelled_flights,
-        "totalRevenue": stats.total_revenue,
-        "ticketsSold": stats.tickets_sold,
-        "growthRates": {
-            "revenue": round(growth_revenue, 2),
-            "bookings": 5.0 # Ví dụ
-        },
-        "popularAirlines": ["Vietnam Airlines", "Bamboo"], # Mock hoặc query thêm
-        "topRoutes": ["HAN-SGN", "DAD-HPH"]
-    }
+@router.get("/weekly-revenue")
+async def weekly_revenue(db: AsyncSession = Depends(get_db)):
+    start_date = date.today() - timedelta(days=7)
+    stmt = select(func.date(models.Reservation.created_at).label("d"), func.sum(models.Reservation.total_amount))\
+           .where(models.Reservation.created_at >= start_date, models.Reservation.status.in_(['confirmed', 'completed']))\
+           .group_by(func.date(models.Reservation.created_at))
+    
+    results = (await db.execute(stmt)).all()
+    return [{"date": r[0], "total": r[1]} for r in results]
 
-# 2. Tickets Sold (Chart cột)
-@router.get("/ticketsold", dependencies=[Depends(auth.check_role(["Admin", "Super Admin"]))])
-async def get_tickets_sold_chart(db: AsyncSession = Depends(database.get_db)):
-    # Lấy 7 ngày gần nhất
-    result = await db.execute(select(models.DailyStats).order_by(desc(models.DailyStats.stat_date)).limit(7))
-    stats = result.scalars().all()
-    # Format lại dữ liệu cho Frontend vẽ biểu đồ
-    return [{"date": s.stat_date, "count": s.tickets_sold} for s in stats]
+@router.get("/weekly-tickets")
+async def weekly_tickets(db: AsyncSession = Depends(get_db)):
+    start_date = date.today() - timedelta(days=7)
+    stmt = select(func.date(models.Ticket.issue_date).label("d"), func.count(models.Ticket.id))\
+           .where(models.Ticket.issue_date >= start_date, models.Ticket.status == 'active')\
+           .group_by(func.date(models.Ticket.issue_date))
+    
+    results = (await db.execute(stmt)).all()
+    return [{"date": r[0], "count": r[1]} for r in results]
 
-# 3. Revenue (Chart đường)
-@router.get("/revenue", dependencies=[Depends(auth.check_role(["Admin", "Super Admin"]))])
-async def get_revenue_chart(range: str = "week", db: AsyncSession = Depends(database.get_db)):
-    limit_days = 30 if range == "month" else 7
-    result = await db.execute(select(models.DailyStats).order_by(desc(models.DailyStats.stat_date)).limit(limit_days))
-    stats = result.scalars().all()
-    return [{"date": s.stat_date, "amount": s.total_revenue} for s in stats]
+@router.get("/top-users")
+async def top_users(db: AsyncSession = Depends(get_db)):
+    # Cần eager load user và flight để tránh lỗi lazy load trong async
+    from sqlalchemy.orm import selectinload
+    stmt = select(models.Reservation)\
+           .options(selectinload(models.Reservation.user), selectinload(models.Reservation.flight))\
+           .order_by(models.Reservation.created_at.desc()).limit(3)
+    
+    bookings = (await db.execute(stmt)).scalars().all()
+    
+    return [{
+        "user": b.user.first_name if b.user else "Unknown",
+        "booking_id": b.reservation_code,
+        "flight": b.flight.flight_number if b.flight else "N/A"
+    } for b in bookings]
+
+@router.get("/popular-routes")
+async def popular_routes(db: AsyncSession = Depends(get_db)):
+    stmt = select(models.Flight.dep_airport, models.Flight.arr_airport, func.count(models.Reservation.id).label("c"))\
+           .join(models.Reservation, models.Reservation.main_flight_id == models.Flight.id)\
+           .group_by(models.Flight.dep_airport, models.Flight.arr_airport)\
+           .order_by(desc("c")).limit(5)
+    
+    results = (await db.execute(stmt)).all()
+    return [{"dep": r[0], "arr": r[1], "bookings": r[2]} for r in results]

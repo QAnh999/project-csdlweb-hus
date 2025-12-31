@@ -1,24 +1,28 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from .routers import auth, dashboard, flights, users
+from .database import engine, Base
+from .routers import auth, dashboard, flights, bookings, services, feedbacks, promotions, managers
 
-app = FastAPI(title="Flight Booking API")
+# Khởi tạo App
+app = FastAPI(title="Lotus Airline API")
 
-# Cấu hình CORS để Frontend gọi được API
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], # Trong production nên đổi thành domain cụ thể của bạn
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Đăng ký các Router
+# Import Routers
 app.include_router(auth.router)
 app.include_router(dashboard.router)
 app.include_router(flights.router)
-app.include_router(users.router)
+app.include_router(bookings.router)
+app.include_router(services.router)
+app.include_router(feedbacks.router)
+app.include_router(promotions.router)
+app.include_router(managers.router)
+
+# Event startup để tạo bảng (chạy async)
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        # Nếu DB đã có bảng từ file SQL của bạn thì dòng này sẽ bỏ qua
+        # Nếu chưa có thì nó sẽ tạo mới dựa trên models.py
+        await conn.run_sync(Base.metadata.create_all)
 
 @app.get("/")
-async def root():
-    return {"message": "Flight Booking API is running!"}
+def root():
+    return {"message": "Lotus Airline API is running with AsyncPG!"}
