@@ -43,7 +43,7 @@
   color: var(--text-dark);
   background: var(--white);
   transition: var(--transition);
-  font-family: "DM Sans", sans-serif;
+  font-family: "Be Vietnam Pro", sans-serif;
 }
 
 .search-field input:focus,
@@ -135,7 +135,7 @@
   font-size: 0.875rem;
   cursor: pointer;
   transition: var(--transition);
-  font-family: "DM Sans", sans-serif;
+  font-family: "Be Vietnam Pro", sans-serif;
 }
 
 .sort-select:hover {
@@ -161,7 +161,7 @@
   align-items: center;
   gap: 0.5rem;
   transition: var(--transition);
-  font-family: "DM Sans", sans-serif;
+  font-family: "Be Vietnam Pro", sans-serif;
 }
 
 .add-flight-btn:hover {
@@ -362,7 +362,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: var(--transition);
-  font-family: "DM Sans", sans-serif;
+  font-family: "Be Vietnam Pro", sans-serif;
 }
 .delete-btn {
   background: #ef7070;
@@ -374,7 +374,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: var(--transition);
-  font-family: "DM Sans", sans-serif;
+  font-family: "Be Vietnam Pro", sans-serif;
 }
 
 .view-detail-btn:hover {
@@ -494,7 +494,7 @@
   color: var(--text-dark);
   background: var(--white);
   transition: var(--transition);
-  font-family: "DM Sans", sans-serif;
+  font-family: "Be Vietnam Pro", sans-serif;
 }
 
 .form-group input:focus,
@@ -541,7 +541,7 @@
   cursor: pointer;
   transition: var(--transition);
   border: none;
-  font-family: "DM Sans", sans-serif;
+  font-family: "Be Vietnam Pro", sans-serif;
 }
 
 .btn-cancel {
