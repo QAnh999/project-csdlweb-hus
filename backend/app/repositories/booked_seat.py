@@ -44,7 +44,7 @@ class BookedSeatRepository(BaseRepository[BookedSeat, BookedSeatCreate, BookedSe
 
         q = (
             db.query(BookedSeat)
-            .join(Reservation, BookedSeat.reservation_id == Reservation.id, isouter=True)
+            .join(Reservation, BookedSeat.reservation_id == Reservation.id)
             .filter(
                 BookedSeat.id_flight == flight_id,
                 BookedSeat.id_seat.in_(seat_ids),
@@ -164,11 +164,18 @@ class BookedSeatRepository(BaseRepository[BookedSeat, BookedSeatCreate, BookedSe
         """
         Xóa ghế hết hạn giữ
         """
-        return db.query(BookedSeat).filter(
-            BookedSeat.reservation_id.is_(None),
-            BookedSeat.hold_expires != None,
-            BookedSeat.hold_expires < now
-        ).delete(synchronize_session=False)
+        # return db.query(BookedSeat).filter(
+        #     BookedSeat.reservation_id.is_(None),
+        #     BookedSeat.hold_expires != None,
+        #     BookedSeat.hold_expires < now
+        # ).delete(synchronize_session=False)
+        return (db.query(BookedSeat)
+                .join(Reservation, BookedSeat.reservation_id == Reservation.id)
+                .filter(
+                    Reservation.status == "pending",
+                    BookedSeat.hold_expires < now
+                ).delete(synchronize_session=False))
+            
 
 
 
