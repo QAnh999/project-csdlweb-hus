@@ -68,6 +68,6 @@ def get_booking_detail(reservation_id: int, user_id: int = Depends(get_current_u
 def cancel_booking(reservation_id: int, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
     return booking_controller.cancel_booking(db, user_id, reservation_id)
     
-@router.get("/list-services", response_model=Dict[str, List[ServiceDisplayResponse]])
+@router.get("/services", response_model=Dict[str, List[ServiceDisplayResponse]])
 def list_service(db: Session = Depends(get_db)): 
     return booking_controller.list_services(db)
