@@ -9,7 +9,6 @@ const SEAT_CLASS_MULTIPLIERS = {
   business: 2.5,
   first: 5,
 };
-
 const initialFlightData = [
   {
     id: 1,
@@ -122,7 +121,6 @@ const initialFlightData = [
     price: 550,
   },
 ];
-
 const getAirlineLogo = (airlineName) => {
   const logoMap = {
     "Vietnam Airlines": "/assets/logo-vietnam-airlines.png",
@@ -136,6 +134,16 @@ const getAirlineLogo = (airlineName) => {
 
 const Flight = () => {
   const [flightData, setFlightData] = useState(initialFlightData);
+  const fetchAddFlight = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/flight-tracking/add");
+      const data = await res.json();
+      setFlightData(data.map);
+    } catch (error) {
+      console.error("Error fetching flight data:", error);
+      alert("Lỗi khi tải dữ liệu chuyến bay");
+    }
+  };
   const [currentFlights, setCurrentFlights] = useState([]);
   const [from, setFrom] = useState("Hà Nội (HAN)");
   const [to, setTo] = useState("Hồ Chí Minh (SGN)");
@@ -158,6 +166,9 @@ const Flight = () => {
     isDirect: true,
   });
 
+  useEffect(() => {
+    fetchAddFlight();
+  }, []);
   // Set default date
   useEffect(() => {
     const today = new Date();

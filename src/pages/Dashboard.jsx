@@ -12,6 +12,7 @@ import {
 import Chart from "chart.js/auto";
 import "../styles/main.css";
 import { toast } from "sonner";
+import axios from "axios";
 
 const airlinesData = [
   { name: "Vietjet", percentage: 35, color: "var(--primary-color)" },
@@ -55,7 +56,12 @@ const topRoutes = [
 ];
 
 const Dashboard = () => {
-  const [kpiBuffer, setKpiBuffer] = useState([]);
+  // KPI states
+  const [successfulBookings, setSuccessfulBookings] = useState(0);
+  const [activeFlights, setActiveFlights] = useState(0);
+  const [newUsers, setNewUsers] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [loadingKPI, setLoadingKPI] = useState(true);
   const [recentBookingsBuffer, setRecentBookingsBuffer] = useState([]);
   const [revenuePeriod, setRevenuePeriod] = useState("Hôm nay");
 
@@ -67,57 +73,26 @@ const Dashboard = () => {
   const airlinesChartInstance = useRef(null);
   const fetchKPI = async () => {
     try {
-      const res = await fetch("http://localhost:8000/dashboard/stats");
-      if (!res.ok) throw new Error("Lỗi API");
-      const data = await res.json();
-      setKpiBuffer([
-        {
-          id: 1,
-          title: "Thành công",
-          value: data.successful_bookings?.toLocaleString() || "0",
-          trend: "+12%",
-          icon: CheckCircle,
-          iconClass: "completed",
-        },
-        {
-          id: 2,
-          title: "Đang hoạt động",
-          value: data.active_flights?.toLocaleString() || "0",
-          trend: "0%",
-          icon: Plane,
-          iconClass: "active",
-        },
-        {
-          id: 3,
-          title: "Người dùng mới",
-          value: data.new_users?.toLocaleString() || "0",
-          trend: "-5%",
-          icon: UserRoundPlus,
-          iconClass: "new-users",
-        },
-        {
-          id: 4,
-          title: "Tổng doanh thu",
-          value:
-            data.total_revenue?.toLocaleString("en-US", {
-              style: "currency",
-              currency: "VND",
-            }) || "0 VND",
-          trend: "+2%",
-          isPositive: true,
-          icon: PiggyBank,
-          iconClass: "revenue",
-        },
-      ]);
+      setLoadingKPI(true);
+      const res = await axios.get("http://localhost:8000/dashboard/stats");
+      const data = res.data; // axios tự parse JSON
+
+      // Cập nhật từng state riêng biệt
+      setSuccessfulBookings(data.successful_bookings || 0);
+      setActiveFlights(data.active_flights || 0);
+      setNewUsers(data.new_users || 0);
+      setTotalRevenue(data.total_revenue || 0);
     } catch (error) {
       console.error("Error fetching KPI data:", error);
       toast.error("Lỗi khi tải dữ liệu KPI");
+    } finally {
+      setLoadingKPI(false);
     }
   };
 
   const fetchRecentBookings = async () => {
     try {
-      const res = await fetch("http://localhost:8000/dashboard/top-users");
+      const res = await axios.get("http://localhost:8000/dashboard/top-users");
       if (!res.ok) throw new Error("Lỗi API");
       const data = await res.json();
       setRecentBookingsBuffer(
@@ -273,39 +248,86 @@ const Dashboard = () => {
         airlinesChartInstance.current.destroy();
     };
   }, []);
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
 
   return (
     <DashboardLayout title="Dashboard">
       <div className="dashboard-content">
         {/* KPI Cards */}
         <div className="kpi-section">
-          {kpiBuffer.map((kpi) => {
-            const Icon = kpi.icon;
-
-            return (
-              <div key={kpi.id} className="kpi-card">
-                <div className={`kpi-icon ${kpi.iconClass}`}>
-                  <Icon size={24} />
-                </div>
-                <div className="kpi-content">
-                  <h3>{kpi.title}</h3>
-                  <div className="kpi-value">{kpi.value}</div>
-                  {/* <div
-                    className={`kpi-trend ${
-                      kpi.isPositive ? "positive" : "negative"
-                    }`}
-                  >
-                    {kpi.isPositive ? (
-                      <ArrowUp size={14} />
-                    ) : (
-                      <ArrowDown size={14} />
-                    )}
-                    <span>{kpi.trend}</span>
-                  </div> */}
-                </div>
+          {/* 1. Thành công */}
+          <div className="kpi-card">
+            <div className="kpi-icon completed">
+              <CheckCircle size={24} />
+            </div>
+            <div className="kpi-content">
+              <h3>Thành công</h3>
+              <div className="kpi-value">
+                {loadingKPI ? "..." : successfulBookings.toLocaleString()}
               </div>
-            );
-          })}
+              <div className="kpi-trend positive">
+                <ArrowUp size={14} />
+                <span>+12%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Đang hoạt động */}
+          <div className="kpi-card">
+            <div className="kpi-icon active">
+              <Plane size={24} />
+            </div>
+            <div className="kpi-content">
+              <h3>Đang hoạt động</h3>
+              <div className="kpi-value">
+                {loadingKPI ? "..." : activeFlights.toLocaleString()}
+              </div>
+              <div className="kpi-trend">
+                <ArrowDown size={14} />
+                <span>0%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Người dùng mới */}
+          <div className="kpi-card">
+            <div className="kpi-icon new-users">
+              <UserRoundPlus size={24} />
+            </div>
+            <div className="kpi-content">
+              <h3>Người dùng mới</h3>
+              <div className="kpi-value">
+                {loadingKPI ? "..." : newUsers.toLocaleString()}
+              </div>
+              <div className="kpi-trend negative">
+                <ArrowDown size={14} />
+                <span>-5%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Tổng doanh thu */}
+          <div className="kpi-card">
+            <div className="kpi-icon revenue">
+              <PiggyBank size={24} />
+            </div>
+            <div className="kpi-content">
+              <h3>Tổng doanh thu</h3>
+              <div className="kpi-value">
+                {loadingKPI ? "..." : formatCurrency(totalRevenue)}
+              </div>
+              <div className="kpi-trend positive">
+                <ArrowUp size={14} />
+                <span>+2%</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Charts Section */}
