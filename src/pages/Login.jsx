@@ -42,7 +42,7 @@ const Login = () => {
         backgroundImage: "url('/assets/anh_nen.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'Be Vietnam Pro', sans-serif",
       }}
     >
       <div

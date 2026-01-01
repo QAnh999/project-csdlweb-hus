@@ -11,69 +11,7 @@ import {
 } from "lucide-react";
 import Chart from "chart.js/auto";
 import "../styles/main.css";
-
-const kpiData = [
-  {
-    id: 1,
-    title: "Thành công",
-    value: "125",
-    trend: "+1.35%",
-    isPositive: true,
-    icon: CheckCircle,
-    iconClass: "completed",
-  },
-  {
-    id: 2,
-    title: "Đang hoạt động",
-    value: "80",
-    trend: "+3.68%",
-    isPositive: true,
-    icon: Plane,
-    iconClass: "active",
-  },
-  {
-    id: 3,
-    title: "Người dùng mới",
-    value: "25",
-    trend: "-1.45%",
-    isPositive: false,
-    icon: UserRoundPlus,
-    iconClass: "new-users",
-  },
-  {
-    id: 4,
-    title: "Tổng doanh thu",
-    value: "15,000,000",
-    trend: "+5.94%",
-    isPositive: true,
-    icon: PiggyBank,
-    iconClass: "revenue",
-  },
-];
-
-const recentBookings = [
-  {
-    name: "User1",
-    bookingId: "BK001",
-    flight: "VN123",
-    time: "14:30",
-    status: "completed",
-  },
-  {
-    name: "User2",
-    bookingId: "BK002",
-    flight: "VN456",
-    time: "16:45",
-    status: "pending",
-  },
-  {
-    name: "User3",
-    bookingId: "BK003",
-    flight: "VN789",
-    time: "18:20",
-    status: "completed",
-  },
-];
+import { toast } from "sonner";
 
 const airlinesData = [
   { name: "Vietjet", percentage: 35, color: "var(--primary-color)" },
@@ -117,7 +55,8 @@ const topRoutes = [
 ];
 
 const Dashboard = () => {
-  const [chartPeriod, setChartPeriod] = useState("Hàng ngày");
+  const [kpiBuffer, setKpiBuffer] = useState([]);
+  const [recentBookingsBuffer, setRecentBookingsBuffer] = useState([]);
   const [revenuePeriod, setRevenuePeriod] = useState("Hôm nay");
 
   const ticketChartRef = useRef(null);
@@ -126,8 +65,79 @@ const Dashboard = () => {
   const ticketChartInstance = useRef(null);
   const revenueChartInstance = useRef(null);
   const airlinesChartInstance = useRef(null);
+  const fetchKPI = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/dashboard/stats");
+      if (!res.ok) throw new Error("Lỗi API");
+      const data = await res.json();
+      setKpiBuffer([
+        {
+          id: 1,
+          title: "Thành công",
+          value: data.successful_bookings?.toLocaleString() || "0",
+          trend: "+12%",
+          icon: CheckCircle,
+          iconClass: "completed",
+        },
+        {
+          id: 2,
+          title: "Đang hoạt động",
+          value: data.active_flights?.toLocaleString() || "0",
+          trend: "0%",
+          icon: Plane,
+          iconClass: "active",
+        },
+        {
+          id: 3,
+          title: "Người dùng mới",
+          value: data.new_users?.toLocaleString() || "0",
+          trend: "-5%",
+          icon: UserRoundPlus,
+          iconClass: "new-users",
+        },
+        {
+          id: 4,
+          title: "Tổng doanh thu",
+          value:
+            data.total_revenue?.toLocaleString("en-US", {
+              style: "currency",
+              currency: "VND",
+            }) || "0 VND",
+          trend: "+2%",
+          isPositive: true,
+          icon: PiggyBank,
+          iconClass: "revenue",
+        },
+      ]);
+    } catch (error) {
+      console.error("Error fetching KPI data:", error);
+      toast.error("Lỗi khi tải dữ liệu KPI");
+    }
+  };
+
+  const fetchRecentBookings = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/dashboard/top-users");
+      if (!res.ok) throw new Error("Lỗi API");
+      const data = await res.json();
+      setRecentBookingsBuffer(
+        data.map((item) => ({
+          user: item.user,
+          booking_id: item.booking_id,
+          flight: item.flight,
+          time: item.time,
+          status: item.status,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching recent bookings:", error);
+      toast.error("Lỗi khi tải dữ liệu đặt chỗ gần đây");
+    }
+  };
 
   useEffect(() => {
+    fetchKPI();
+    fetchRecentBookings();
     // Ticket Sales Chart
     if (ticketChartRef.current) {
       if (ticketChartInstance.current) {
@@ -269,8 +279,9 @@ const Dashboard = () => {
       <div className="dashboard-content">
         {/* KPI Cards */}
         <div className="kpi-section">
-          {kpiData.map((kpi) => {
+          {kpiBuffer.map((kpi) => {
             const Icon = kpi.icon;
+
             return (
               <div key={kpi.id} className="kpi-card">
                 <div className={`kpi-icon ${kpi.iconClass}`}>
@@ -279,7 +290,7 @@ const Dashboard = () => {
                 <div className="kpi-content">
                   <h3>{kpi.title}</h3>
                   <div className="kpi-value">{kpi.value}</div>
-                  <div
+                  {/* <div
                     className={`kpi-trend ${
                       kpi.isPositive ? "positive" : "negative"
                     }`}
@@ -290,7 +301,7 @@ const Dashboard = () => {
                       <ArrowDown size={14} />
                     )}
                     <span>{kpi.trend}</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             );
@@ -302,24 +313,6 @@ const Dashboard = () => {
           <div className="chart-card ticket-sales">
             <div className="chart-header">
               <h3>Vé bán ra</h3>
-              <div className="chart-toggles">
-                <button
-                  className={`toggle-btn ${
-                    chartPeriod === "Hàng ngày" ? "active" : ""
-                  }`}
-                  onClick={() => setChartPeriod("Hàng ngày")}
-                >
-                  Hàng ngày
-                </button>
-                <button
-                  className={`toggle-btn ${
-                    chartPeriod === "Hàng tuần" ? "active" : ""
-                  }`}
-                  onClick={() => setChartPeriod("Hàng tuần")}
-                >
-                  Hàng tuần
-                </button>
-              </div>
             </div>
             <div className="chart-content">
               <div className="chart-value">Tổng vé bán ra: 5,000</div>
@@ -369,10 +362,10 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentBookings.map((booking, index) => (
+                  {recentBookingsBuffer.map((booking, index) => (
                     <tr key={index}>
-                      <td>{booking.name}</td>
-                      <td>{booking.bookingId}</td>
+                      <td>{booking.user}</td>
+                      <td>{booking.booking_id}</td>
                       <td>{booking.flight}</td>
                       <td>{booking.time}</td>
                       <td>
