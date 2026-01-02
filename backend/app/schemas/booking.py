@@ -11,12 +11,13 @@ class BookingBaseResponse(BaseModel):
     reservation_id: int
     reservation_code: str
     status: str # pending, confirmed, cancelled
-    expires_at: Optional[datetime]
+    # expires_at: Optional[datetime]
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 class SeatStatus(BaseModel):
-    flight_id: int
+    # flight_id: int
     seat_id: int
     seat_number: str
     seat_class: str
@@ -165,7 +166,8 @@ class BookingDetailResponse(BaseModel):
     reservation_id: int
     reservation_code: str
     status: str
-    expires_at: Optional[datetime]
+    # expires_at: Optional[datetime]
+    created_at: datetime
 
     flights: List[FlightBookingResponse]
     passengers: List[PassengerResponse]

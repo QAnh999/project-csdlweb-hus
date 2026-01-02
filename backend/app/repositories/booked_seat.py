@@ -169,12 +169,19 @@ class BookedSeatRepository(BaseRepository[BookedSeat, BookedSeatCreate, BookedSe
         #     BookedSeat.hold_expires != None,
         #     BookedSeat.hold_expires < now
         # ).delete(synchronize_session=False)
-        return (db.query(BookedSeat)
+        expired_holds = (db.query(BookedSeat)
                 .join(Reservation, BookedSeat.reservation_id == Reservation.id)
                 .filter(
                     Reservation.status == "pending",
                     BookedSeat.hold_expires < now
-                ).delete(synchronize_session=False))
+                ).all())
+        
+        count = len(expired_holds)
+
+        for seat in expired_holds:
+            db.delete(seat)
+
+        return count
             
 
 

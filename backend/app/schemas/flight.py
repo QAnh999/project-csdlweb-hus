@@ -102,7 +102,8 @@ class FlightSearchResult(BaseModel):
     flight_id: int
     flight_number: str
     airline_name: str
-    airline_code: str
+    # airline_code: str
+    # airline_logo: str
 
     dep_airport: int
     arr_airport: int

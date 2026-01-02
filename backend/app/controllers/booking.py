@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Dict
 from datetime import datetime
 from app.services.reservation import reservation_service
 from app.repositories.reservation import reservation_repository
@@ -55,7 +55,8 @@ class BookingController:
             reservation_id=reservation.id,
             reservation_code=reservation.reservation_code,
             status=reservation.status,
-            expires_at=reservation.expires_at
+            # expires_at=reservation.expires_at
+            created_at=reservation.created_at
         )
     
     def get_available_seats(self, db: Session, flight_id: int, seat_class: str) -> BookingSeatResponse:
@@ -95,7 +96,7 @@ class BookingController:
                 for hs in held_seats
             ]}
     
-    def add_passengers(self, db: Session, user_id: int, reservation_id: int, req: BookingPassengerRequest) -> List[PassengerInfo]:
+    def add_passengers(self, db: Session, user_id: int, reservation_id: int, req: BookingPassengerRequest) -> List[PassengerResponse]:
         try:
             passengers = reservation_service.add_passengers(
                 db=db,
@@ -107,7 +108,8 @@ class BookingController:
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-        return [PassengerInfo(
+        return [PassengerResponse(
+            passenger_id=p.id,
             first_name=p.first_name,
             last_name=p.last_name,
             date_of_birth=p.date_of_birth,
@@ -253,7 +255,7 @@ class BookingController:
             flights.append(
                 FlightBookingResponse(
                     flight_id=fid,
-                    direction="inbound" if fid == reservation.main_flight_id else "outbound",
+                    direction="outbound" if fid == reservation.main_flight_id else "inbound",
                     seats=seats
                 )
             )
@@ -308,7 +310,8 @@ class BookingController:
             reservation_id=reservation.id,
             reservation_code=reservation.reservation_code,
             status=reservation.status,
-            expires_at=reservation.expires_at,
+            # expires_at=reservation.expires_at,
+            created_at=reservation.created_at,
             flights=flights,
             passengers=passengers,
             total_passengers=reservation.total_passengers,
@@ -360,12 +363,13 @@ class BookingController:
                 reservation_id=r.id,
                 reservation_code=r.reservation_code,
                 status=r.status,
-                expires_at=r.expires_at
+                # expires_at=r.expires_at
+                created_at=r.created_at
             )
             for r in reservations
         ]
     
-    def list_services(self, db: Session) -> List[ServiceDisplayResponse]:
+    def list_services(self, db: Session) -> Dict[str, List[ServiceDisplayResponse]]:
         services = service_repository.list(db)
 
         grouped = {}

@@ -250,6 +250,8 @@ CREATE TABLE Reservation_Details (
     -- )
 );
 
+-- ALTER TABLE reservation_details ALTER COLUMN seat_id DROP NOT NULL;
+
 
 -- 12. Tickets
 CREATE TABLE Tickets (

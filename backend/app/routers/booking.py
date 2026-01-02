@@ -44,6 +44,10 @@ def add_passengers(reservation_id: int, req: BookingPassengerRequest, user_id: i
 def finalize_booking(reservation_id: int, req: BookingFinalizeRequest, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
     return booking_controller.finalize_booking(db, user_id, reservation_id, req)
 
+@router.get("/services", response_model=Dict[str, List[ServiceDisplayResponse]])
+def list_service(db: Session = Depends(get_db)): 
+    return booking_controller.list_services(db)
+
 @router.post("/{reservation_id}/services", response_model=BookingServiceResponse)
 def add_services(reservation_id: int, req: BookingServiceRequest, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
     return booking_controller.add_services_to_booking(db, user_id, reservation_id, req)
@@ -68,6 +72,4 @@ def get_booking_detail(reservation_id: int, user_id: int = Depends(get_current_u
 def cancel_booking(reservation_id: int, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
     return booking_controller.cancel_booking(db, user_id, reservation_id)
     
-@router.get("/services", response_model=Dict[str, List[ServiceDisplayResponse]])
-def list_service(db: Session = Depends(get_db)): 
-    return booking_controller.list_services(db)
+

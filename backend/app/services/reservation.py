@@ -16,7 +16,7 @@ from app.utils.calculator import calculate_total
 from app.utils.generator import generate_reservation_code, generate_invoice_number
 
 class ReservationService:
-    HOLD_MINUTES = 15
+    HOLD_MINUTES = 30
 
     def __init__(self):
         self.reservation_repo = reservation_repository
@@ -69,7 +69,8 @@ class ReservationService:
 
 
     def start_reservation(self, db: Session, user_id: int, main_flight_id: int, return_flight_id: int = None):
-        expires_at = datetime.utcnow() + timedelta(minutes=self.HOLD_MINUTES)
+        now = datetime.utcnow()
+        expires_at = now + timedelta(minutes=self.HOLD_MINUTES)
 
         try:
             reservation = self.reservation_repo.create(db, {
@@ -81,7 +82,8 @@ class ReservationService:
                 "total_amount": 0.0,
                 "tax_amount": 0.0,
                 "status": "pending",
-                "expires_at": expires_at
+                "expires_at": expires_at,
+                "created_at": now
             })
             db.commit()
             return reservation
