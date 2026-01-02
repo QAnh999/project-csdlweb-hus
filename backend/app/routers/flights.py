@@ -1,55 +1,55 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy import func
 from datetime import date
-from .. import models, schemas
 from ..database import get_db
+from .. import models, schemas
 
 router = APIRouter(prefix="/flight-tracking", tags=["Flight Tracking"])
 
 @router.post("/add")
-async def add_flight(flight: schemas.FlightCreate, db: AsyncSession = Depends(get_db)):
+def add_flight(flight: schemas.FlightCreate, db: Session = Depends(get_db)):
+    if flight.dep_datetime.tzinfo: flight.dep_datetime = flight.dep_datetime.replace(tzinfo=None)
+    if flight.arr_datetime.tzinfo: flight.arr_datetime = flight.arr_datetime.replace(tzinfo=None)
+    
     new_flight = models.Flight(**flight.dict())
     db.add(new_flight)
-    await db.commit()
-    await db.refresh(new_flight)
+    db.commit()
     return {"status": "success", "id": new_flight.id}
 
 @router.get("/search")
-async def search_flights(origin: str, destination: str, f_date: date, ticket_class: str = "economy", db: AsyncSession = Depends(get_db)):
-    # Aliasing
-    from sqlalchemy.orm import aliased
-    DA = aliased(models.Airport)
-    AA = aliased(models.Airport)
+def search(origin: str, destination: str, f_date: date, ticket_class: str = "economy", db: Session = Depends(get_db)):
+    # Chỉ hiện flight có status != 'deleted'
+    A1 = aliased(models.Airport)
+    A2 = aliased(models.Airport)
     
-    stmt = select(models.Flight)\
-        .join(DA, models.Flight.dep_airport == DA.id)\
-        .join(AA, models.Flight.arr_airport == AA.id)\
-        .where(func.lower(DA.city) == origin.lower())\
-        .where(func.lower(AA.city) == destination.lower())\
-        .where(func.date(models.Flight.dep_datetime) == f_date)
+    query = db.query(models.Flight)\
+        .join(A1, models.Flight.dep_airport == A1.id)\
+        .join(A2, models.Flight.arr_airport == A2.id)\
+        .filter(func.lower(A1.city) == origin.lower())\
+        .filter(func.lower(A2.city) == destination.lower())\
+        .filter(func.date(models.Flight.dep_datetime) == f_date)\
+        .filter(models.Flight.status != 'deleted') 
 
-    if ticket_class == 'economy': 
-        stmt = stmt.where(models.Flight.available_seats_economy > 0)
-    elif ticket_class == 'business': 
-        stmt = stmt.where(models.Flight.available_seats_business > 0)
+    if ticket_class == "business":
+        query = query.filter(models.Flight.available_seats_business > 0)
+    else:
+        query = query.filter(models.Flight.available_seats_economy > 0)
         
-    result = await db.execute(stmt)
-    return result.scalars().all()
+    return query.all()
 
-@router.get("/{flight_id}")
-async def get_flight(flight_id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(models.Flight).where(models.Flight.id == flight_id))
-    flight = result.scalars().first()
-    if not flight: raise HTTPException(404)
-    return flight
+@router.get("/{id}")
+def detail(id: int, db: Session = Depends(get_db)):
+    f = db.query(models.Flight).filter(models.Flight.id == id).first()
+    if not f: raise HTTPException(404, "Not found")
+    return f
 
-@router.delete("/{flight_id}")
-async def delete_flight(flight_id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(models.Flight).where(models.Flight.id == flight_id))
-    flight = result.scalars().first()
-    if not flight: raise HTTPException(404)
+@router.delete("/{id}")
+def delete_flight(id: int, db: Session = Depends(get_db)):
+    f = db.query(models.Flight).filter(models.Flight.id == id).first()
+    if not f: raise HTTPException(404)
     
-    await db.delete(flight)
-    await db.commit()
-    return {"status": "deleted"}
+    # Soft delete: chuyển status thành deleted
+    f.status = 'deleted'
+    db.commit()
+    return {"status": "success", "message": "Flight status changed to deleted"}

@@ -1,42 +1,38 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from .. import models, schemas
+from sqlalchemy.orm import Session
 from ..database import get_db
+from .. import models, schemas
 
-# --- QUAN TRỌNG: DÒNG NÀY ĐANG BỊ THIẾU Ở CODE CỦA BẠN ---
 router = APIRouter(prefix="/service", tags=["Service"])
-# ---------------------------------------------------------
 
 @router.get("/")
-async def list_services(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(models.Service))
-    return result.scalars().all()
+def list_services(db: Session = Depends(get_db)):
+    return db.query(models.Service).all()
 
 @router.post("/")
-async def add_service(s: schemas.ServiceBase, db: AsyncSession = Depends(get_db)):
-    new_srv = models.Service(**s.dict())
-    db.add(new_srv)
-    await db.commit()
-    return {"status": "created"}
+def add_service(s: schemas.ServiceCreate, db: Session = Depends(get_db)):
+    # ID tự tăng, các trường khác người dùng nhập
+    new_s = models.Service(**s.dict())
+    db.add(new_s)
+    db.commit()
+    return {"status": "success"}
 
-@router.put("/{sid}")
-async def update_service(sid: int, s: schemas.ServiceBase, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(models.Service).where(models.Service.id == sid))
-    srv = result.scalars().first()
+@router.put("/{id}")
+def update_service(id: int, s: schemas.ServiceCreate, db: Session = Depends(get_db)):
+    srv = db.query(models.Service).filter(models.Service.id == id).first()
     if not srv: raise HTTPException(404)
     
     srv.name = s.name
     srv.description = s.description
     srv.base_price = s.base_price
-    await db.commit()
-    return {"status": "updated"}
+    srv.category = s.category
+    db.commit()
+    return {"status": "success"}
 
-@router.delete("/{sid}")
-async def delete_service(sid: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(models.Service).where(models.Service.id == sid))
-    srv = result.scalars().first()
-    if srv:
-        await db.delete(srv)
-        await db.commit()
-    return {"status": "deleted"}
+@router.delete("/{id}")
+def delete_service(id: int, db: Session = Depends(get_db)):
+    srv = db.query(models.Service).filter(models.Service.id == id).first()
+    if not srv: raise HTTPException(404)
+    db.delete(srv)
+    db.commit()
+    return {"status": "success"}

@@ -26,7 +26,8 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql+asyncpg://lotus_admin:LotusTravel2025@db:5432/lotus_db
+      # QUAN TRỌNG: Đã đổi thành postgresql:// (bỏ +asyncpg)
+      DATABASE_URL: postgresql://lotus_admin:LotusTravel2025@db:5432/lotus_db
     ports:
       - "8000:8000"
     restart: unless-stopped

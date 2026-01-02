@@ -1,31 +1,29 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
-from .. import models
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 from ..database import get_db
+from .. import models
 
 router = APIRouter(prefix="/feedback", tags=["Feedback"])
 
 @router.get("/")
-async def list_feedbacks(db: AsyncSession = Depends(get_db)):
-    # Eager load user
-    stmt = select(models.Review).options(selectinload(models.Review.user))
-    result = await db.execute(stmt)
-    reviews = result.scalars().all()
-    
-    return [{
-        "user_name": r.user.first_name if r.user else "Anonymous",
-        "rating": r.rating_overall,
-        "comment": r.comment_text,
-        "id": r.id
-    } for r in reviews]
+def list_feedbacks(db: Session = Depends(get_db)):
+    fb = db.query(models.Review).all()
+    res = []
+    for f in fb:
+        res.append({
+            "id": f.id,
+            "user_name": f"{f.user.last_name} {f.user.first_name}" if f.user else "Anonymous",
+            "rating_overall": f.rating_overall,
+            "comment_text": f.comment_text,
+            "date": f.created_at.strftime("%d/%m/%Y")
+        })
+    return res
 
-@router.delete("/{fid}")
-async def delete_feedback(fid: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(models.Review).where(models.Review.id == fid))
-    review = result.scalars().first()
-    if review:
-        await db.delete(review)
-        await db.commit()
-    return {"status": "deleted"}
+@router.delete("/{id}")
+def delete_feedback(id: int, db: Session = Depends(get_db)):
+    # Xóa luôn khỏi DB
+    f = db.query(models.Review).filter(models.Review.id == id).first()
+    if not f: raise HTTPException(404)
+    db.delete(f)
+    db.commit()
+    return {"status": "success"}

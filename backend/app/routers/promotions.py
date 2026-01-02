@@ -1,38 +1,34 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy.orm import Session
 from datetime import datetime
-from .. import models, schemas
 from ..database import get_db
+from .. import models, schemas
 
 router = APIRouter(prefix="/promotion", tags=["Promotion"])
 
 @router.get("/")
-async def list_promotions(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(models.Promotion))
-    promos = result.scalars().all()
+def list_promos(db: Session = Depends(get_db)):
+    promos = db.query(models.Promotion).all()
+    res = []
     now = datetime.now()
-    
-    return [{
-        "name": p.name,
-        "code": p.code,
-        "desc": p.description,
-        "start": p.start_date,
-        "status": "Active" if (p.start_date <= now <= p.end_date and p.is_active) else "Inactive"
-    } for p in promos]
+    for p in promos:
+        # Kiểm tra trạng thái dựa trên ngày thực tế
+        is_active = "active" if p.start_date <= now <= p.end_date else "inactive"
+        
+        res.append({
+            "name": p.name,
+            "description": p.description,
+            "start_date": p.start_date.strftime("%d/%m/%Y"),
+            "end_date": p.end_date.strftime("%d/%m/%Y"),
+            "status": is_active
+        })
+    return res
 
 @router.post("/")
-async def add_promotion(p: schemas.PromotionCreate, db: AsyncSession = Depends(get_db)):
-    new_promo = models.Promotion(**p.dict(), is_active=True)
-    db.add(new_promo)
-    await db.commit()
-    return {"status": "created"}
-
-@router.delete("/{pid}")
-async def delete_promotion(pid: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(models.Promotion).where(models.Promotion.id == pid))
-    promo = result.scalars().first()
-    if promo:
-        await db.delete(promo)
-        await db.commit()
-    return {"status": "deleted"}
+def add_promo(p: schemas.PromotionCreate, db: Session = Depends(get_db)):
+    if p.start_date.tzinfo: p.start_date = p.start_date.replace(tzinfo=None)
+    if p.end_date.tzinfo: p.end_date = p.end_date.replace(tzinfo=None)
+    
+    db.add(models.Promotion(**p.dict()))
+    db.commit()
+    return {"status": "success"}

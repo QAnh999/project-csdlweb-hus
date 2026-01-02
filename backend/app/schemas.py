@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime, date
+from datetime import datetime
 from decimal import Decimal
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 class FlightCreate(BaseModel):
@@ -15,13 +15,15 @@ class FlightCreate(BaseModel):
     arr_airport: int
     dep_datetime: datetime
     arr_datetime: datetime
+    available_seats_economy: int
+    available_seats_business: int
     status: str = "scheduled"
-    # Thêm các trường cần thiết khác để insert
 
-class ServiceBase(BaseModel):
+class ServiceCreate(BaseModel):
     name: str
     description: Optional[str]
     base_price: Decimal
+    category: str
 
 class PromotionCreate(BaseModel):
     code: str
@@ -30,3 +32,10 @@ class PromotionCreate(BaseModel):
     start_date: datetime
     end_date: datetime
     discount_value: Decimal
+
+class StaffCreate(BaseModel):
+    admin_name: str
+    password: str
+    full_name: str
+    email: str
+    role: str = "Admin"
