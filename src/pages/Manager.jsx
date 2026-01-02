@@ -67,9 +67,9 @@ const Manager = () => {
       setCustomersData(
         data.map((u) => ({
           id: u.id,
-          fullname: u.full_name,
+          fullname: `${u.first_name} ${u.last_name}`,
           email: u.email,
-          joined: u.joined_date,
+          joined: u.created_at,
           bookings: [],
         }))
       );
@@ -85,10 +85,12 @@ const Manager = () => {
       const data = await response.json();
       setAdminsData(
         data.map((a) => ({
-          id: a.id,
-          fullname: a.name,
+          id: a.admin_id,
+          fullname: a.full_name,
+          username: a.admin_name,
           email: a.email,
           role: a.role,
+          status: a.status,
           type: "admin",
         }))
       );
@@ -99,15 +101,17 @@ const Manager = () => {
 
   const fetchSuperAdmins = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/managers/super-admins`);
+      const response = await fetch(`${API_BASE_URL}/managers/superadmins`);
       if (!response.ok) throw new Error("Failed to fetch super admins");
       const data = await response.json();
       setSuperAdminsData(
         data.map((s) => ({
-          id: s.id,
-          fullname: s.name,
+          id: s.admin_id,
+          fullname: s.full_name,
+          username: s.admin_name,
           email: s.email,
           role: "Siêu quản trị viên",
+          status: s.status,
           type: "super-admin",
         }))
       );
@@ -266,23 +270,24 @@ const Manager = () => {
   const handleDeleteAdmin = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa quản trị viên này?")) {
       try {
-        const response = await fetch(`${API_BASE_URL}/managers/admin/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/managers/admins/${id}`, {
           method: "DELETE",
         });
 
         if (!response.ok) {
-          throw new Error("Failed to delete admin");
+          const errorData = await response.json();
+          throw new Error(errorData.detail || "Failed to delete admin");
         }
 
         const data = await response.json();
-        if (data.status === "success") {
+        if (data.message) {
           // Refresh admin list
           await fetchAdmins();
           alert("Xóa quản trị viên thành công!");
         }
       } catch (error) {
         console.error("Error deleting admin:", error);
-        alert("Có lỗi xảy ra khi xóa quản trị viên!");
+        alert(error.message || "Có lỗi xảy ra khi xóa quản trị viên!");
       }
     }
   };
@@ -308,7 +313,7 @@ const Manager = () => {
     } else {
       // Add new admin via API
       try {
-        const response = await fetch(`${API_BASE_URL}/managers/admin`, {
+        const response = await fetch(`${API_BASE_URL}/managers/admins`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -318,8 +323,7 @@ const Manager = () => {
             password: adminForm.password,
             full_name: adminForm.full_name,
             email: adminForm.email,
-            role:
-              adminForm.role === "Siêu quản trị viên" ? "Super Admin" : "Admin",
+            role: adminForm.role === "Super Admin" ? "Super Admin" : "Admin",
           }),
         });
 
@@ -329,9 +333,9 @@ const Manager = () => {
         }
 
         const data = await response.json();
-        if (data.status === "success") {
+        if (data.admin_id) {
           // Refresh admin list
-          if (adminForm.role === "Siêu quản trị viên") {
+          if (adminForm.role === "Super Admin") {
             await fetchSuperAdmins();
           } else {
             await fetchAdmins();

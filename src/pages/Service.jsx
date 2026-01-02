@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import "../styles/main.css";
 import "../styles/managers.css";
+import "../styles/service.css";
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8000";
@@ -85,19 +86,20 @@ const Service = () => {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/service`);
+      const response = await axios.get(`${API_BASE_URL}/services/`);
       const data = response.data;
       setServicesData(
-        data.map((item) => ({
-          id: item.id,
+        data.map((item, index) => ({
+          id: index + 1, // Tạo id tạm vì API không trả về id
           name: item.name,
-          description: item.description,
+          description: item.description || "",
           category: item.category,
           base_price: item.base_price,
         }))
       );
     } catch (error) {
-      alert(error.message || "Đã xảy ra lỗi khi tải dịch vụ.");
+      console.error("Error fetching services:", error);
+      // Không hiện alert khi load lần đầu
     }
   };
 
@@ -156,13 +158,13 @@ const Service = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa dịch vụ này?")) {
       try {
-        const response = await axios.delete(`${API_BASE_URL}/service/${id}`);
-        if (response.data.status === "success") {
+        const response = await axios.delete(`${API_BASE_URL}/services/${id}`);
+        if (response.data.message) {
           await fetchServices();
           alert("Xóa dịch vụ thành công!");
         }
       } catch (error) {
-        alert(error.message || "Đã xảy ra lỗi khi xóa dịch vụ.");
+        alert(error.response?.data?.detail || "Đã xảy ra lỗi khi xóa dịch vụ.");
       }
     }
   };
@@ -171,30 +173,34 @@ const Service = () => {
     e.preventDefault();
     if (editingId) {
       try {
-        await axios.put(`${API_BASE_URL}/service/${editingId}`, {
+        await axios.put(`${API_BASE_URL}/services/${editingId}`, {
           name: formData.name,
           description: formData.description,
           category: formData.category,
-          base_price: parseInt(formData.price),
+          base_price: parseFloat(formData.price),
         });
         await fetchServices();
         alert("Cập nhật dịch vụ thành công!");
       } catch (error) {
-        alert(error.message || "Đã xảy ra lỗi khi cập nhật dịch vụ.");
+        alert(
+          error.response?.data?.detail || "Đã xảy ra lỗi khi cập nhật dịch vụ."
+        );
         return;
       }
     } else {
       try {
-        await axios.post(`${API_BASE_URL}/service`, {
+        await axios.post(`${API_BASE_URL}/services/`, {
           name: formData.name,
           description: formData.description,
           category: formData.category,
-          base_price: parseInt(formData.price),
+          base_price: parseFloat(formData.price),
         });
         await fetchServices();
         alert("Thêm dịch vụ thành công!");
       } catch (error) {
-        alert(error.message || "Đã xảy ra lỗi khi thêm dịch vụ.");
+        alert(
+          error.response?.data?.detail || "Đã xảy ra lỗi khi thêm dịch vụ."
+        );
         return;
       }
     }
@@ -525,227 +531,6 @@ const Service = () => {
           </div>
         </div>
       )}
-
-      <style>{`
-        .service-controls {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1.5rem;
-          flex-wrap: wrap;
-          gap: 1rem;
-        }
-        
-        .service-tab {
-          border-bottom: 2px solid transparent;
-        }
-        
-        .service-tab-active {
-          color: var(--text-dark);
-          font-weight: 600;
-          font-size: 0.95rem;
-          padding-bottom: 0.5rem;
-          border-bottom: 2px solid var(--primary-color);
-          display: inline-block;
-        }
-        
-        .service-name {
-          font-weight: 600;
-          color: var(--text-dark) !important;
-          text-align: left !important;
-        }
-        
-        .service-price {
-          font-weight: 500;
-          color: var(--text-dark) !important;
-        }
-        
-        .category-badge {
-          padding: 0.375rem 0.875rem;
-          border-radius: 20px;
-          font-size: 0.75rem;
-          font-weight: 500;
-          display: inline-block;
-        }
-        
-        /* Modal Styles */
-        .modal-backdrop {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9999;
-          animation: fadeIn 0.2s ease;
-        }
-        
-        .modal-container {
-          background: var(--white);
-          border-radius: var(--border-radius);
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-          max-width: 500px;
-          width: 90%;
-          max-height: 90vh;
-          overflow-y: auto;
-          animation: slideUp 0.3s ease;
-        }
-        
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 1.5rem;
-          border-bottom: 1px solid var(--extra-light);
-        }
-        
-        .modal-header h2 {
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: var(--text-dark);
-          margin: 0;
-        }
-        
-        .modal-close {
-          background: none;
-          border: none;
-          color: var(--text-light);
-          cursor: pointer;
-          padding: 0.5rem;
-          border-radius: 6px;
-          transition: var(--transition);
-        }
-        
-        .modal-close:hover {
-          background: var(--extra-light);
-          color: var(--text-dark);
-        }
-        
-        .service-form {
-          padding: 1.5rem;
-        }
-        
-        .form-group {
-          margin-bottom: 1.25rem;
-        }
-        
-        .form-group label {
-          display: block;
-          font-size: 0.875rem;
-          font-weight: 500;
-          color: var(--text-dark);
-          margin-bottom: 0.5rem;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-          width: 100%;
-          padding: 0.75rem 1rem;
-          border: 1px solid var(--extra-light);
-          border-radius: 8px;
-          font-size: 0.875rem;
-          color: var(--text-dark);
-          background: var(--white);
-          transition: var(--transition);
-          font-family: "DM Sans", sans-serif;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-          outline: none;
-          border-color: var(--primary-color);
-          box-shadow: 0 0 0 3px rgba(135, 179, 234, 0.1);
-        }
-        
-        .form-group textarea {
-          resize: vertical;
-          min-height: 80px;
-        }
-        
-        .form-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-        }
-        
-        .form-actions {
-          display: flex;
-          justify-content: flex-end;
-          gap: 1rem;
-          margin-top: 1.5rem;
-          padding-top: 1.5rem;
-          border-top: 1px solid var(--extra-light);
-        }
-        
-        .btn-cancel {
-          padding: 0.75rem 1.5rem;
-          border: 1px solid var(--extra-light);
-          background: var(--white);
-          color: var(--text-dark);
-          border-radius: 8px;
-          font-size: 0.875rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: var(--transition);
-          font-family: "DM Sans", sans-serif;
-        }
-        
-        .btn-cancel:hover {
-          background: var(--extra-light);
-        }
-        
-        .btn-submit {
-          padding: 0.75rem 1.5rem;
-          border: none;
-          background: var(--primary-color);
-          color: var(--white);
-          border-radius: 8px;
-          font-size: 0.875rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: var(--transition);
-          font-family: "DM Sans", sans-serif;
-        }
-        
-        .btn-submit:hover {
-          background: #5b9ad6;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(135, 179, 234, 0.3);
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-          from { transform: translateY(20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        
-        body.dark-mode .modal-container {
-          background: var(--white);
-        }
-        
-        body.dark-mode .form-group input,
-        body.dark-mode .form-group select,
-        body.dark-mode .form-group textarea {
-          background: var(--white);
-          border-color: #374151;
-          color: var(--text-dark);
-        }
-        
-        @media (max-width: 600px) {
-          .form-row {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </DashboardLayout>
   );
 };

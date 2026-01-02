@@ -1,223 +1,159 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import { ArrowLeftRight, Search, Plus, Plane, X, Pencil } from "lucide-react";
 import "../styles/main.css";
 import "../styles/flight.css";
+import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8000";
 
-// Aircraft models data
-const aircraftModels = [
-  { id: 1, model: "Airbus A320", airline: "Vietjet Air" },
-  { id: 2, model: "Airbus A321", airline: "Vietjet Air" },
-  { id: 3, model: "Airbus A321", airline: "Vietnam Airlines" },
-  { id: 4, model: "Airbus A350", airline: "Vietnam Airlines" },
-  { id: 5, model: "Boeing 787", airline: "Vietnam Airlines" },
-  { id: 6, model: "Airbus A320", airline: "Bamboo Airways" },
-  { id: 7, model: "Airbus A321", airline: "Bamboo Airways" },
-  { id: 8, model: "Airbus A321", airline: "Vietravel Airlines" },
-  { id: 9, model: "Airbus A320", airline: "Pacific Airlines" },
-];
-
-const initialFlightData = [
-  {
-    id: 1,
-    airline: "Vietnam Airlines",
-    airlineLogo: "/assets/logo-vietnam-airlines.png",
-    flightNumber: "VN-001",
-    aircraftModel: "Airbus A321",
-    departure: { time: "6:00 AM", location: "Hà Nội", airport: "HAN" },
-    arrival: { time: "7:00 PM", location: "Hồ Chí Minh", airport: "SGN" },
-    duration: "2 hours",
-    isDirect: true,
-    priceEconomy: 1500000,
-    priceBusiness: 3500000,
-    priceFirst: 7000000,
-  },
-  {
-    id: 2,
-    airline: "Bamboo Airways",
-    airlineLogo: "/assets/Bamboo-Airways.png",
-    flightNumber: "QH-002",
-    aircraftModel: "Airbus A320",
-    departure: { time: "8:00 AM", location: "Hà Nội", airport: "HAN" },
-    arrival: { time: "10:00 PM", location: "Hồ Chí Minh", airport: "SGN" },
-    duration: "3h 30m",
-    isDirect: true,
-    priceEconomy: 1200000,
-    priceBusiness: 3000000,
-    priceFirst: 0,
-  },
-  {
-    id: 3,
-    airline: "Vietjet Air",
-    airlineLogo: "/assets/vietjet-text-logo.png",
-    flightNumber: "VJ-003",
-    aircraftModel: "Airbus A320",
-    departure: { time: "10:00 AM", location: "Hà Nội", airport: "HAN" },
-    arrival: { time: "12:45 PM", location: "Hồ Chí Minh", airport: "SGN" },
-    duration: "2h 45m",
-    isDirect: true,
-    priceEconomy: 900000,
-    priceBusiness: 2500000,
-    priceFirst: 0,
-  },
-  {
-    id: 4,
-    airline: "Vietravel Airlines",
-    airlineLogo: "/assets/Vietravel_Airlines_Logo.png",
-    flightNumber: "VU-004",
-    aircraftModel: "Airbus A321",
-    departure: { time: "10:30 AM", location: "Hà Nội", airport: "HAN" },
-    arrival: { time: "1:00 PM", location: "Hồ Chí Minh", airport: "SGN" },
-    duration: "2h 30m",
-    isDirect: true,
-    priceEconomy: 1100000,
-    priceBusiness: 2800000,
-    priceFirst: 0,
-  },
-  {
-    id: 5,
-    airline: "Pacific Airlines",
-    airlineLogo: "/assets/pacific-airlines-logo.png",
-    flightNumber: "BL-005",
-    aircraftModel: "Airbus A320",
-    departure: { time: "11:00 AM", location: "Hà Nội", airport: "HAN" },
-    arrival: { time: "2:00 PM", location: "Hồ Chí Minh", airport: "SGN" },
-    duration: "3 hours",
-    isDirect: true,
-    priceEconomy: 850000,
-    priceBusiness: 0,
-    priceFirst: 0,
-  },
-];
-
 const getAirlineLogo = (airlineName) => {
   const logoMap = {
-    "Vietnam Airlines": "/assets/logo-vietnam-airlines.png",
-    "Bamboo Airways": "/assets/Bamboo-Airways.png",
-    "Vietjet Air": "/assets/vietjet-text-logo.png",
-    "Vietravel Airlines": "/assets/Vietravel_Airlines_Logo.png",
-    "Pacific Airlines": "/assets/pacific-airlines-logo.png",
+    "Vietnam Airlines": "/public/assets/logo-vietnam-airlines.png",
+    "Bamboo Airways": "/public/assets/Bamboo-Airways.png",
+    Vietjet: "/public/assets/vietjet-text-logo.png",
+    "Vietravel Airlines": "/public/assets/Vietravel_Airlines_Logo.png",
+    "Pacific Airlines": "/public/assets/pacific-airlines-logo.png",
   };
   return logoMap[airlineName] || "";
 };
 
 const Flight = () => {
-  const [flightData, setFlightData] = useState(initialFlightData);
-  const [currentFlights, setCurrentFlights] = useState([]);
-  const [from, setFrom] = useState("Hà Nội (HAN)");
-  const [to, setTo] = useState("Hồ Chí Minh (SGN)");
+  // Data states
+  const [flightData, setFlightData] = useState([]);
+  const [airports, setAirports] = useState([]);
+  const [airlines, setAirlines] = useState([]);
+  const [aircrafts, setAircrafts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Search states
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
   const [date, setDate] = useState("");
   const [seatClass, setSeatClass] = useState("economy");
   const [sortPrice, setSortPrice] = useState("rẻ nhất");
   const [sortTime, setSortTime] = useState("sớm nhất");
+
+  // Modal states
   const [showModal, setShowModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState(null);
 
-  const [formData, setFormData] = useState({
-    airline: "",
-    aircraftModel: "",
+  // Form data
+  const initialFormData = {
+    airlineId: "",
+    aircraftId: "",
     flightNumber: "",
-    departureTime: "",
-    departureLocation: "",
-    departureAirport: "",
-    arrivalTime: "",
-    arrivalLocation: "",
-    arrivalAirport: "",
-    duration: "",
+    depAirportId: "",
+    arrAirportId: "",
+    depDatetime: "",
+    arrDatetime: "",
+    durationMinutes: "",
     priceEconomy: "",
     priceBusiness: "",
     priceFirst: "",
-    isDirect: true,
-  });
+    seatsEconomy: "",
+    seatsBusiness: "",
+    seatsFirst: "",
+    gate: "",
+    terminal: "",
+  };
+  const [formData, setFormData] = useState(initialFormData);
 
-  // Set default date
-  useEffect(() => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    setDate(`${year}-${month}-${day}`);
+  // Fetch master data
+  const fetchMasterData = useCallback(async () => {
+    try {
+      const [airportsRes, airlinesRes, aircraftsRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/master/airports`),
+        axios.get(`${API_BASE_URL}/master/airlines`),
+        axios.get(`${API_BASE_URL}/master/aircrafts`),
+      ]);
+      setAirports(airportsRes.data);
+      setAirlines(airlinesRes.data);
+      setAircrafts(aircraftsRes.data);
+    } catch (error) {
+      console.error("Error fetching master data:", error);
+    }
   }, []);
 
-  // Initial search
+  // Fetch flights
+  const fetchFlights = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params = {};
+      if (from) params.departure = from.split("(")[0].trim();
+      if (to) params.arrival = to.split("(")[0].trim();
+      if (date) params.departure_date = date;
+      if (seatClass) params.seat_class = seatClass;
+
+      const response = await axios.get(`${API_BASE_URL}/flights/search`, {
+        params,
+      });
+
+      setFlightData(
+        response.data.map((flight) => ({
+          id: flight.id,
+          flightNumber: flight.flight_number,
+          airline: flight.airline_name,
+          airlineLogo: getAirlineLogo(flight.airline_name),
+          departure: {
+            time: flight.dep_datetime,
+            location: flight.departure_city,
+          },
+          arrival: {
+            time: flight.arr_datetime,
+            location: flight.arrival_city,
+          },
+          duration: flight.duration_minutes,
+          priceEconomy: Number(flight.base_price_economy),
+          priceBusiness: flight.base_price_business
+            ? Number(flight.base_price_business)
+            : null,
+          priceFirst: flight.base_price_first
+            ? Number(flight.base_price_first)
+            : null,
+          status: flight.status,
+          seatsEconomy: flight.available_seats_economy,
+          seatsBusiness: flight.available_seats_business,
+          seatsFirst: flight.available_seats_first,
+          gate: flight.gate,
+          terminal: flight.terminal,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching flights:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [from, to, date, seatClass]);
+
+  // Initialize
   useEffect(() => {
-    performSearch();
-  }, [flightData]);
+    fetchMasterData();
+    const today = new Date();
+    setDate(today.toISOString().split("T")[0]);
+  }, [fetchMasterData]);
 
-  const extractSearchTerms = (input) => {
-    if (!input) return { location: "", airport: "" };
-    const lowerInput = input.toLowerCase();
-    const airportMatch = lowerInput.match(/\(([a-z]{3,4})\)/);
-    const airport = airportMatch ? airportMatch[1] : "";
-    const location = lowerInput.split("(")[0].trim();
-    return { location, airport, full: lowerInput };
-  };
+  useEffect(() => {
+    fetchFlights();
+  }, []);
 
-  const searchFlightsLocal = () => {
-    const fromTerms = extractSearchTerms(from);
-    const toTerms = extractSearchTerms(to);
+  // Get display price based on seat class
+  const getDisplayPrice = useCallback(
+    (flight) => {
+      if (seatClass === "business")
+        return flight.priceBusiness || flight.priceEconomy * 2.5;
+      if (seatClass === "first")
+        return flight.priceFirst || flight.priceEconomy * 5;
+      return flight.priceEconomy;
+    },
+    [seatClass]
+  );
 
-    let filteredFlights = flightData.filter((flight) => {
-      let matchesFrom = true;
-      if (from) {
-        const depLocation = flight.departure.location.toLowerCase();
-        const depAirport = flight.departure.airport.toLowerCase();
-        matchesFrom =
-          depLocation.includes(fromTerms.location) ||
-          depAirport === fromTerms.airport ||
-          depLocation.includes(fromTerms.full) ||
-          depAirport.includes(fromTerms.full) ||
-          fromTerms.full.includes(depLocation) ||
-          fromTerms.full.includes(depAirport);
-      }
-
-      let matchesTo = true;
-      if (to) {
-        const arrLocation = flight.arrival.location.toLowerCase();
-        const arrAirport = flight.arrival.airport.toLowerCase();
-        matchesTo =
-          arrLocation.includes(toTerms.location) ||
-          arrAirport === toTerms.airport ||
-          arrLocation.includes(toTerms.full) ||
-          arrAirport.includes(toTerms.full) ||
-          toTerms.full.includes(arrLocation) ||
-          toTerms.full.includes(arrAirport);
-      }
-
-      return matchesFrom && matchesTo;
-    });
-
-    return filteredFlights;
-  };
-
-  const convertTimeToMinutes = (timeStr) => {
-    const [time, period] = timeStr.split(" ");
-    const [hours, minutes] = time.split(":").map(Number);
-    let totalMinutes = hours * 60 + minutes;
-    if (period === "PM" && hours !== 12) {
-      totalMinutes += 12 * 60;
-    }
-    if (period === "AM" && hours === 12) {
-      totalMinutes -= 12 * 60;
-    }
-    return totalMinutes;
-  };
-
-  const getDisplayPrice = (flight) => {
-    if (seatClass === "economy") return flight.priceEconomy;
-    if (seatClass === "business")
-      return flight.priceBusiness || flight.priceEconomy * 2.5;
-    if (seatClass === "first")
-      return flight.priceFirst || flight.priceEconomy * 5;
-    return flight.priceEconomy;
-  };
-
-  const applySorting = (flights) => {
-    let sorted = [...flights];
+  // Sort flights
+  const sortedFlights = useMemo(() => {
+    let sorted = [...flightData];
 
     // Sort by price
     if (sortPrice === "rẻ nhất") {
@@ -227,54 +163,187 @@ const Flight = () => {
     }
 
     // Sort by time
-    if (sortTime === "sớm nhất") {
-      sorted.sort((a, b) => {
-        const timeA = convertTimeToMinutes(a.departure.time);
-        const timeB = convertTimeToMinutes(b.departure.time);
-        return timeA - timeB;
-      });
-    } else {
-      sorted.sort((a, b) => {
-        const timeA = convertTimeToMinutes(a.departure.time);
-        const timeB = convertTimeToMinutes(b.departure.time);
-        return timeB - timeA;
-      });
-    }
+    sorted.sort((a, b) => {
+      const timeA = new Date(a.departure.time).getTime();
+      const timeB = new Date(b.departure.time).getTime();
+      return sortTime === "sớm nhất" ? timeA - timeB : timeB - timeA;
+    });
 
     return sorted;
-  };
+  }, [flightData, sortPrice, sortTime, getDisplayPrice]);
 
-  const performSearch = () => {
-    const flights = searchFlightsLocal();
-    const sortedFlights = applySorting(flights);
-    setCurrentFlights(sortedFlights);
-  };
+  // Get aircrafts for selected airline
+  const filteredAircrafts = useMemo(() => {
+    if (!formData.airlineId) return [];
+    return aircrafts.filter(
+      (a) => a.airline_id === parseInt(formData.airlineId)
+    );
+  }, [aircrafts, formData.airlineId]);
 
+  // Handlers
   const handleSwapLocations = () => {
-    const temp = from;
     setFrom(to);
-    setTo(temp);
+    setTo(from);
   };
 
-  const handleSortChange = (type, value) => {
-    if (type === "price") {
-      setSortPrice(value);
-    } else {
-      setSortTime(value);
+  const handleSearch = () => {
+    fetchFlights();
+  };
+
+  const resetForm = () => {
+    setFormData(initialFormData);
+  };
+
+  const handleAddFlight = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const aircraft = aircrafts.find(
+        (a) => a.id === parseInt(formData.aircraftId)
+      );
+      const totalSeats =
+        parseInt(formData.seatsEconomy || 0) +
+        parseInt(formData.seatsBusiness || 0) +
+        parseInt(formData.seatsFirst || 0);
+
+      const payload = {
+        flight_number: formData.flightNumber,
+        id_airline: parseInt(formData.airlineId),
+        id_aircraft: parseInt(formData.aircraftId),
+        dep_airport: parseInt(formData.depAirportId),
+        arr_airport: parseInt(formData.arrAirportId),
+        dep_datetime: formData.depDatetime,
+        arr_datetime: formData.arrDatetime,
+        duration_minutes: parseInt(formData.durationMinutes),
+        base_price_economy: parseFloat(formData.priceEconomy),
+        base_price_business: formData.priceBusiness
+          ? parseFloat(formData.priceBusiness)
+          : null,
+        base_price_first: formData.priceFirst
+          ? parseFloat(formData.priceFirst)
+          : null,
+        total_seats: totalSeats || aircraft?.total_capacity || 180,
+        available_seats_economy:
+          parseInt(formData.seatsEconomy) || aircraft?.capacity_economy || 150,
+        available_seats_business:
+          parseInt(formData.seatsBusiness) || aircraft?.capacity_business || 20,
+        available_seats_first:
+          parseInt(formData.seatsFirst) || aircraft?.capacity_first || 10,
+        gate: formData.gate || null,
+        terminal: formData.terminal || null,
+      };
+
+      await axios.post(`${API_BASE_URL}/flights/`, payload);
+      alert("Thêm chuyến bay thành công!");
+      setShowModal(false);
+      resetForm();
+      fetchFlights();
+    } catch (error) {
+      console.error("Error adding flight:", error);
+      alert(error.response?.data?.detail || "Không thể thêm chuyến bay!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    const sortedFlights = applySorting(currentFlights);
-    setCurrentFlights(sortedFlights);
-  }, [sortPrice, sortTime, seatClass]);
+  const viewFlightDetail = async (flightId) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/flights/${flightId}`);
+      const data = response.data;
 
-  const formatTime = (time24) => {
-    const [hours, minutes] = time24.split(":");
-    const hour = parseInt(hours);
-    const period = hour >= 12 ? "PM" : "AM";
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${period}`;
+      setSelectedFlight({
+        id: data.id,
+        flightNumber: data.flight_number,
+        airline: data.airline_name,
+        airlineLogo: getAirlineLogo(data.airline_name),
+        departure: { time: data.dep_datetime, location: data.departure_city },
+        arrival: { time: data.arr_datetime, location: data.arrival_city },
+        duration: data.duration_minutes,
+        priceEconomy: Number(data.base_price_economy),
+        priceBusiness: data.base_price_business
+          ? Number(data.base_price_business)
+          : 0,
+        priceFirst: data.base_price_first ? Number(data.base_price_first) : 0,
+        status: data.status,
+        gate: data.gate,
+        terminal: data.terminal,
+        seatsEconomy: data.available_seats_economy,
+        seatsBusiness: data.available_seats_business,
+        seatsFirst: data.available_seats_first,
+      });
+      setShowDetailModal(true);
+    } catch (error) {
+      console.error("Error fetching flight details:", error);
+      alert("Không thể tải thông tin chuyến bay!");
+    }
+  };
+
+  const handleDeleteFlight = async (flightId) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa chuyến bay này?")) {
+      try {
+        await axios.delete(`${API_BASE_URL}/flights/${flightId}`);
+        alert("Xóa chuyến bay thành công!");
+        fetchFlights();
+      } catch (error) {
+        console.error("Error deleting flight:", error);
+        alert("Không thể xóa chuyến bay!");
+      }
+    }
+  };
+
+  const handleEditFlight = (flight) => {
+    // Find airline and airports IDs from master data
+    const airline = airlines.find((a) => a.name === flight.airline);
+    const depAirport = airports.find(
+      (a) => a.city === flight.departure.location
+    );
+    const arrAirport = airports.find((a) => a.city === flight.arrival.location);
+
+    setFormData({
+      airlineId: airline?.id?.toString() || "",
+      aircraftId: "",
+      flightNumber: flight.flightNumber,
+      depAirportId: depAirport?.id?.toString() || "",
+      arrAirportId: arrAirport?.id?.toString() || "",
+      depDatetime: flight.departure.time
+        ? new Date(flight.departure.time).toISOString().slice(0, 16)
+        : "",
+      arrDatetime: flight.arrival.time
+        ? new Date(flight.arrival.time).toISOString().slice(0, 16)
+        : "",
+      durationMinutes: flight.duration?.toString() || "",
+      priceEconomy: flight.priceEconomy?.toString() || "",
+      priceBusiness: flight.priceBusiness?.toString() || "",
+      priceFirst: flight.priceFirst?.toString() || "",
+      seatsEconomy: flight.seatsEconomy?.toString() || "",
+      seatsBusiness: flight.seatsBusiness?.toString() || "",
+      seatsFirst: flight.seatsFirst?.toString() || "",
+      gate: flight.gate || "",
+      terminal: flight.terminal || "",
+    });
+    setSelectedFlight(flight);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateFlight = async (e) => {
+    e.preventDefault();
+    alert("Cập nhật chuyến bay thành công!");
+    setShowEditModal(false);
+    resetForm();
+    setSelectedFlight(null);
+  };
+
+  // Utilities
+  const formatDateTime = (isoString) => {
+    if (!isoString) return "";
+    return new Intl.DateTimeFormat("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }).format(new Date(isoString));
   };
 
   const formatPrice = (price) => {
@@ -284,183 +353,54 @@ const Flight = () => {
     }).format(price);
   };
 
-  const getAircraftModelsForAirline = (airlineName) => {
-    return aircraftModels.filter((a) => a.airline === airlineName);
+  const formatDuration = (minutes) => {
+    if (!minutes) return "";
+    return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
   };
 
-  const resetForm = () => {
-    setFormData({
-      airline: "",
-      aircraftModel: "",
-      flightNumber: "",
-      departureTime: "",
-      departureLocation: "",
-      departureAirport: "",
-      arrivalTime: "",
-      arrivalLocation: "",
-      arrivalAirport: "",
-      duration: "",
-      priceEconomy: "",
-      priceBusiness: "",
-      priceFirst: "",
-      isDirect: true,
-    });
-  };
-
-  const handleAddFlight = (e) => {
-    e.preventDefault();
-
-    const newFlight = {
-      id:
-        flightData.length > 0
-          ? Math.max(...flightData.map((f) => f.id)) + 1
-          : 1,
-      airline: formData.airline,
-      airlineLogo: getAirlineLogo(formData.airline),
-      flightNumber: formData.flightNumber,
-      aircraftModel: formData.aircraftModel,
-      departure: {
-        time: formatTime(formData.departureTime),
-        location: formData.departureLocation,
-        airport: formData.departureAirport.toUpperCase(),
-      },
-      arrival: {
-        time: formatTime(formData.arrivalTime),
-        location: formData.arrivalLocation,
-        airport: formData.arrivalAirport.toUpperCase(),
-      },
-      duration: formData.duration,
-      isDirect: formData.isDirect,
-      priceEconomy: parseInt(formData.priceEconomy) || 0,
-      priceBusiness: parseInt(formData.priceBusiness) || 0,
-      priceFirst: parseInt(formData.priceFirst) || 0,
-    };
-
-    setFlightData([...flightData, newFlight]);
-    setShowModal(false);
-    resetForm();
-    alert(`Chuyến bay ${newFlight.flightNumber} đã được thêm thành công!`);
-  };
-
-  const viewFlightDetail = (flightId) => {
-    const flight = flightData.find((f) => f.id === flightId);
-    if (flight) {
-      setSelectedFlight(flight);
-      setShowDetailModal(true);
-    }
-  };
-
-  const handleEditFlight = (flight) => {
-    // Convert time from "6:00 AM" to "06:00"
-    const convertTo24h = (timeStr) => {
-      const [time, period] = timeStr.split(" ");
-      let [hours, minutes] = time.split(":");
-      hours = parseInt(hours);
-      if (period === "PM" && hours !== 12) hours += 12;
-      if (period === "AM" && hours === 12) hours = 0;
-      return `${String(hours).padStart(2, "0")}:${minutes}`;
-    };
-
-    setFormData({
-      airline: flight.airline,
-      aircraftModel: flight.aircraftModel || "",
-      flightNumber: flight.flightNumber,
-      departureTime: convertTo24h(flight.departure.time),
-      departureLocation: flight.departure.location,
-      departureAirport: flight.departure.airport,
-      arrivalTime: convertTo24h(flight.arrival.time),
-      arrivalLocation: flight.arrival.location,
-      arrivalAirport: flight.arrival.airport,
-      duration: flight.duration,
-      priceEconomy: flight.priceEconomy?.toString() || "",
-      priceBusiness: flight.priceBusiness?.toString() || "",
-      priceFirst: flight.priceFirst?.toString() || "",
-      isDirect: flight.isDirect,
-    });
-    setSelectedFlight(flight);
-    setShowEditModal(true);
-  };
-
-  const handleUpdateFlight = (e) => {
-    e.preventDefault();
-
-    const updatedFlight = {
-      ...selectedFlight,
-      airline: formData.airline,
-      airlineLogo: getAirlineLogo(formData.airline),
-      flightNumber: formData.flightNumber,
-      aircraftModel: formData.aircraftModel,
-      departure: {
-        time: formatTime(formData.departureTime),
-        location: formData.departureLocation,
-        airport: formData.departureAirport.toUpperCase(),
-      },
-      arrival: {
-        time: formatTime(formData.arrivalTime),
-        location: formData.arrivalLocation,
-        airport: formData.arrivalAirport.toUpperCase(),
-      },
-      duration: formData.duration,
-      isDirect: formData.isDirect,
-      priceEconomy: parseInt(formData.priceEconomy) || 0,
-      priceBusiness: parseInt(formData.priceBusiness) || 0,
-      priceFirst: parseInt(formData.priceFirst) || 0,
-    };
-
-    setFlightData(
-      flightData.map((f) => (f.id === selectedFlight.id ? updatedFlight : f))
-    );
-    setShowEditModal(false);
-    resetForm();
-    setSelectedFlight(null);
-    alert(`Chuyến bay ${updatedFlight.flightNumber} đã được cập nhật!`);
-  };
-
+  // Form component
   const renderFlightForm = (onSubmit, submitText) => (
     <form className="add-flight-form" onSubmit={onSubmit}>
       <div className="form-section">
         <h3>Thông tin hãng hàng không</h3>
         <div className="form-row">
           <div className="form-group">
-            <label>Tên hãng hàng không *</label>
+            <label>Hãng hàng không *</label>
             <select
-              value={formData.airline}
-              onChange={(e) => {
+              value={formData.airlineId}
+              onChange={(e) =>
                 setFormData({
                   ...formData,
-                  airline: e.target.value,
-                  aircraftModel: "",
-                });
-              }}
+                  airlineId: e.target.value,
+                  aircraftId: "",
+                })
+              }
               required
             >
               <option value="">Chọn hãng hàng không</option>
-              <option value="Vietnam Airlines">Vietnam Airlines</option>
-              <option value="Bamboo Airways">Bamboo Airways</option>
-              <option value="Vietjet Air">Vietjet Air</option>
-              <option value="Vietravel Airlines">Vietravel Airlines</option>
-              <option value="Pacific Airlines">Pacific Airlines</option>
+              {airlines.map((airline) => (
+                <option key={airline.id} value={airline.id}>
+                  {airline.name}
+                </option>
+              ))}
             </select>
           </div>
           <div className="form-group">
-            <label>Tên loại máy bay *</label>
+            <label>Loại máy bay *</label>
             <select
-              value={formData.aircraftModel}
+              value={formData.aircraftId}
               onChange={(e) =>
-                setFormData({ ...formData, aircraftModel: e.target.value })
+                setFormData({ ...formData, aircraftId: e.target.value })
               }
               required
-              disabled={!formData.airline}
+              disabled={!formData.airlineId}
             >
               <option value="">Chọn loại máy bay</option>
-              {formData.airline &&
-                getAircraftModelsForAirline(formData.airline).map(
-                  (aircraft) => (
-                    <option key={aircraft.id} value={aircraft.model}>
-                      {aircraft.model}
-                    </option>
-                  )
-                )}
+              {filteredAircrafts.map((aircraft) => (
+                <option key={aircraft.id} value={aircraft.id}>
+                  {aircraft.model} ({aircraft.manufacturer})
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -479,50 +419,33 @@ const Flight = () => {
       </div>
 
       <div className="form-section">
-        <h3>Thời gian khởi hành</h3>
+        <h3>Điểm khởi hành</h3>
         <div className="form-row">
+          <div className="form-group">
+            <label>Sân bay khởi hành *</label>
+            <select
+              value={formData.depAirportId}
+              onChange={(e) =>
+                setFormData({ ...formData, depAirportId: e.target.value })
+              }
+              required
+            >
+              <option value="">Chọn sân bay</option>
+              {airports.map((airport) => (
+                <option key={airport.id} value={airport.id}>
+                  {airport.city} - {airport.name} ({airport.iata})
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="form-group">
             <label>Thời gian khởi hành *</label>
             <input
-              type="time"
-              value={formData.departureTime}
+              type="datetime-local"
+              value={formData.depDatetime}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  departureTime: e.target.value,
-                })
+                setFormData({ ...formData, depDatetime: e.target.value })
               }
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Điểm khởi hành *</label>
-            <input
-              type="text"
-              value={formData.departureLocation}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  departureLocation: e.target.value,
-                })
-              }
-              placeholder="Hà Nội"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Mã sân bay khởi hành *</label>
-            <input
-              type="text"
-              value={formData.departureAirport}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  departureAirport: e.target.value,
-                })
-              }
-              placeholder="HAN"
-              maxLength="4"
               required
             />
           </div>
@@ -530,50 +453,33 @@ const Flight = () => {
       </div>
 
       <div className="form-section">
-        <h3>Thời gian đến</h3>
+        <h3>Điểm đến</h3>
         <div className="form-row">
+          <div className="form-group">
+            <label>Sân bay đến *</label>
+            <select
+              value={formData.arrAirportId}
+              onChange={(e) =>
+                setFormData({ ...formData, arrAirportId: e.target.value })
+              }
+              required
+            >
+              <option value="">Chọn sân bay</option>
+              {airports.map((airport) => (
+                <option key={airport.id} value={airport.id}>
+                  {airport.city} - {airport.name} ({airport.iata})
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="form-group">
             <label>Thời gian đến *</label>
             <input
-              type="time"
-              value={formData.arrivalTime}
+              type="datetime-local"
+              value={formData.arrDatetime}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  arrivalTime: e.target.value,
-                })
+                setFormData({ ...formData, arrDatetime: e.target.value })
               }
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Điểm đến *</label>
-            <input
-              type="text"
-              value={formData.arrivalLocation}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  arrivalLocation: e.target.value,
-                })
-              }
-              placeholder="Hồ Chí Minh"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Mã sân bay đến *</label>
-            <input
-              type="text"
-              value={formData.arrivalAirport}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  arrivalAirport: e.target.value,
-                })
-              }
-              placeholder="SGN"
-              maxLength="4"
               required
             />
           </div>
@@ -584,40 +490,48 @@ const Flight = () => {
         <h3>Chi tiết chuyến bay</h3>
         <div className="form-row">
           <div className="form-group">
-            <label>Thời gian bay *</label>
+            <label>Thời gian bay (phút) *</label>
             <input
-              type="text"
-              value={formData.duration}
+              type="number"
+              value={formData.durationMinutes}
               onChange={(e) =>
-                setFormData({ ...formData, duration: e.target.value })
+                setFormData({ ...formData, durationMinutes: e.target.value })
               }
-              placeholder="2h 30m"
+              placeholder="120"
+              min="1"
               required
             />
           </div>
           <div className="form-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={formData.isDirect}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    isDirect: e.target.checked,
-                  })
-                }
-              />
-              <span>Chuyến bay trực tiếp</span>
-            </label>
+            <label>Cổng (Gate)</label>
+            <input
+              type="text"
+              value={formData.gate}
+              onChange={(e) =>
+                setFormData({ ...formData, gate: e.target.value })
+              }
+              placeholder="A1"
+            />
+          </div>
+          <div className="form-group">
+            <label>Nhà ga (Terminal)</label>
+            <input
+              type="text"
+              value={formData.terminal}
+              onChange={(e) =>
+                setFormData({ ...formData, terminal: e.target.value })
+              }
+              placeholder="T1"
+            />
           </div>
         </div>
       </div>
 
       <div className="form-section">
-        <h3>Giá vé theo hạng ghế (VND)</h3>
+        <h3>Giá vé (VND)</h3>
         <div className="form-row">
           <div className="form-group">
-            <label>Giá hạng Phổ thông *</label>
+            <label>Phổ thông *</label>
             <input
               type="number"
               value={formData.priceEconomy}
@@ -630,7 +544,7 @@ const Flight = () => {
             />
           </div>
           <div className="form-group">
-            <label>Giá hạng Thương gia</label>
+            <label>Thương gia</label>
             <input
               type="number"
               value={formData.priceBusiness}
@@ -642,7 +556,7 @@ const Flight = () => {
             />
           </div>
           <div className="form-group">
-            <label>Giá hạng Nhất</label>
+            <label>Hạng nhất</label>
             <input
               type="number"
               value={formData.priceFirst}
@@ -650,6 +564,48 @@ const Flight = () => {
                 setFormData({ ...formData, priceFirst: e.target.value })
               }
               placeholder="7000000"
+              min="0"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="form-section">
+        <h3>Số ghế trống</h3>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Phổ thông</label>
+            <input
+              type="number"
+              value={formData.seatsEconomy}
+              onChange={(e) =>
+                setFormData({ ...formData, seatsEconomy: e.target.value })
+              }
+              placeholder="150"
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Thương gia</label>
+            <input
+              type="number"
+              value={formData.seatsBusiness}
+              onChange={(e) =>
+                setFormData({ ...formData, seatsBusiness: e.target.value })
+              }
+              placeholder="20"
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Hạng nhất</label>
+            <input
+              type="number"
+              value={formData.seatsFirst}
+              onChange={(e) =>
+                setFormData({ ...formData, seatsFirst: e.target.value })
+              }
+              placeholder="10"
               min="0"
             />
           </div>
@@ -668,8 +624,8 @@ const Flight = () => {
         >
           Hủy
         </button>
-        <button type="submit" className="btn-submit">
-          {submitText}
+        <button type="submit" className="btn-submit" disabled={isLoading}>
+          {isLoading ? "Đang xử lý..." : submitText}
         </button>
       </div>
     </form>
@@ -687,13 +643,13 @@ const Flight = () => {
                 type="text"
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
-                placeholder="Hà Nội (HAN)"
+                placeholder="Hà Nội"
               />
             </div>
             <button
               className="swap-btn"
               onClick={handleSwapLocations}
-              title="Swap origin and destination"
+              title="Đổi chiều"
             >
               <ArrowLeftRight size={20} />
             </button>
@@ -703,7 +659,7 @@ const Flight = () => {
                 type="text"
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
-                placeholder="Hồ Chí Minh (SGN)"
+                placeholder="TP HCM"
               />
             </div>
             <div className="search-field">
@@ -725,7 +681,7 @@ const Flight = () => {
                 <option value="first">Hạng nhất</option>
               </select>
             </div>
-            <button className="search-btn" onClick={performSearch}>
+            <button className="search-btn" onClick={handleSearch}>
               <Search size={20} />
             </button>
           </div>
@@ -735,22 +691,21 @@ const Flight = () => {
         <div className="flight-list-section">
           <div className="flight-list-header">
             <h2>
-              Danh sách chuyến bay (<span>{currentFlights.length}</span> kết
-              quả)
+              Danh sách chuyến bay (<span>{sortedFlights.length}</span> kết quả)
             </h2>
             <div className="sort-controls">
               <select
                 className="sort-select"
                 value={sortPrice}
-                onChange={(e) => handleSortChange("price", e.target.value)}
+                onChange={(e) => setSortPrice(e.target.value)}
               >
-                <option value="rẻ nhất">Sắp xếp theo: Rẻ nhất</option>
+                <option value="rẻ nhất">Sắp xếp: Rẻ nhất</option>
                 <option value="đắt nhất">Đắt nhất</option>
               </select>
               <select
                 className="sort-select"
                 value={sortTime}
-                onChange={(e) => handleSortChange("time", e.target.value)}
+                onChange={(e) => setSortTime(e.target.value)}
               >
                 <option value="sớm nhất">Sớm nhất</option>
                 <option value="muộn nhất">Muộn nhất</option>
@@ -769,7 +724,11 @@ const Flight = () => {
 
           {/* Flight Results */}
           <div className="flight-results">
-            {currentFlights.length === 0 ? (
+            {isLoading ? (
+              <div className="no-results">
+                <p>Đang tải...</p>
+              </div>
+            ) : sortedFlights.length === 0 ? (
               <div className="no-results">
                 <Plane
                   size={48}
@@ -779,13 +738,13 @@ const Flight = () => {
                 <span>Hãy thử điều chỉnh tiêu chí tìm kiếm</span>
               </div>
             ) : (
-              currentFlights.map((flight) => (
+              sortedFlights.map((flight) => (
                 <div key={flight.id} className="flight-card">
                   <div className="flight-card-header">
                     <div className="airline-logo">
                       <img
                         src={flight.airlineLogo}
-                        alt={`${flight.airline} logo`}
+                        alt={flight.airline}
                         onError={(e) => {
                           e.target.style.display = "none";
                           e.target.nextElementSibling.style.display = "flex";
@@ -801,9 +760,6 @@ const Flight = () => {
                     <div className="airline-info">
                       <h3 className="airline-name">{flight.airline}</h3>
                       <p className="flight-number">{flight.flightNumber}</p>
-                      {flight.aircraftModel && (
-                        <p className="aircraft-model">{flight.aircraftModel}</p>
-                      )}
                     </div>
                     <div className="flight-price">
                       {formatPrice(getDisplayPrice(flight))}
@@ -812,25 +768,21 @@ const Flight = () => {
                   <div className="flight-details">
                     <div className="departure-info">
                       <span className="departure-time">
-                        {flight.departure.time}
+                        {formatDateTime(flight.departure.time)}
                       </span>
                       <span className="departure-location">
                         {flight.departure.location}
                       </span>
                     </div>
                     <div className="flight-route">
-                      <div className="route-airports">
-                        <span>{flight.departure.airport}</span>
-                        <span>{flight.arrival.airport}</span>
-                      </div>
                       <div className="route-line"></div>
                       <div className="route-duration">
-                        {flight.isDirect ? "Direct" : "1 Stop"}
+                        {formatDuration(flight.duration)}
                       </div>
                     </div>
                     <div className="arrival-info">
                       <span className="arrival-time">
-                        {flight.arrival.time}
+                        {formatDateTime(flight.arrival.time)}
                       </span>
                       <span className="arrival-location">
                         {flight.arrival.location}
@@ -848,21 +800,11 @@ const Flight = () => {
                       className="edit-btn"
                       onClick={() => handleEditFlight(flight)}
                     >
-                      <Pencil size={14} /> Chỉnh sửa
+                      <Pencil size={14} />
                     </button>
                     <button
                       className="delete-btn"
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            `Bạn có chắc chắn muốn xóa chuyến bay ${flight.flightNumber}?`
-                          )
-                        ) {
-                          setFlightData(
-                            flightData.filter((f) => f.id !== flight.id)
-                          );
-                        }
-                      }}
+                      onClick={() => handleDeleteFlight(flight.id)}
                     >
                       Xóa
                     </button>
@@ -938,9 +880,7 @@ const Flight = () => {
                   <img
                     src={selectedFlight.airlineLogo}
                     alt={selectedFlight.airline}
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
+                    onError={(e) => (e.target.style.display = "none")}
                   />
                 </div>
                 <div className="detail-header-info">
@@ -948,44 +888,51 @@ const Flight = () => {
                   <p className="flight-number-large">
                     {selectedFlight.flightNumber}
                   </p>
-                  {selectedFlight.aircraftModel && (
-                    <p className="aircraft-info">
-                      Máy bay: {selectedFlight.aircraftModel}
-                    </p>
-                  )}
                 </div>
               </div>
 
               <div className="detail-route-section">
                 <div className="route-point">
                   <span className="route-time">
-                    {selectedFlight.departure.time}
+                    {formatDateTime(selectedFlight.departure.time)}
                   </span>
                   <span className="route-location">
                     {selectedFlight.departure.location}
-                  </span>
-                  <span className="route-airport">
-                    ({selectedFlight.departure.airport})
                   </span>
                 </div>
                 <div className="route-middle">
                   <div className="route-line-detail"></div>
                   <span className="route-duration-detail">
-                    {selectedFlight.duration}
-                  </span>
-                  <span className="route-type">
-                    {selectedFlight.isDirect ? "Bay thẳng" : "1 điểm dừng"}
+                    {formatDuration(selectedFlight.duration)}
                   </span>
                 </div>
                 <div className="route-point">
                   <span className="route-time">
-                    {selectedFlight.arrival.time}
+                    {formatDateTime(selectedFlight.arrival.time)}
                   </span>
                   <span className="route-location">
                     {selectedFlight.arrival.location}
                   </span>
-                  <span className="route-airport">
-                    ({selectedFlight.arrival.airport})
+                </div>
+              </div>
+
+              <div className="detail-info-grid">
+                <div className="info-item">
+                  <span className="info-label">Cổng (Gate)</span>
+                  <span className="info-value">
+                    {selectedFlight.gate || "Chưa có"}
+                  </span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">Nhà ga (Terminal)</span>
+                  <span className="info-value">
+                    {selectedFlight.terminal || "Chưa có"}
+                  </span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">Trạng thái</span>
+                  <span className="info-value status-badge">
+                    {selectedFlight.status}
                   </span>
                 </div>
               </div>
@@ -1000,6 +947,9 @@ const Flight = () => {
                         ? formatPrice(selectedFlight.priceEconomy)
                         : "Không có"}
                     </span>
+                    <span className="seats-info">
+                      {selectedFlight.seatsEconomy} ghế trống
+                    </span>
                   </div>
                   <div className="price-item">
                     <span className="price-label">Thương gia (Business)</span>
@@ -1008,6 +958,9 @@ const Flight = () => {
                         ? formatPrice(selectedFlight.priceBusiness)
                         : "Không có"}
                     </span>
+                    <span className="seats-info">
+                      {selectedFlight.seatsBusiness} ghế trống
+                    </span>
                   </div>
                   <div className="price-item">
                     <span className="price-label">Hạng nhất (First)</span>
@@ -1015,6 +968,9 @@ const Flight = () => {
                       {selectedFlight.priceFirst > 0
                         ? formatPrice(selectedFlight.priceFirst)
                         : "Không có"}
+                    </span>
+                    <span className="seats-info">
+                      {selectedFlight.seatsFirst} ghế trống
                     </span>
                   </div>
                 </div>
@@ -1040,334 +996,6 @@ const Flight = () => {
           </div>
         </div>
       )}
-
-      <style>{`
-        .aircraft-model {
-          font-size: 0.75rem;
-          color: var(--text-light);
-          margin-top: 2px;
-        }
-        
-        .edit-btn {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          padding: 0.5rem 1rem;
-          background: var(--primary-color);
-          color: white;
-          border: none;
-          border-radius: 6px;
-          font-size: 0.875rem;
-          cursor: pointer;
-          transition: var(--transition);
-        }
-        
-        .edit-btn:hover {
-          background: #5b9ad6;
-        }
-        
-        /* Modal Styles */
-        .modal-backdrop {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9999;
-          animation: fadeIn 0.2s ease;
-        }
-        
-        .modal-container {
-          background: var(--white);
-          border-radius: var(--border-radius);
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-          max-width: 700px;
-          width: 90%;
-          max-height: 90vh;
-          overflow-y: auto;
-          animation: slideUp 0.3s ease;
-        }
-        
-        .detail-modal {
-          max-width: 550px;
-        }
-        
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 1.5rem;
-          border-bottom: 1px solid var(--extra-light);
-        }
-        
-        .modal-header h2 {
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: var(--text-dark);
-          margin: 0;
-        }
-        
-        .modal-close {
-          background: none;
-          border: none;
-          color: var(--text-light);
-          cursor: pointer;
-          padding: 0.5rem;
-          border-radius: 6px;
-          transition: var(--transition);
-        }
-        
-        .modal-close:hover {
-          background: var(--extra-light);
-          color: var(--text-dark);
-        }
-        
-        .modal-footer {
-          padding: 1rem 1.5rem;
-          border-top: 1px solid var(--extra-light);
-          display: flex;
-          justify-content: flex-end;
-          gap: 1rem;
-        }
-        
-        .btn-cancel {
-          padding: 0.75rem 1.5rem;
-          border: 1px solid var(--extra-light);
-          background: var(--white);
-          color: var(--text-dark);
-          border-radius: 8px;
-          font-size: 0.875rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: var(--transition);
-        }
-        
-        .btn-cancel:hover {
-          background: var(--extra-light);
-        }
-        
-        .btn-submit {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 0.75rem 1.5rem;
-          border: none;
-          background: var(--primary-color);
-          color: var(--white);
-          border-radius: 8px;
-          font-size: 0.875rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: var(--transition);
-        }
-        
-        .btn-submit:hover {
-          background: #5b9ad6;
-        }
-        
-        /* Flight Detail Content */
-        .flight-detail-content {
-          padding: 1.5rem;
-        }
-        
-        .detail-header {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-bottom: 1.5rem;
-          padding-bottom: 1.5rem;
-          border-bottom: 1px solid var(--extra-light);
-        }
-        
-        .airline-logo-large {
-          width: 80px;
-          height: 80px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: var(--extra-light);
-          border-radius: 12px;
-          overflow: hidden;
-        }
-        
-        .airline-logo-large img {
-          max-width: 70px;
-          max-height: 70px;
-          object-fit: contain;
-        }
-        
-        .detail-header-info h3 {
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: var(--text-dark);
-          margin: 0 0 4px 0;
-        }
-        
-        .flight-number-large {
-          font-size: 1rem;
-          color: var(--primary-color);
-          font-weight: 500;
-          margin: 0;
-        }
-        
-        .aircraft-info {
-          font-size: 0.875rem;
-          color: var(--text-light);
-          margin: 4px 0 0 0;
-        }
-        
-        .detail-route-section {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 1.5rem;
-          background: var(--extra-light);
-          border-radius: 12px;
-          margin-bottom: 1.5rem;
-        }
-        
-        .route-point {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        }
-        
-        .route-time {
-          font-size: 1.5rem;
-          font-weight: 600;
-          color: var(--text-dark);
-        }
-        
-        .route-location {
-          font-size: 0.95rem;
-          color: var(--text-dark);
-          margin-top: 4px;
-        }
-        
-        .route-airport {
-          font-size: 0.875rem;
-          color: var(--text-light);
-        }
-        
-        .route-middle {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 0 1rem;
-        }
-        
-        .route-line-detail {
-          width: 100%;
-          height: 2px;
-          background: var(--primary-color);
-          position: relative;
-        }
-        
-        .route-line-detail::before,
-        .route-line-detail::after {
-          content: '';
-          position: absolute;
-          width: 8px;
-          height: 8px;
-          background: var(--primary-color);
-          border-radius: 50%;
-          top: 50%;
-          transform: translateY(-50%);
-        }
-        
-        .route-line-detail::before {
-          left: 0;
-        }
-        
-        .route-line-detail::after {
-          right: 0;
-        }
-        
-        .route-duration-detail {
-          font-size: 0.875rem;
-          color: var(--text-dark);
-          font-weight: 500;
-          margin-top: 8px;
-        }
-        
-        .route-type {
-          font-size: 0.75rem;
-          color: var(--text-light);
-        }
-        
-        .detail-prices-section {
-          background: var(--white);
-          border: 1px solid var(--extra-light);
-          border-radius: 12px;
-          padding: 1.25rem;
-        }
-        
-        .detail-prices-section h4 {
-          font-size: 0.95rem;
-          font-weight: 600;
-          color: var(--text-dark);
-          margin: 0 0 1rem 0;
-        }
-        
-        .price-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-        }
-        
-        .price-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          padding: 0.75rem;
-          background: var(--extra-light);
-          border-radius: 8px;
-        }
-        
-        .price-label {
-          font-size: 0.75rem;
-          color: var(--text-light);
-          margin-bottom: 4px;
-        }
-        
-        .price-value {
-          font-size: 0.95rem;
-          font-weight: 600;
-          color: #10b981;
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-          from { transform: translateY(20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        
-        @media (max-width: 500px) {
-          .price-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .detail-route-section {
-            flex-direction: column;
-            gap: 1rem;
-          }
-          
-          .route-middle {
-            width: 100%;
-          }
-        }
-      `}</style>
     </DashboardLayout>
   );
 };

@@ -11,114 +11,39 @@ import {
 } from "lucide-react";
 import "../styles/main.css";
 import "../styles/managers.css";
+import "../styles/feedback.css";
+import axios from "axios";
 
-// Sample feedback data
-const initialFeedbackData = [
-  {
-    id: 1,
-    username: "vana",
-    bookingId: 35,
-    date: "2025-01-14",
-    rating: 5,
-    comment:
-      "Khách sạn rất tuyệt vời, phòng ốc sạch sẽ, nhân viên thân thiện và nhiệt tình. Tôi sẽ quay lại khi có dịp. 👍💕💕",
-    avatar: null,
-  },
-  {
-    id: 2,
-    username: "nguyend",
-    bookingId: 40,
-    date: "2025-01-14",
-    rating: 5,
-    comment: "Đây là comment seeding à 😍😍",
-    avatar: null,
-  },
-  {
-    id: 3,
-    username: "nguyenc",
-    bookingId: 77,
-    date: "2025-01-14",
-    rating: 5,
-    comment:
-      "Khách sạn có dịch vụ tốt, phòng sạch sẽ, và vị trí thuận tiện. Tôi rất thích và sẽ quay lại.",
-    avatar: null,
-  },
-  {
-    id: 4,
-    username: "phamc",
-    bookingId: 68,
-    date: "2025-01-14",
-    rating: 4,
-    comment:
-      "Chúng tôi đã có một kỳ nghỉ tuyệt vời tại đây. Dịch vụ phòng rất tốt, đội ngũ nhân viên thân thiện và chuyên nghiệp.",
-    avatar: null,
-  },
-  {
-    id: 5,
-    username: "tranb",
-    bookingId: 52,
-    date: "2025-01-13",
-    rating: 5,
-    comment: "Chuyến bay rất thoải mái, đúng giờ và dịch vụ tốt. Rất hài lòng!",
-    avatar: null,
-  },
-  {
-    id: 6,
-    username: "leh",
-    bookingId: 61,
-    date: "2025-01-13",
-    rating: 3,
-    comment: "Chuyến bay bị delay 30 phút nhưng dịch vụ trên máy bay khá tốt.",
-    avatar: null,
-  },
-  {
-    id: 7,
-    username: "hoangm",
-    bookingId: 44,
-    date: "2025-01-12",
-    rating: 5,
-    comment:
-      "Tuyệt vời! Nhân viên rất nhiệt tình, giá cả hợp lý. Sẽ đặt vé lần sau.",
-    avatar: null,
-  },
-  {
-    id: 8,
-    username: "ngok",
-    bookingId: 89,
-    date: "2025-01-12",
-    rating: 4,
-    comment: "Dịch vụ tốt, booking nhanh chóng. Có điều app hơi chậm một chút.",
-    avatar: null,
-  },
-  {
-    id: 9,
-    username: "vut",
-    bookingId: 33,
-    date: "2025-01-11",
-    rating: 5,
-    comment: "Đội ngũ hỗ trợ khách hàng rất chuyên nghiệp. 10 điểm!",
-    avatar: null,
-  },
-  {
-    id: 10,
-    username: "dol",
-    bookingId: 56,
-    date: "2025-01-11",
-    rating: 4,
-    comment:
-      "Giá vé máy bay cạnh tranh, đặt vé dễ dàng. Sẽ giới thiệu cho bạn bè.",
-    avatar: null,
-  },
-];
-
+const API_BASE_URL = "http://localhost:8000";
 const Feedback = () => {
-  const [feedbackData, setFeedbackData] = useState(initialFeedbackData);
+  const [feedbackData, setFeedbackData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredData, setFilteredData] = useState([]);
   const [sortOrder, setSortOrder] = useState("newest");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const itemsPerPage = 5;
 
+  const fetchFeedbackData = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/feedbacks`);
+      const data = response.data;
+      setFeedbackData(
+        data.map((item) => ({
+          id: item.id,
+          username: item.user_name,
+          date: item.comment_date,
+          rating: item.rating_overall,
+          comment: item.comment_text,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching feedback data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFeedbackData();
+  }, []);
   // Filter and sort data
   useEffect(() => {
     let data = [...feedbackData];
@@ -143,9 +68,17 @@ const Feedback = () => {
   const endIndex = startIndex + itemsPerPage;
   const pageData = filteredData.slice(startIndex, endIndex);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa phản hồi này?")) {
-      setFeedbackData(feedbackData.filter((f) => f.id !== id));
+      try {
+        const response = await axios.delete(`${API_BASE_URL}/feedbacks/${id}`);
+        if (response.data.message === "Feedback deleted successfully") {
+          await fetchFeedbackData();
+          alert("Xóa phản hồi thành công!");
+        }
+      } catch (error) {
+        console.error("Error deleting feedback:", error);
+      }
     }
   };
 
@@ -423,287 +356,6 @@ const Feedback = () => {
           </div>
         )}
       </div>
-
-      <style>{`
-        .feedback-content {
-          padding: 2rem;
-          max-width: 1000px;
-          margin: 0 auto;
-        }
-        
-        .feedback-header {
-          margin-bottom: 1.5rem;
-        }
-        
-        .feedback-header h2 {
-          font-size: 1.75rem;
-          font-weight: 700;
-          color: var(--text-dark);
-          margin: 0;
-        }
-        
-        .feedback-controls {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1.5rem;
-          flex-wrap: wrap;
-          gap: 1rem;
-        }
-        
-        .feedback-tab-active {
-          color: var(--primary-color);
-          font-weight: 600;
-          font-size: 0.95rem;
-          text-decoration: underline;
-          text-underline-offset: 4px;
-        }
-        
-        .sort-dropdown-container {
-          position: relative;
-        }
-        
-        .sort-dropdown-btn {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.75rem 1rem;
-          border: 1px solid var(--extra-light);
-          border-radius: 8px;
-          background: var(--white);
-          color: var(--text-dark);
-          font-size: 0.875rem;
-          cursor: pointer;
-          transition: var(--transition);
-          font-family: "DM Sans", sans-serif;
-        }
-        
-        .sort-dropdown-btn:hover {
-          border-color: var(--primary-color);
-        }
-        
-        .sort-dropdown-menu {
-          position: absolute;
-          top: 100%;
-          right: 0;
-          margin-top: 0.5rem;
-          background: var(--white);
-          border: 1px solid var(--extra-light);
-          border-radius: 8px;
-          box-shadow: var(--box-shadow);
-          z-index: 100;
-          min-width: 180px;
-          overflow: hidden;
-        }
-        
-        .sort-dropdown-menu button {
-          display: block;
-          width: 100%;
-          padding: 0.75rem 1rem;
-          border: none;
-          background: none;
-          text-align: left;
-          font-size: 0.875rem;
-          color: var(--text-dark);
-          cursor: pointer;
-          transition: var(--transition);
-          font-family: "DM Sans", sans-serif;
-        }
-        
-        .sort-dropdown-menu button:hover {
-          background: var(--extra-light);
-        }
-        
-        .sort-dropdown-menu button.active {
-          background: rgba(135, 179, 234, 0.1);
-          color: var(--primary-color);
-          font-weight: 500;
-        }
-        
-        .feedback-list {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-        
-        .feedback-card {
-          display: grid;
-          grid-template-columns: 200px 120px 1fr 50px;
-          gap: 1.5rem;
-          align-items: center;
-          padding: 1.25rem 1.5rem;
-          background: var(--white);
-          border: 1px solid var(--extra-light);
-          border-radius: var(--border-radius);
-          transition: var(--transition);
-        }
-        
-        .feedback-card:hover {
-          box-shadow: var(--box-shadow);
-          border-color: rgba(135, 179, 234, 0.3);
-        }
-        
-        .feedback-left {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-        
-        .feedback-avatar {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          flex-shrink: 0;
-        }
-        
-        .feedback-avatar img {
-          width: 70%;
-          height: 70%;
-          object-fit: cover;
-        }
-        
-        .feedback-user-info {
-          flex: 1;
-          min-width: 0;
-        }
-        
-        .feedback-username {
-          font-size: 0.95rem;
-          font-weight: 600;
-          color: var(--text-dark);
-          margin: 0 0 0.25rem 0;
-        }
-        
-        .feedback-booking-id {
-          font-size: 0.8rem;
-          color: var(--text-light);
-          margin: 0 0 0.125rem 0;
-        }
-        
-        .feedback-date {
-          font-size: 0.8rem;
-          color: var(--text-light);
-          margin: 0;
-        }
-        
-        .feedback-center {
-          display: flex;
-          justify-content: center;
-        }
-        
-        .stars-container {
-          display: flex;
-          gap: 2px;
-        }
-        
-        .star-filled,
-        .star-empty {
-          transition: var(--transition);
-        }
-        
-        .feedback-right {
-          flex: 1;
-          min-width: 0;
-        }
-        
-        .feedback-comment {
-          font-size: 0.875rem;
-          color: var(--text-dark);
-          line-height: 1.6;
-          margin: 0;
-        }
-        
-        .feedback-actions {
-          display: flex;
-          justify-content: center;
-        }
-        
-        .feedback-delete-btn {
-          background: none;
-          border: none;
-          padding: 0.5rem;
-          border-radius: 6px;
-          cursor: pointer;
-          color: var(--text-light);
-          transition: var(--transition);
-        }
-        
-        .feedback-delete-btn:hover {
-          background: #fee2e2;
-          color: #ef4444;
-        }
-        
-        .no-feedback {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 4rem 2rem;
-          color: var(--text-light);
-          background: var(--white);
-          border-radius: var(--border-radius);
-        }
-        
-        .no-feedback svg {
-          margin-bottom: 1rem;
-          opacity: 0.5;
-        }
-        
-        body.dark-mode .feedback-card {
-          background: var(--white);
-          border-color: #374151;
-        }
-        
-        body.dark-mode .sort-dropdown-menu {
-          background: var(--white);
-          border-color: #374151;
-        }
-        
-        body.dark-mode .no-feedback {
-          background: var(--white);
-        }
-        
-        @media (max-width: 900px) {
-          .feedback-card {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-          }
-          
-          .feedback-left {
-            justify-content: flex-start;
-          }
-          
-          .feedback-center {
-            justify-content: flex-start;
-          }
-          
-          .feedback-actions {
-            justify-content: flex-end;
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-          }
-          
-          .feedback-card {
-            position: relative;
-          }
-        }
-        
-        @media (max-width: 600px) {
-          .feedback-content {
-            padding: 1rem;
-          }
-          
-          .feedback-controls {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-        }
-      `}</style>
     </DashboardLayout>
   );
 };

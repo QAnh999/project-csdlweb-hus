@@ -16,39 +16,6 @@ import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8000";
 
-const topRoutes = [
-  {
-    from: "Hà Nội (HAN)",
-    to: "Hồ Chí Minh (SGN)",
-    passengers: "140,000",
-    progress: 85,
-  },
-  {
-    from: "Hà Nội (HAN)",
-    to: "Đà Nẵng (DAD)",
-    passengers: "130,000",
-    progress: 75,
-  },
-  {
-    from: "Hồ Chí Minh (SGN)",
-    to: "Phú Quốc (PQC)",
-    passengers: "120,000",
-    progress: 65,
-  },
-  {
-    from: "Nha Trang (CXR)",
-    to: "Huế (HUI)",
-    passengers: "110,000",
-    progress: 55,
-  },
-  {
-    from: "Quy Nhơn (UIH)",
-    to: "Hồ Chí Minh (SGN)",
-    passengers: "100,000",
-    progress: 45,
-  },
-];
-
 const Dashboard = () => {
   // KPI states
   const [successfulBookings, setSuccessfulBookings] = useState(0);
@@ -57,25 +24,49 @@ const Dashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [loadingKPI, setLoadingKPI] = useState(true);
   const [recentBookingsBuffer, setRecentBookingsBuffer] = useState([]);
+
   const [revenuePeriod, setRevenuePeriod] = useState("Tuần");
   const [popularAirlines, setPopularAirlines] = useState([]);
+  const [topFlightRoutes, setTopFlightRoutes] = useState([]);
+
+  // Data cho biểu đồ từ API
+  const [weeklyTickets, setWeeklyTickets] = useState([]);
+  const [weeklyRevenue, setWeeklyRevenue] = useState([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState([]);
+
   const ticketChartRef = useRef(null);
   const revenueChartRef = useRef(null);
   const airlinesChartRef = useRef(null);
   const ticketChartInstance = useRef(null);
   const revenueChartInstance = useRef(null);
   const airlinesChartInstance = useRef(null);
+
+  // Lấy tên ngày tiếng Việt từ date
+  const getDayNameVN = (dateStr) => {
+    const date = new Date(dateStr);
+    const dayIndex = date.getDay();
+    const dayNames = [
+      "CN",
+      "Thứ 2",
+      "Thứ 3",
+      "Thứ 4",
+      "Thứ 5",
+      "Thứ 6",
+      "Thứ 7",
+    ];
+    return dayNames[dayIndex];
+  };
   const fetchKPI = async () => {
     try {
       setLoadingKPI(true);
-      const res = await axios.get(`${API_BASE_URL}/dashboard`);
+      const res = await axios.get(`${API_BASE_URL}/dashboard/daily-stats`);
       const data = res.data; // axios tự parse JSON
 
       // Cập nhật từng state riêng biệt
       setSuccessfulBookings(data.completed_flights || 0);
       setActiveFlights(data.active_flights || 0);
       setNewUsers(data.new_users_today || 0);
-      setTotalRevenue(data.revenue_today || 0);
+      setTotalRevenue(data.total_revenue_today || 0);
     } catch (error) {
       console.error("Error fetching KPI data:", error);
       toast.error("Lỗi khi tải dữ liệu KPI");
@@ -86,13 +77,13 @@ const Dashboard = () => {
 
   const fetchRecentBookings = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/dashboard/top-bookings`);
+      const res = await axios.get(`${API_BASE_URL}/dashboard/recent-bookings`);
       setRecentBookingsBuffer(
         res.data.map((item) => ({
-          user: item.user,
+          user: item.user_name,
           booking_id: item.booking_id,
-          flight: item.flight,
-          time: item.time,
+          flight: item.flight_number,
+          time: item.booking_time,
           status: item.status,
         }))
       );
@@ -107,8 +98,8 @@ const Dashboard = () => {
       const res = await axios.get(`${API_BASE_URL}/dashboard/popular-airlines`);
       setPopularAirlines(
         res.data.map((item) => ({
-          airline: item.airline,
-          popularity: item.popularity,
+          airline: item.airline_name,
+          popularity: item.percentage,
         }))
       );
     } catch (error) {
@@ -117,10 +108,65 @@ const Dashboard = () => {
     }
   };
 
+  const fetchPopularRoutes = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/dashboard/popular-routes`);
+      const data = res.data;
+      setTopFlightRoutes(
+        data.map((item) => ({
+          from: item.departure_city,
+          to: item.arrival_city,
+          progress: item.percentage,
+        }))
+      );
+      // Xử lý dữ liệu nếu cần
+    } catch (error) {
+      console.error("Error fetching popular routes:", error);
+      toast.error("Lỗi khi tải dữ liệu chặng bay phổ biến");
+    }
+  };
+
+  // Fetch weekly tickets data
+  const fetchWeeklyTickets = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/dashboard/weekly-tickets`);
+      setWeeklyTickets(res.data);
+    } catch (error) {
+      console.error("Error fetching weekly tickets:", error);
+      toast.error("Lỗi khi tải dữ liệu vé bán ra trong tuần");
+    }
+  };
+
+  // Fetch weekly revenue data
+  const fetchWeeklyRevenue = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/dashboard/weekly-revenue`);
+      setWeeklyRevenue(res.data);
+    } catch (error) {
+      console.error("Error fetching weekly revenue:", error);
+      toast.error("Lỗi khi tải dữ liệu doanh thu tuần");
+    }
+  };
+
+  // Fetch monthly revenue data
+  const fetchMonthlyRevenue = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/dashboard/monthly-revenue`);
+      setMonthlyRevenue(res.data);
+    } catch (error) {
+      console.error("Error fetching monthly revenue:", error);
+      toast.error("Lỗi khi tải dữ liệu doanh thu tháng");
+    }
+  };
+
   useEffect(() => {
     fetchKPI();
     fetchRecentBookings();
     fetchPopularAirlines();
+    fetchPopularRoutes();
+    fetchWeeklyTickets();
+    fetchWeeklyRevenue();
+    fetchMonthlyRevenue();
   }, []);
 
   useEffect(() => {
@@ -164,100 +210,164 @@ const Dashboard = () => {
   }, [popularAirlines]);
 
   useEffect(() => {
-    // Ticket Sales Chart
-    if (ticketChartRef.current) {
-      if (ticketChartInstance.current) {
-        ticketChartInstance.current.destroy();
-      }
-      const ctx = ticketChartRef.current.getContext("2d");
-      ticketChartInstance.current = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-          datasets: [
-            {
-              label: "Vé bán ra",
-              data: [1200, 1900, 3000, 4000, 2500, 3200, 2800],
-              backgroundColor: [
-                "#5d5e84",
-                "#5d5e84",
-                "#87b3ea",
-                "#87b3ea",
-                "#5d5e84",
-                "#5d5e84",
-                "#5d5e84",
-              ],
-              borderRadius: 4,
-              borderSkipped: false,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 4000,
-              ticks: { callback: (value) => value },
-              grid: { color: "#f3f4f6" },
-            },
-            x: { grid: { display: false } },
-          },
-        },
+    if (!ticketChartRef.current) return;
+
+    if (ticketChartInstance.current) {
+      ticketChartInstance.current.destroy();
+    }
+    const defaultLabels = [
+      "CN",
+      "Thứ 2",
+      "Thứ 3",
+      "Thứ 4",
+      "Thứ 5",
+      "Thứ 6",
+      "Thứ 7",
+    ];
+    let labels = defaultLabels;
+    let data = [0, 0, 0, 0, 0, 0, 0];
+
+    if (weeklyTickets.length > 0) {
+      const dataByDay = {};
+      weeklyTickets.forEach((item) => {
+        const dayName = getDayNameVN(item.date);
+        dataByDay[dayName] = item.tickets_sold;
       });
+      data = defaultLabels.map((day) => dataByDay[day] || 0);
     }
 
-    // Revenue Chart
-    if (revenueChartRef.current) {
-      if (revenueChartInstance.current) {
-        revenueChartInstance.current.destroy();
-      }
-      const ctx = revenueChartRef.current.getContext("2d");
-      revenueChartInstance.current = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: ["Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-          datasets: [
-            {
-              label: "Thu nhập",
-              data: [12000, 15000, 18000, 16000, 19000, 20000],
-              borderColor: "#f59e0b",
-              backgroundColor: "rgba(245, 158, 11, 0.1)",
-              fill: true,
-              tension: 0.4,
-              pointRadius: 6,
-              pointHoverRadius: 8,
-              pointBackgroundColor: "#f59e0b",
-              pointBorderColor: "#ffffff",
-              pointBorderWidth: 2,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 20000,
-              ticks: { callback: (value) => value + "K" },
-              grid: { color: "#f3f4f6" },
-            },
-            x: { grid: { display: false } },
+    const maxValue = Math.max(...data, 100);
+    const ctx = ticketChartRef.current.getContext("2d");
+
+    ticketChartInstance.current = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Vé bán ra trong tuần",
+            data: data,
+            backgroundColor: "#87b3ea",
+            borderRadius: 4,
+            borderSkipped: false,
+            minBarLength: 5,
           },
-          interaction: { intersect: false, mode: "index" },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: Math.ceil(maxValue * 1.2),
+            ticks: { callback: (value) => value },
+            grid: { color: "#f3f4f6" },
+          },
+          x: { grid: { display: false } },
         },
-      });
-    }
+      },
+    });
 
     return () => {
       if (ticketChartInstance.current) ticketChartInstance.current.destroy();
+    };
+  }, [weeklyTickets]);
+
+  useEffect(() => {
+    if (!revenueChartRef.current) return;
+
+    if (revenueChartInstance.current) {
+      revenueChartInstance.current.destroy();
+    }
+
+    let labels = [];
+    let data = [];
+
+    if (revenuePeriod === "Tuần") {
+      const defaultLabels = [
+        "CN",
+        "Thứ 2",
+        "Thứ 3",
+        "Thứ 4",
+        "Thứ 5",
+        "Thứ 6",
+        "Thứ 7",
+      ];
+
+      if (weeklyRevenue.length > 0) {
+        const dataByDay = {};
+        weeklyRevenue.forEach((item) => {
+          const dayName = getDayNameVN(item.date);
+          dataByDay[dayName] = parseFloat(item.revenue);
+        });
+
+        labels = defaultLabels;
+        data = defaultLabels.map((day) => dataByDay[day] || 0);
+      } else {
+        labels = defaultLabels;
+        data = [0, 0, 0, 0, 0, 0, 0];
+      }
+    } else {
+      if (monthlyRevenue.length > 0) {
+        labels = monthlyRevenue.map((item) => `Week ${item.week_number}`);
+        data = monthlyRevenue.map((item) => parseFloat(item.revenue));
+      } else {
+        labels = ["Week 1", "Week 2", "Week 3", "Week 4"];
+        data = [0, 0, 0, 0];
+      }
+    }
+
+    const ctx = revenueChartRef.current.getContext("2d");
+
+    revenueChartInstance.current = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Doanh thu",
+            data: data,
+            borderColor: "#f59e0b",
+            backgroundColor: "rgba(245, 158, 11, 0.1)",
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: "#f59e0b",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            min: 0,
+            max: 100000000, // 100 triệu
+            ticks: {
+              stepSize: 20000000, // 20 triệu
+              callback: (value) => {
+                if (value === 0) return "0";
+                return value / 1000000 + " triệu";
+              },
+            },
+            grid: { color: "#f3f4f6" },
+          },
+          x: { grid: { display: false } },
+        },
+        interaction: { intersect: false, mode: "index" },
+      },
+    });
+
+    return () => {
       if (revenueChartInstance.current) revenueChartInstance.current.destroy();
     };
-  }, []);
+  }, [revenuePeriod, weeklyRevenue, monthlyRevenue]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -272,7 +382,6 @@ const Dashboard = () => {
       <div className="dashboard-content">
         {/* KPI Cards */}
         <div className="kpi-section">
-          {/* 1. Thành công */}
           <div className="kpi-card">
             <div className="kpi-icon completed">
               <CheckCircle size={24} />
@@ -289,7 +398,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* 2. Đang hoạt động */}
           <div className="kpi-card">
             <div className="kpi-icon active">
               <Plane size={24} />
@@ -306,7 +414,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* 3. Người dùng mới */}
           <div className="kpi-card">
             <div className="kpi-icon new-users">
               <UserRoundPlus size={24} />
@@ -323,13 +430,12 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* 4. Tổng doanh thu */}
           <div className="kpi-card">
             <div className="kpi-icon revenue">
               <PiggyBank size={24} />
             </div>
             <div className="kpi-content">
-              <h3>Tổng doanh thu</h3>
+              <h3>Doanh thu</h3>
               <div className="kpi-value">
                 {loadingKPI ? "..." : formatCurrency(totalRevenue)}
               </div>
@@ -345,10 +451,15 @@ const Dashboard = () => {
         <div className="charts-section">
           <div className="chart-card ticket-sales">
             <div className="chart-header">
-              <h3>Vé bán ra</h3>
+              <h3>Vé bán ra trong tuần</h3>
             </div>
             <div className="chart-content">
-              <div className="chart-value">Tổng vé bán ra: 5,000</div>
+              <div className="chart-value">
+                Tổng vé bán ra:{" "}
+                {weeklyTickets
+                  .reduce((sum, item) => sum + item.tickets_sold, 0)
+                  .toLocaleString()}
+              </div>
               <div className="chart-container">
                 <canvas ref={ticketChartRef}></canvas>
               </div>
@@ -368,6 +479,23 @@ const Dashboard = () => {
               </select>
             </div>
             <div className="chart-content">
+              <div className="chart-value">
+                Tổng doanh thu:{" "}
+                {revenuePeriod === "Tuần"
+                  ? weeklyRevenue
+                      .reduce(
+                        (sum, item) => sum + parseFloat(item.revenue || 0),
+                        0
+                      )
+                      .toLocaleString("vi-VN")
+                  : monthlyRevenue
+                      .reduce(
+                        (sum, item) => sum + parseFloat(item.revenue || 0),
+                        0
+                      )
+                      .toLocaleString("vi-VN")}{" "}
+                đ
+              </div>
               <div className="chart-container">
                 <canvas ref={revenueChartRef}></canvas>
               </div>
@@ -401,8 +529,8 @@ const Dashboard = () => {
                       <td>{booking.time}</td>
                       <td>
                         <span className={`status ${booking.status}`}>
-                          {booking.status === "completed"
-                            ? "Completed"
+                          {booking.status === "confirmed"
+                            ? "Confirmed"
                             : "Pending"}
                         </span>
                       </td>
@@ -454,23 +582,16 @@ const Dashboard = () => {
           <div className="bottom-card top-routes">
             <div className="card-header">
               <h3>Chặng bay phổ biến</h3>
-              <button className="menu-btn">
-                <MoreVertical size={18} />
-              </button>
             </div>
             <div className="routes-list">
-              {topRoutes.map((route, index) => (
+              {topFlightRoutes.map((route, index) => (
                 <div key={index} className="route-item">
                   <div className="route-info">
                     <h4>
                       {route.from} - {route.to}
                     </h4>
-                    <p>{route.distance}</p>
                   </div>
                   <div className="route-stats">
-                    <span className="passengers">
-                      {route.passengers} Hành khách
-                    </span>
                     <div className="progress-bar">
                       <div
                         className="progress-fill"

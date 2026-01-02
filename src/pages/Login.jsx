@@ -15,6 +15,8 @@ const Login = () => {
     localStorage.removeItem("userId");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userName");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("accessToken");
   }, []);
 
   const handleSubmit = async (e) => {
@@ -42,20 +44,21 @@ const Login = () => {
         throw new Error(data.detail || "Đăng nhập thất bại");
       }
 
-      if (data.status === "success") {
-        // Kiểm tra role phải là admin hoặc super admin
-        if (data.role !== "admin" && data.role !== "super admin") {
-          alert("Bạn không có quyền truy cập trang quản trị.");
-          return;
-        }
-
-        alert("Đăng nhập thành công");
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userId", data.id);
-        localStorage.setItem("userRole", data.role);
-        localStorage.setItem("userName", data.name);
-        navigate("/dashboard");
+      // Kiểm tra role phải là admin hoặc superadmin
+      if (data.role !== "admin" && data.role !== "superadmin") {
+        alert("Bạn không có quyền truy cập trang quản trị.");
+        setIsLoading(false);
+        return;
       }
+
+      alert("Đăng nhập thành công");
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userId", data.user_id);
+      localStorage.setItem("userRole", data.role);
+      localStorage.setItem("userName", data.name);
+      localStorage.setItem("userEmail", data.email);
+      localStorage.setItem("accessToken", data.access_token);
+      navigate("/dashboard");
     } catch (error) {
       alert(error.message || "Sai email hoặc mật khẩu. Vui lòng thử lại.");
     } finally {

@@ -12,169 +12,13 @@ import {
 } from "lucide-react";
 import "../styles/main.css";
 import "../styles/managers.css";
+import "../styles/booking.css";
+import axios from "axios";
 
-// Sample booking data
-const initialBookingsData = [
-  {
-    id: "BK001",
-    fullname: "Nguyễn Văn An",
-    email: "nguyenvanan@gmail.com",
-    bookingDate: "2025-01-15",
-    status: "completed",
-    phone: "0912345678",
-    flightCode: "VN123",
-    departure: "Hà Nội (HAN)",
-    arrival: "TP.HCM (SGN)",
-    passengers: 2,
-    totalPrice: 2500000,
-  },
-  {
-    id: "BK002",
-    fullname: "Trần Thị Bình",
-    email: "tranthib@gmail.com",
-    bookingDate: "2025-01-14",
-    status: "pending",
-    phone: "0987654321",
-    flightCode: "VJ456",
-    departure: "TP.HCM (SGN)",
-    arrival: "Đà Nẵng (DAD)",
-    passengers: 1,
-    totalPrice: 1200000,
-  },
-  {
-    id: "BK003",
-    fullname: "Lê Minh Cường",
-    email: "leminhcuong@gmail.com",
-    bookingDate: "2025-01-13",
-    status: "completed",
-    phone: "0909123456",
-    flightCode: "QH789",
-    departure: "Đà Nẵng (DAD)",
-    arrival: "Hà Nội (HAN)",
-    passengers: 3,
-    totalPrice: 3600000,
-  },
-  {
-    id: "BK004",
-    fullname: "Phạm Thị Dung",
-    email: "phamthidung@gmail.com",
-    bookingDate: "2025-01-12",
-    status: "cancelled",
-    phone: "0918765432",
-    flightCode: "VN234",
-    departure: "Hà Nội (HAN)",
-    arrival: "Phú Quốc (PQC)",
-    passengers: 2,
-    totalPrice: 4200000,
-  },
-  {
-    id: "BK005",
-    fullname: "Hoàng Văn Em",
-    email: "hoangvanem@gmail.com",
-    bookingDate: "2025-01-11",
-    status: "pending",
-    phone: "0923456789",
-    flightCode: "VJ567",
-    departure: "TP.HCM (SGN)",
-    arrival: "Nha Trang (CXR)",
-    passengers: 4,
-    totalPrice: 4800000,
-  },
-  {
-    id: "BK006",
-    fullname: "Ngô Thị Phương",
-    email: "ngothiphuong@gmail.com",
-    bookingDate: "2025-01-10",
-    status: "completed",
-    phone: "0934567890",
-    flightCode: "QH012",
-    departure: "Hà Nội (HAN)",
-    arrival: "Đà Lạt (DLI)",
-    passengers: 2,
-    totalPrice: 2800000,
-  },
-  {
-    id: "BK007",
-    fullname: "Vũ Văn Giang",
-    email: "vuvangiang@gmail.com",
-    bookingDate: "2025-01-09",
-    status: "completed",
-    phone: "0945678901",
-    flightCode: "VN345",
-    departure: "TP.HCM (SGN)",
-    arrival: "Hải Phòng (HPH)",
-    passengers: 1,
-    totalPrice: 1500000,
-  },
-  {
-    id: "BK008",
-    fullname: "Đỗ Thị Hương",
-    email: "dothihuong@gmail.com",
-    bookingDate: "2025-01-08",
-    status: "pending",
-    phone: "0956789012",
-    flightCode: "VJ678",
-    departure: "Đà Nẵng (DAD)",
-    arrival: "TP.HCM (SGN)",
-    passengers: 2,
-    totalPrice: 2200000,
-  },
-  {
-    id: "BK009",
-    fullname: "Bùi Văn Khoa",
-    email: "buivankhoa@gmail.com",
-    bookingDate: "2025-01-07",
-    status: "completed",
-    phone: "0967890123",
-    flightCode: "QH234",
-    departure: "Hà Nội (HAN)",
-    arrival: "Quy Nhơn (UIH)",
-    passengers: 3,
-    totalPrice: 3300000,
-  },
-  {
-    id: "BK010",
-    fullname: "Trịnh Thị Lan",
-    email: "trinhthilan@gmail.com",
-    bookingDate: "2025-01-06",
-    status: "cancelled",
-    phone: "0978901234",
-    flightCode: "VN456",
-    departure: "TP.HCM (SGN)",
-    arrival: "Cần Thơ (VCA)",
-    passengers: 1,
-    totalPrice: 900000,
-  },
-  {
-    id: "BK011",
-    fullname: "Đinh Văn Minh",
-    email: "dinhvanminh@gmail.com",
-    bookingDate: "2025-01-05",
-    status: "completed",
-    phone: "0989012345",
-    flightCode: "VJ789",
-    departure: "Hà Nội (HAN)",
-    arrival: "Buôn Ma Thuột (BMV)",
-    passengers: 2,
-    totalPrice: 2600000,
-  },
-  {
-    id: "BK012",
-    fullname: "Lý Thị Ngọc",
-    email: "lythingoc@gmail.com",
-    bookingDate: "2025-01-04",
-    status: "pending",
-    phone: "0990123456",
-    flightCode: "QH345",
-    departure: "Đà Nẵng (DAD)",
-    arrival: "Hà Nội (HAN)",
-    passengers: 4,
-    totalPrice: 4400000,
-  },
-];
+const API_BASE_URL = "http://localhost:8000";
 
 const Booking = () => {
-  const [bookingsData, setBookingsData] = useState(initialBookingsData);
+  const [bookingsData, setBookingsData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredData, setFilteredData] = useState([]);
@@ -183,6 +27,27 @@ const Booking = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const itemsPerPage = 8;
+
+  const fetchBookings = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/bookings`);
+      setBookingsData(
+        response.data.map((item) => ({
+          id: item.reservation_code,
+          fullname: item.user_name,
+          email: item.email,
+          bookingDate: item.booking_time,
+          status: item.status,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
 
   // Filter and sort data
   useEffect(() => {
@@ -611,285 +476,6 @@ const Booking = () => {
           </div>
         </div>
       )}
-
-      <style>{`
-        .booking-controls {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1.5rem;
-          flex-wrap: wrap;
-          gap: 1rem;
-        }
-        
-        .booking-tab {
-          border-bottom: 2px solid transparent;
-        }
-        
-        .booking-tab-active {
-          color: var(--text-dark);
-          font-weight: 600;
-          font-size: 0.95rem;
-          padding-bottom: 0.5rem;
-          border-bottom: 2px solid var(--primary-color);
-          display: inline-block;
-        }
-        
-        .booking-actions {
-          display: flex;
-          gap: 1rem;
-          align-items: center;
-        }
-        
-        .sort-dropdown-container {
-          position: relative;
-        }
-        
-        .sort-dropdown-btn {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.75rem 1rem;
-          border: 1px solid var(--extra-light);
-          border-radius: 8px;
-          background: var(--white);
-          color: var(--text-dark);
-          font-size: 0.875rem;
-          cursor: pointer;
-          transition: var(--transition);
-          font-family: "DM Sans", sans-serif;
-        }
-        
-        .sort-dropdown-btn:hover {
-          border-color: var(--primary-color);
-        }
-        
-        .sort-dropdown-menu {
-          position: absolute;
-          top: 100%;
-          right: 0;
-          margin-top: 0.5rem;
-          background: var(--white);
-          border: 1px solid var(--extra-light);
-          border-radius: 8px;
-          box-shadow: var(--box-shadow);
-          z-index: 100;
-          min-width: 150px;
-          overflow: hidden;
-        }
-        
-        .sort-dropdown-menu button {
-          display: block;
-          width: 100%;
-          padding: 0.75rem 1rem;
-          border: none;
-          background: none;
-          text-align: left;
-          font-size: 0.875rem;
-          color: var(--text-dark);
-          cursor: pointer;
-          transition: var(--transition);
-          font-family: "DM Sans", sans-serif;
-        }
-        
-        .sort-dropdown-menu button:hover {
-          background: var(--extra-light);
-        }
-        
-        .sort-dropdown-menu button.active {
-          background: rgba(135, 179, 234, 0.1);
-          color: var(--primary-color);
-          font-weight: 500;
-        }
-        
-        .booking-id {
-          font-weight: 600;
-          color: var(--text-dark) !important;
-        }
-        
-        .booking-status {
-          padding: 0.375rem 0.875rem;
-          border-radius: 20px;
-          font-size: 0.75rem;
-          font-weight: 500;
-          display: inline-block;
-        }
-        
-        .status-completed {
-          background: #dcfce7;
-          color: #166534;
-        }
-        
-        .status-pending {
-          background: #fef3c7;
-          color: #92400e;
-        }
-        
-        .status-cancelled {
-          background: #fee2e2;
-          color: #991b1b;
-        }
-        
-        /* Modal Styles */
-        .modal-backdrop {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9999;
-          animation: fadeIn 0.2s ease;
-        }
-        
-        .modal-container {
-          background: var(--white);
-          border-radius: var(--border-radius);
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-          max-width: 550px;
-          width: 90%;
-          max-height: 90vh;
-          overflow-y: auto;
-          animation: slideUp 0.3s ease;
-        }
-        
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 1.5rem;
-          border-bottom: 1px solid var(--extra-light);
-        }
-        
-        .modal-header h2 {
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: var(--text-dark);
-          margin: 0;
-        }
-        
-        .modal-close {
-          background: none;
-          border: none;
-          color: var(--text-light);
-          cursor: pointer;
-          padding: 0.5rem;
-          border-radius: 6px;
-          transition: var(--transition);
-        }
-        
-        .modal-close:hover {
-          background: var(--extra-light);
-          color: var(--text-dark);
-        }
-        
-        .booking-detail-content {
-          padding: 1.5rem;
-        }
-        
-        .detail-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1.25rem;
-        }
-        
-        .detail-item {
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-        }
-        
-        .detail-item label {
-          font-size: 0.75rem;
-          color: var(--text-light);
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .detail-value {
-          font-size: 0.95rem;
-          color: var(--text-dark);
-          font-weight: 500;
-        }
-        
-        .detail-value.highlight {
-          color: var(--primary-color);
-          font-weight: 600;
-          font-size: 1.1rem;
-        }
-        
-        .detail-value.price {
-          color: #10b981;
-          font-weight: 600;
-          font-size: 1.1rem;
-        }
-        
-        .detail-divider {
-          height: 1px;
-          background: var(--extra-light);
-          margin: 1.5rem 0;
-        }
-        
-        .detail-section h3 {
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: var(--text-dark);
-          margin-bottom: 1rem;
-        }
-        
-        .modal-footer {
-          padding: 1rem 1.5rem;
-          border-top: 1px solid var(--extra-light);
-          display: flex;
-          justify-content: flex-end;
-        }
-        
-        .btn-cancel {
-          padding: 0.75rem 1.5rem;
-          border: 1px solid var(--extra-light);
-          background: var(--white);
-          color: var(--text-dark);
-          border-radius: 8px;
-          font-size: 0.875rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: var(--transition);
-          font-family: "DM Sans", sans-serif;
-        }
-        
-        .btn-cancel:hover {
-          background: var(--extra-light);
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-          from { transform: translateY(20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        
-        body.dark-mode .sort-dropdown-menu {
-          background: var(--white);
-          border-color: #374151;
-        }
-        
-        body.dark-mode .modal-container {
-          background: var(--white);
-        }
-        
-        @media (max-width: 500px) {
-          .detail-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </DashboardLayout>
   );
 };
