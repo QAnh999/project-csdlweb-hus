@@ -11,7 +11,7 @@ from app.schemas.booking import (
     BookingHoldSeatsRequest,
     BookingSeatResponse,
     BookingPassengerRequest,
-    PassengerInfo,
+    PassengerResponse,
     BookingFinalizeRequest,
     BookingFinalizeResponse,
     BookingPaymentRequest,
@@ -36,7 +36,7 @@ def get_available_seats(flight_id: int, seat_class: str, db: Session = Depends(g
 def hold_seats(reservation_id: int, req: BookingHoldSeatsRequest, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
     return booking_controller.hold_seats(db, user_id, reservation_id, req)
 
-@router.post("/{reservation_id}/passengers", response_model=List[PassengerInfo])
+@router.post("/{reservation_id}/passengers", response_model=List[PassengerResponse])
 def add_passengers(reservation_id: int, req: BookingPassengerRequest, user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
     return booking_controller.add_passengers(db, user_id, reservation_id, req)
 
