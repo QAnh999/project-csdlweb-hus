@@ -1,29 +1,40 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from ..database import get_db
-from .. import models
+from database import get_db
+from models import Review, User
+import schemas
+from typing import List
 
-router = APIRouter(prefix="/feedback", tags=["Feedback"])
+router = APIRouter(prefix="/feedbacks", tags=["Feedbacks"])
 
-@router.get("/")
-def list_feedbacks(db: Session = Depends(get_db)):
-    fb = db.query(models.Review).all()
-    res = []
-    for f in fb:
-        res.append({
-            "id": f.id,
-            "user_name": f"{f.user.last_name} {f.user.first_name}" if f.user else "Anonymous",
-            "rating_overall": f.rating_overall,
-            "comment_text": f.comment_text,
-            "date": f.created_at.strftime("%d/%m/%Y")
-        })
-    return res
+@router.get("/", response_model=List[schemas.FeedbackResponse])
+def get_feedbacks(db: Session = Depends(get_db)):
+    feedbacks = db.query(
+        User.first_name,
+        User.last_name,
+        Review.rating_overall,
+        Review.comment_text,
+        Review.comment_date
+    ).join(Review, Review.user_id == User.id
+    ).order_by(Review.comment_date.desc()).all()
+    
+    return [
+        {
+            "user_name": f"{feedback.first_name} {feedback.last_name}",
+            "rating_overall": feedback.rating_overall,
+            "comment_text": feedback.comment_text,
+            "comment_date": feedback.comment_date.date()
+        }
+        for feedback in feedbacks
+    ]
 
-@router.delete("/{id}")
-def delete_feedback(id: int, db: Session = Depends(get_db)):
-    # Xóa luôn khỏi DB
-    f = db.query(models.Review).filter(models.Review.id == id).first()
-    if not f: raise HTTPException(404)
-    db.delete(f)
+@router.delete("/{feedback_id}")
+def delete_feedback(feedback_id: int, db: Session = Depends(get_db)):
+    feedback = db.query(Review).filter(Review.id == feedback_id).first()
+    if not feedback:
+        raise HTTPException(status_code=404, detail="Feedback not found")
+    
+    db.delete(feedback)
     db.commit()
-    return {"status": "success"}
+    
+    return {"message": "Feedback deleted successfully"}

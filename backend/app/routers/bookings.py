@@ -1,26 +1,32 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from ..database import get_db
-from .. import models
+from database import get_db
+from models import Reservation, User, Flight
+import schemas
+from typing import List
 
-router = APIRouter(prefix="/booking", tags=["Booking"])
+router = APIRouter(prefix="/bookings", tags=["Bookings"])
 
-@router.get("/")
-def list_bookings(db: Session = Depends(get_db)):
-    # 10 cái mới nhất
-    bookings = db.query(models.Reservation)\
-        .order_by(models.Reservation.created_at.desc())\
-        .limit(10).all()
-        
-    res = []
-    for b in bookings:
-        name = f"{b.user.last_name} {b.user.first_name}" if b.user else b.passenger_name
-        email = b.user.email if b.user else b.contact_email
-        res.append({
-            "booking_code": b.reservation_code,
-            "name": name,
-            "email": email,
-            "created_at": b.created_at,
-            "status": b.status
-        })
-    return res
+@router.get("/", response_model=List[schemas.BookingResponse])
+def get_bookings(db: Session = Depends(get_db)):
+    bookings = db.query(
+        Reservation.reservation_code,
+        User.first_name,
+        User.last_name,
+        User.email,
+        Reservation.created_at,
+        Reservation.status
+    ).join(User, Reservation.user_id == User.id
+    ).order_by(Reservation.created_at.desc()
+    ).limit(10).all()
+    
+    return [
+        {
+            "reservation_code": booking.reservation_code,
+            "user_name": f"{booking.first_name} {booking.last_name}",
+            "email": booking.email,
+            "booking_time": booking.created_at,
+            "status": booking.status
+        }
+        for booking in bookings
+    ]

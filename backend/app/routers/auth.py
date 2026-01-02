@@ -1,33 +1,46 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from ..database import get_db
-from .. import models, schemas
+from database import get_db
+from models import User, Staff
+import schemas
+from typing import Union
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-@router.post("/login")
-def login(data: schemas.LoginRequest, db: Session = Depends(get_db)):
-    # 1. Tìm trong bảng Staff (Admin/Super Admin)
-    staff = db.query(models.Staff).filter(models.Staff.email == data.email).first()
-    if staff:
-        if staff.status == 'deleted':
-             raise HTTPException(400, "Tài khoản này đã bị xóa")
-        if staff.password == data.password: # So sánh chuỗi cơ bản
-            return {
-                "status": "success",
-                "role": staff.role.lower(), # admin hoặc superadmin
-                "id": staff.admin_id,
-                "name": staff.full_name
-            }
+@router.post("/login", response_model=schemas.LoginResponse)
+def login(login_data: schemas.LoginRequest, db: Session = Depends(get_db)):
+    # Try to find in Staff table first - SO SÁNH CHUỖI CƠ BẢN
+    staff = db.query(Staff).filter(
+        Staff.email == login_data.email,
+        Staff.password == login_data.password,  # SO SÁNH TRỰC TIẾP
+        Staff.is_active == True
+    ).first()
     
-    # 2. Tìm trong bảng User
-    user = db.query(models.User).filter(models.User.email == data.email).first()
-    if user and user.password == data.password:
+    if staff:
+        # Staff login
         return {
-            "status": "success",
-            "role": "user",
-            "id": user.id,
-            "name": f"{user.last_name} {user.first_name}"
+            "access_token": "staff_token_" + str(staff.admin_id),
+            "role": staff.role.lower().replace(" ", ""),
+            "user_id": staff.admin_id,
+            "email": staff.email,
+            "name": staff.full_name
         }
-
-    raise HTTPException(401, "Email hoặc mật khẩu không chính xác")
+    
+    # Try to find in User table - SO SÁNH CHUỖI CƠ BẢN
+    user = db.query(User).filter(
+        User.email == login_data.email,
+        User.password == login_data.password,  # SO SÁNH TRỰC TIẾP
+        User.status == 'active'
+    ).first()
+    
+    if user:
+        # User login
+        return {
+            "access_token": "user_token_" + str(user.id),
+            "role": "user",
+            "user_id": user.id,
+            "email": user.email,
+            "name": f"{user.first_name} {user.last_name}"
+        }
+    
+    raise HTTPException(status_code=401, detail="Invalid email or password")

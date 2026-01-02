@@ -3,4 +3,4 @@ INSERT INTO Promotions (id, code, name, description, discount_type, discount_val
 (2, 'THANG10FIX', 'Giảm cố định 50.000đ', 'Giảm 50.000 đồng cho mọi đơn đặt vé trong tháng 10', 'fixed_amount', 50000.00, 0, NULL, 2000, '2025-10-01', '2025-10-31', TRUE),
 (3, 'VIPMEMBER', 'Thành viên VIP giảm 15%', 'Ưu đãi cho khách hàng thân thiết', 'percentage', 15.00, 1000000.00, NULL, 100, '2025-07-01', '2025-12-31', TRUE),
 (4, 'TET2025', 'Khuyến mãi Tết 2025', 'Giảm 20% vé khứ hồi', 'percentage', 20.00, 500000.00, NULL, 500, '2025-12-01', '2025-12-31', FALSE),
-(5, 'STUDENT50', 'Giảm giá sinh viên', 'Giảm 50.000đ cho sinh viên có thẻ', 'fixed_amount', 50000.00, 0, NULL, 1000, '2025-09-01', '2025-11-30', TRUE);
+(5, 'STUDENT50', 'Giảm giá sinh viên', 'Giảm 50.000đ cho sinh viên có thẻ', 'fixed_amount', 50000.00, 0, NULL, 1000, '2026-01-01', '2026-01-31', TRUE);

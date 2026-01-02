@@ -1,47 +1,34 @@
-import time
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.exc import OperationalError
-from sqlalchemy import text # Import text
-from .database import engine, Base, SessionLocal # Bỏ init_data
-from . import models
-from .routers import auth, dashboard, flights, bookings, services, feedbacks, promotions, managers
+import uvicorn
+from routers import (
+    auth, dashboard, flights, bookings, services, 
+    feedbacks, promotions, managers
+)
+from database import init_db
+from datetime import datetime
 
-app = FastAPI(title="Lotus Airlines API")
+# Khởi tạo database
+init_db()
 
+app = FastAPI(
+    title="Lotus Travel API", 
+    version="1.0.0",
+    description="API for Lotus Travel Flight Booking System",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Trong production nên chỉ định domain cụ thể
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.on_event("startup")
-def startup_event():
-    # Vẫn giữ logic chờ DB khởi động, nhưng KHÔNG tạo bảng nữa
-    retries = 10
-    while retries > 0:
-        try:
-            print(f"⏳ Connecting to DB... ({retries} left)")
-            
-            # Thử kết nối đơn giản để xem DB sống chưa
-            with engine.connect() as connection:
-                connection.execute(text("SELECT 1"))
-                
-            print("✅ Database connection established!")
-            
-            # --- QUAN TRỌNG: BỎ DÒNG create_all ĐI ---
-            # Base.metadata.create_all(bind=engine) 
-            # init_data() 
-            # ---------------------------------------
-            
-            break
-        except OperationalError:
-            retries -= 1
-            time.sleep(3)
-
- 
+# Đăng ký tất cả routers
 app.include_router(auth.router)
 app.include_router(dashboard.router)
 app.include_router(flights.router)
@@ -50,3 +37,38 @@ app.include_router(services.router)
 app.include_router(feedbacks.router)
 app.include_router(promotions.router)
 app.include_router(managers.router)
+
+@app.get("/")
+def read_root():
+    return {
+        "message": "Welcome to Lotus Travel API",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "endpoints": [
+            "/auth/login",
+            "/dashboard/daily-stats",
+            "/flights/search",
+            "/bookings/",
+            "/services/",
+            "/feedbacks/",
+            "/promotions/",
+            "/managers/users"
+        ]
+    }
+
+@app.get("/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "service": "Lotus Travel Backend",
+        "timestamp": datetime.now().isoformat()
+    }
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info"
+    )

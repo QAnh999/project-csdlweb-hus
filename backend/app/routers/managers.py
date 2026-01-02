@@ -1,60 +1,155 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from ..database import get_db
-from .. import models, schemas
+from database import get_db
+from models import Staff, User
+import schemas
+from typing import List
+from datetime import datetime
 
 router = APIRouter(prefix="/managers", tags=["Managers"])
 
-# Hàm check quyền SuperAdmin
-def verify_super(role: str = Header(default=None)):
-    # Thực tế bạn nên lấy role từ token, nhưng ở đây giả sử truyền header
-    # Hoặc logic so sánh đơn giản nếu FE truyền role lên
-    pass 
-
-@router.delete("/admin/{id}")
-def delete_admin(id: int, db: Session = Depends(get_db)):
-    # Superadmin xóa admin -> Chuyển status thành deleted
-    # Cần logic check xem người gọi api có phải superadmin không
-    # Ở đây làm logic xử lý db:
-    admin = db.query(models.Staff).filter(models.Staff.admin_id == id).first()
-    if not admin: raise HTTPException(404)
-    
-    admin.status = "deleted"
-    db.commit()
-    return {"status": "success"}
-
-@router.get("/users")
-def list_users(db: Session = Depends(get_db)):
-    users = db.query(models.User).all()
-    return [{
-        "id": u.id,
-        "full_name": f"{u.last_name} {u.first_name}",
-        "email": u.email,
-        "joined_date": u.created_at.strftime("%d/%m/%Y") if u.created_at else ""
-    } for u in users]
-
-@router.get("/admins")
-def list_admins(db: Session = Depends(get_db)):
-    # Không hiển thị người có status là deleted
-    admins = db.query(models.Staff)\
-        .filter(models.Staff.role == "Admin")\
-        .filter(models.Staff.status != 'deleted').all()
+@router.get("/users", response_model=List[schemas.UserResponse])
+def get_users(db: Session = Depends(get_db)):
+    try:
+        users = db.query(
+            User.id,
+            User.first_name,
+            User.last_name,
+            User.email,
+            User.created_at
+        ).filter(User.status == 'active'
+        ).order_by(User.created_at.desc()).all()
         
-    return [{"id": a.admin_id, "name": a.full_name, "role": a.role, "email": a.email} for a in admins]
+        # Format response
+        response = []
+        for user in users:
+            response.append({
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "created_at": user.created_at.date() if user.created_at else None
+            })
+        
+        return response
+    except Exception as e:
+        print(f"Error getting users: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@router.get("/super-admins")
-def list_supers(db: Session = Depends(get_db)):
-    supers = db.query(models.Staff).filter(models.Staff.role == "Super Admin").all()
-    return [{"id": s.admin_id, "name": s.full_name, "email": s.email} for s in supers]
+@router.get("/admins", response_model=List[schemas.AdminResponse])
+def get_admins(db: Session = Depends(get_db)):
+    try:
+        admins = db.query(Staff).filter(
+            Staff.status != 'deleted',
+            Staff.role == 'Admin'
+        ).order_by(Staff.admin_id).all()
+        
+        # Format response
+        response = []
+        for admin in admins:
+            response.append({
+                "admin_id": admin.admin_id,
+                "admin_name": admin.admin_name,
+                "full_name": admin.full_name,
+                "role": admin.role,
+                "email": admin.email,
+                "status": admin.status
+            })
+        
+        return response
+    except Exception as e:
+        print(f"Error getting admins: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@router.post("/admin")
-def add_admin(s: schemas.StaffCreate, db: Session = Depends(get_db)):
-    # Thêm admin mới
-    exist = db.query(models.Staff).filter(models.Staff.email == s.email).first()
-    if exist: raise HTTPException(400, "Email exists")
-    
-    new_admin = models.Staff(**s.dict())
-    new_admin.status = "active"
-    db.add(new_admin)
-    db.commit()
-    return {"status": "success"}
+@router.get("/superadmins", response_model=List[schemas.AdminResponse])
+def get_superadmins(db: Session = Depends(get_db)):
+    try:
+        superadmins = db.query(Staff).filter(
+            Staff.status != 'deleted',
+            Staff.role == 'Super Admin'
+        ).order_by(Staff.admin_id).all()
+        
+        # Format response
+        response = []
+        for admin in superadmins:
+            response.append({
+                "admin_id": admin.admin_id,
+                "admin_name": admin.admin_name,
+                "full_name": admin.full_name,
+                "role": admin.role,
+                "email": admin.email,
+                "status": admin.status
+            })
+        
+        return response
+    except Exception as e:
+        print(f"Error getting superadmins: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@router.post("/admins")
+def create_admin(admin_data: schemas.AdminCreate, db: Session = Depends(get_db)):
+    try:
+        # Kiểm tra email đã tồn tại chưa
+        existing = db.query(Staff).filter(Staff.email == admin_data.email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already exists")
+        
+        # Kiểm tra admin_name đã tồn tại chưa
+        existing_name = db.query(Staff).filter(Staff.admin_name == admin_data.admin_name).first()
+        if existing_name:
+            raise HTTPException(status_code=400, detail="Admin name already exists")
+        
+        # Tạo admin mới
+        db_admin = Staff(
+            admin_name=admin_data.admin_name,
+            password=admin_data.password,
+            full_name=admin_data.full_name,
+            role=admin_data.role,
+            email=admin_data.email,
+            is_active=True,
+            status='work'
+        )
+        
+        db.add(db_admin)
+        db.commit()
+        db.refresh(db_admin)
+        
+        return {
+            "admin_id": db_admin.admin_id,
+            "admin_name": db_admin.admin_name,
+            "full_name": db_admin.full_name,
+            "role": db_admin.role,
+            "email": db_admin.email,
+            "status": db_admin.status
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error creating admin: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@router.delete("/admins/{admin_id}")
+def delete_admin(admin_id: int, db: Session = Depends(get_db)):
+    try:
+        admin = db.query(Staff).filter(
+            Staff.admin_id == admin_id,
+            Staff.role == 'Admin'  # Chỉ có thể xóa admin, không xóa superadmin
+        ).first()
+        
+        if not admin:
+            raise HTTPException(status_code=404, detail="Admin not found")
+        
+        # Chuyển status thành 'deleted' thay vì xóa
+        admin.status = 'deleted'
+        admin.is_active = False
+        
+        db.commit()
+        
+        return {"message": "Admin deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting admin: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
