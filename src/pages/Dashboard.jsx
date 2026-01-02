@@ -14,13 +14,7 @@ import "../styles/main.css";
 import { toast } from "sonner";
 import axios from "axios";
 
-const airlinesData = [
-  { name: "Vietjet", percentage: 35, color: "var(--primary-color)" },
-  { name: "Vietnam Airlines", percentage: 30, color: "var(--text-dark)" },
-  { name: "Bamboo Airways", percentage: 20, color: "var(--text-light)" },
-  { name: "Vietravel Airlines", percentage: 10, color: "var(--extra-light)" },
-  { name: "Pacific Airlines", percentage: 5, color: "#ff6b6b" },
-];
+const API_BASE_URL = "http://localhost:8000";
 
 const topRoutes = [
   {
@@ -63,8 +57,8 @@ const Dashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [loadingKPI, setLoadingKPI] = useState(true);
   const [recentBookingsBuffer, setRecentBookingsBuffer] = useState([]);
-  const [revenuePeriod, setRevenuePeriod] = useState("Hôm nay");
-
+  const [revenuePeriod, setRevenuePeriod] = useState("Tuần");
+  const [popularAirlines, setPopularAirlines] = useState([]);
   const ticketChartRef = useRef(null);
   const revenueChartRef = useRef(null);
   const airlinesChartRef = useRef(null);
@@ -74,14 +68,14 @@ const Dashboard = () => {
   const fetchKPI = async () => {
     try {
       setLoadingKPI(true);
-      const res = await axios.get("http://localhost:8000/dashboard/stats");
+      const res = await axios.get(`${API_BASE_URL}/dashboard`);
       const data = res.data; // axios tự parse JSON
 
       // Cập nhật từng state riêng biệt
-      setSuccessfulBookings(data.successful_bookings || 0);
+      setSuccessfulBookings(data.completed_flights || 0);
       setActiveFlights(data.active_flights || 0);
-      setNewUsers(data.new_users || 0);
-      setTotalRevenue(data.total_revenue || 0);
+      setNewUsers(data.new_users_today || 0);
+      setTotalRevenue(data.revenue_today || 0);
     } catch (error) {
       console.error("Error fetching KPI data:", error);
       toast.error("Lỗi khi tải dữ liệu KPI");
@@ -92,11 +86,9 @@ const Dashboard = () => {
 
   const fetchRecentBookings = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/dashboard/top-users");
-      if (!res.ok) throw new Error("Lỗi API");
-      const data = await res.json();
+      const res = await axios.get(`${API_BASE_URL}/dashboard/top-bookings`);
       setRecentBookingsBuffer(
-        data.map((item) => ({
+        res.data.map((item) => ({
           user: item.user,
           booking_id: item.booking_id,
           flight: item.flight,
@@ -110,9 +102,68 @@ const Dashboard = () => {
     }
   };
 
+  const fetchPopularAirlines = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/dashboard/popular-airlines`);
+      setPopularAirlines(
+        res.data.map((item) => ({
+          airline: item.airline,
+          popularity: item.popularity,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching popular airlines:", error);
+      toast.error("Lỗi khi tải dữ liệu hãng hàng không phổ biến");
+    }
+  };
+
   useEffect(() => {
     fetchKPI();
     fetchRecentBookings();
+    fetchPopularAirlines();
+  }, []);
+
+  useEffect(() => {
+    if (!airlinesChartRef.current || popularAirlines.length === 0) return;
+
+    if (airlinesChartInstance.current) {
+      airlinesChartInstance.current.destroy();
+    }
+
+    const ctx = airlinesChartRef.current.getContext("2d");
+
+    airlinesChartInstance.current = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: popularAirlines.map((a) => a.airline),
+        datasets: [
+          {
+            data: popularAirlines.map((a) => a.popularity),
+            backgroundColor: [
+              "#87b3ea",
+              "#35265c",
+              "#5d5e84",
+              "#f3f4f6",
+              "#ff6b6b",
+            ],
+            borderWidth: 0,
+            cutout: "60%",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+      },
+    });
+    return () => {
+      if (airlinesChartInstance.current)
+        airlinesChartInstance.current.destroy();
+    };
+  }, [popularAirlines]);
+
+  useEffect(() => {
     // Ticket Sales Chart
     if (ticketChartRef.current) {
       if (ticketChartInstance.current) {
@@ -202,52 +253,12 @@ const Dashboard = () => {
       });
     }
 
-    // Airlines Chart
-    if (airlinesChartRef.current) {
-      if (airlinesChartInstance.current) {
-        airlinesChartInstance.current.destroy();
-      }
-      const ctx = airlinesChartRef.current.getContext("2d");
-      airlinesChartInstance.current = new Chart(ctx, {
-        type: "doughnut",
-        data: {
-          labels: [
-            "Vietjet",
-            "Vietnam Airlines",
-            "Bamboo Airways",
-            "Vietravel Airlines",
-            "Pacific Airlines",
-          ],
-          datasets: [
-            {
-              data: [35, 30, 20, 10, 5],
-              backgroundColor: [
-                "#87b3ea",
-                "#35265c",
-                "#5d5e84",
-                "#f3f4f6",
-                "#ff6b6b",
-              ],
-              borderWidth: 0,
-              cutout: "60%",
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-        },
-      });
-    }
-
     return () => {
       if (ticketChartInstance.current) ticketChartInstance.current.destroy();
       if (revenueChartInstance.current) revenueChartInstance.current.destroy();
-      if (airlinesChartInstance.current)
-        airlinesChartInstance.current.destroy();
     };
   }, []);
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -352,10 +363,8 @@ const Dashboard = () => {
                 value={revenuePeriod}
                 onChange={(e) => setRevenuePeriod(e.target.value)}
               >
-                <option>Hôm nay</option>
                 <option>Tuần</option>
                 <option>Tháng</option>
-                <option>6 Tháng qua</option>
               </select>
             </div>
             <div className="chart-content">
@@ -416,14 +425,22 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="airlines-legend">
-                {airlinesData.map((airline, index) => (
+                {popularAirlines.map((airline, index) => (
                   <div key={index} className="legend-item">
                     <span
                       className="legend-color"
-                      style={{ background: airline.color }}
+                      style={{
+                        background: [
+                          "#87b3ea",
+                          "#35265c",
+                          "#5d5e84",
+                          "#f3f4f6",
+                          "#ff6b6b",
+                        ][index % 5],
+                      }}
                     ></span>
                     <span>
-                      {airline.name} {airline.percentage}%
+                      {airline.airline} {airline.popularity}%
                     </span>
                   </div>
                 ))}

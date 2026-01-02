@@ -1,33 +1,65 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE_URL = "http://localhost:8000";
+
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Clear login state on page load
   useEffect(() => {
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userName");
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const VALID_EMAIL = "admin@lotustravel.com";
-    const VALID_PASSWORD = "password";
 
     if (!email.trim() || !password.trim()) {
       alert("Vui lòng nhập Email và Mật khẩu.");
       return;
     }
 
-    if (email === VALID_EMAIL && password === VALID_PASSWORD) {
-      alert("Đăng nhập thành công");
-      localStorage.setItem("isLoggedIn", "true");
-      navigate("/dashboard");
-    } else {
-      alert("Sai email hoặc mật khẩu. Vui lòng thử lại.");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Đăng nhập thất bại");
+      }
+
+      if (data.status === "success") {
+        // Kiểm tra role phải là admin hoặc super admin
+        if (data.role !== "admin" && data.role !== "super admin") {
+          alert("Bạn không có quyền truy cập trang quản trị.");
+          return;
+        }
+
+        alert("Đăng nhập thành công");
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userId", data.id);
+        localStorage.setItem("userRole", data.role);
+        localStorage.setItem("userName", data.name);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      alert(error.message || "Sai email hoặc mật khẩu. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -97,6 +129,7 @@ const Login = () => {
               boxSizing: "border-box",
             }}
             required
+            disabled={isLoading}
           />
 
           <label
@@ -127,23 +160,25 @@ const Login = () => {
               boxSizing: "border-box",
             }}
             required
+            disabled={isLoading}
           />
 
           <button
             type="submit"
+            disabled={isLoading}
             style={{
-              backgroundColor: "#4a90e2",
+              backgroundColor: isLoading ? "#a0c4e8" : "#4a90e2",
               color: "white",
               border: "none",
               width: "100%",
               padding: "18px 20px",
               borderRadius: "14px",
               fontSize: "16px",
-              cursor: "pointer",
+              cursor: isLoading ? "not-allowed" : "pointer",
               boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
             }}
           >
-            Đăng Nhập
+            {isLoading ? "Đang đăng nhập..." : "Đăng Nhập"}
           </button>
         </form>
       </div>

@@ -624,3 +624,81 @@ body.dark-mode .booking-history-table th {
 body.dark-mode .booking-history-table td {
   border-color: rgba(55, 65, 81, 0.5);
 }
+
+/* User Info Modal */
+.user-info-content {
+  padding: 2rem;
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #e8f0fe 0%, #d4e4fc 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: var(--primary-color);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-item label {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--extra-light);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.btn-cancel {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--extra-light);
+  background: var(--white);
+  color: var(--text-dark);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+
+.btn-cancel:hover {
+  background: var(--extra-light);
+}
+
+.action-btn.history:hover {
+  color: #f59e0b;
+}
+
+@media (max-width: 500px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

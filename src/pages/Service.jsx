@@ -15,94 +15,9 @@ import {
 } from "lucide-react";
 import "../styles/main.css";
 import "../styles/managers.css";
+import axios from "axios";
 
-// Sample service data
-const initialServicesData = [
-  {
-    id: 1,
-    name: "Bữa ăn tiêu chuẩn",
-    description: "Bữa ăn nóng với cơm, thịt và rau",
-    category: "meal",
-    price: 150000,
-  },
-  {
-    id: 2,
-    name: "Ghế cửa sổ",
-    description: "Chọn ghế ngồi cạnh cửa sổ",
-    category: "seat",
-    price: 100000,
-  },
-  {
-    id: 3,
-    name: "Hành lý 20kg",
-    description: "Thêm 20kg hành lý ký gửi",
-    category: "luggage",
-    price: 350000,
-  },
-  {
-    id: 4,
-    name: "Bảo hiểm du lịch",
-    description: "Bảo hiểm toàn diện cho chuyến bay",
-    category: "insurance",
-    price: 200000,
-  },
-  {
-    id: 5,
-    name: "Bữa ăn chay",
-    description: "Bữa ăn chay đặc biệt",
-    category: "meal",
-    price: 180000,
-  },
-  {
-    id: 6,
-    name: "Ghế lối đi",
-    description: "Chọn ghế ngồi cạnh lối đi",
-    category: "seat",
-    price: 80000,
-  },
-  {
-    id: 7,
-    name: "Hành lý 30kg",
-    description: "Thêm 30kg hành lý ký gửi",
-    category: "luggage",
-    price: 500000,
-  },
-  {
-    id: 8,
-    name: "Bảo hiểm trễ chuyến",
-    description: "Bồi thường khi chuyến bay bị trễ",
-    category: "insurance",
-    price: 120000,
-  },
-  {
-    id: 9,
-    name: "Bữa ăn Halal",
-    description: "Bữa ăn theo tiêu chuẩn Halal",
-    category: "meal",
-    price: 200000,
-  },
-  {
-    id: 10,
-    name: "Ghế hàng đầu",
-    description: "Chọn ghế ngồi hàng đầu tiên",
-    category: "seat",
-    price: 200000,
-  },
-  {
-    id: 11,
-    name: "Hành lý 40kg",
-    description: "Thêm 40kg hành lý ký gửi",
-    category: "luggage",
-    price: 650000,
-  },
-  {
-    id: 12,
-    name: "Bảo hiểm hành lý",
-    description: "Bảo hiểm mất mát hành lý",
-    category: "insurance",
-    price: 150000,
-  },
-];
+const API_BASE_URL = "http://localhost:8000";
 
 const categoryConfig = {
   meal: {
@@ -124,10 +39,36 @@ const categoryConfig = {
     color: "#3b82f6",
     bgColor: "#dbeafe",
   },
+  entertainment: {
+    label: "Entertainment",
+    icon: UtensilsCrossed,
+    color: "#ef4444",
+    bgColor: "#fee2e2",
+  },
+  priority: {
+    label: "Priority",
+    icon: Armchair,
+    color: "#14b8a6",
+    bgColor: "#ccfbf1",
+  },
+  transfer: {
+    label: "Transfer",
+    icon: Luggage,
+    color: "#f63bf6ff",
+    bgColor: "#f5c5f2ff",
+  },
+  comfort: {
+    label: "Comfort",
+    icon: Shield,
+    color: "#f97316",
+    bgColor: "#ffedd5",
+  },
 };
 
 const Service = () => {
-  const [servicesData, setServicesData] = useState(initialServicesData);
+  const [servicesData, setServicesData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredData, setFilteredData] = useState([]);
@@ -141,6 +82,33 @@ const Service = () => {
     category: "meal",
     price: "",
   });
+
+  const fetchServices = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/service`);
+      const data = response.data;
+      setServicesData(
+        data.map((item) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          category: item.category,
+          base_price: item.base_price,
+        }))
+      );
+    } catch (error) {
+      alert(error.message || "Đã xảy ra lỗi khi tải dịch vụ.");
+    }
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      await Promise.all([fetchServices()]);
+      setIsLoading(false);
+    };
+    loadData();
+  }, []);
 
   // Filter data
   useEffect(() => {
@@ -180,47 +148,66 @@ const Service = () => {
       name: service.name,
       description: service.description,
       category: service.category,
-      price: service.price.toString(),
+      price: service.base_price.toString(),
     });
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa dịch vụ này?")) {
-      setServicesData(servicesData.filter((s) => s.id !== id));
+      try {
+        const response = await axios.delete(`${API_BASE_URL}/service/${id}`);
+        if (response.data.status === "success") {
+          await fetchServices();
+          alert("Xóa dịch vụ thành công!");
+        }
+      } catch (error) {
+        alert(error.message || "Đã xảy ra lỗi khi xóa dịch vụ.");
+      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (editingId) {
-      setServicesData(
-        servicesData.map((s) =>
-          s.id === editingId
-            ? { ...s, ...formData, price: parseInt(formData.price) }
-            : s
-        )
-      );
+      try {
+        await axios.put(`${API_BASE_URL}/service/${editingId}`, {
+          name: formData.name,
+          description: formData.description,
+          category: formData.category,
+          base_price: parseInt(formData.price),
+        });
+        await fetchServices();
+        alert("Cập nhật dịch vụ thành công!");
+      } catch (error) {
+        alert(error.message || "Đã xảy ra lỗi khi cập nhật dịch vụ.");
+        return;
+      }
     } else {
-      const newId =
-        servicesData.length > 0
-          ? Math.max(...servicesData.map((s) => s.id)) + 1
-          : 1;
-      setServicesData([
-        ...servicesData,
-        { id: newId, ...formData, price: parseInt(formData.price) },
-      ]);
+      try {
+        await axios.post(`${API_BASE_URL}/service`, {
+          name: formData.name,
+          description: formData.description,
+          category: formData.category,
+          base_price: parseInt(formData.price),
+        });
+        await fetchServices();
+        alert("Thêm dịch vụ thành công!");
+      } catch (error) {
+        alert(error.message || "Đã xảy ra lỗi khi thêm dịch vụ.");
+        return;
+      }
     }
     setShowModal(false);
     setEditingId(null);
     setFormData({ name: "", description: "", category: "meal", price: "" });
   };
 
-  const formatPrice = (price) => {
+  const formatPrice = (base_price) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(price);
+    }).format(base_price);
   };
 
   const getCategoryBadge = (category) => {
@@ -393,7 +380,7 @@ const Service = () => {
                         <td>{item.description}</td>
                         <td>{getCategoryBadge(item.category)}</td>
                         <td className="service-price">
-                          {formatPrice(item.price)}
+                          {formatPrice(item.base_price)}
                         </td>
                         <td>
                           <div className="action-buttons">
@@ -500,6 +487,12 @@ const Service = () => {
                     <option value="seat">Seat - Chỗ ngồi</option>
                     <option value="luggage">Luggage - Hành lý</option>
                     <option value="insurance">Insurance - Bảo hiểm</option>
+                    <option value="entertainment">
+                      Entertainment - Giải trí
+                    </option>
+                    <option value="priority">Priority - Ưu tiên</option>
+                    <option value="transfer">Transfer - Vận chuyển</option>
+                    <option value="comfort">Comfort - Tiện nghi</option>
                   </select>
                 </div>
                 <div className="form-group">

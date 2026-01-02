@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import {
   Search,
-  Pencil,
+  Info,
   Trash2,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
   Plane,
+  X,
 } from "lucide-react";
 import "../styles/main.css";
 import "../styles/managers.css";
@@ -179,6 +180,8 @@ const Booking = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [sortOrder, setSortOrder] = useState("newest");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
   const itemsPerPage = 8;
 
   // Filter and sort data
@@ -224,9 +227,21 @@ const Booking = () => {
     }
   };
 
+  const handleViewDetail = (booking) => {
+    setSelectedBooking(booking);
+    setShowDetailModal(true);
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN");
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
   };
 
   const getStatusBadge = (status) => {
@@ -441,10 +456,11 @@ const Booking = () => {
                         <td>
                           <div className="action-buttons">
                             <button
-                              className="action-btn edit"
-                              title="Chỉnh sửa"
+                              className="action-btn view"
+                              title="Xem chi tiết"
+                              onClick={() => handleViewDetail(item)}
                             >
-                              <Pencil size={16} />
+                              <Info size={16} />
                             </button>
                             <button
                               className="action-btn delete"
@@ -487,6 +503,114 @@ const Booking = () => {
           )}
         </div>
       </div>
+
+      {/* Booking Detail Modal */}
+      {showDetailModal && selectedBooking && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setShowDetailModal(false)}
+        >
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Chi tiết đơn đặt chỗ</h2>
+              <button
+                className="modal-close"
+                onClick={() => setShowDetailModal(false)}
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="booking-detail-content">
+              <div className="detail-grid">
+                <div className="detail-item">
+                  <label>Mã đặt chỗ</label>
+                  <span className="detail-value highlight">
+                    {selectedBooking.id}
+                  </span>
+                </div>
+                <div className="detail-item">
+                  <label>Mã chuyến bay</label>
+                  <span className="detail-value highlight">
+                    {selectedBooking.flightCode}
+                  </span>
+                </div>
+                <div className="detail-item">
+                  <label>Tổng hành khách</label>
+                  <span className="detail-value">
+                    {selectedBooking.passengers} người
+                  </span>
+                </div>
+                <div className="detail-item">
+                  <label>Tổng tiền</label>
+                  <span className="detail-value price">
+                    {formatPrice(selectedBooking.totalPrice)}
+                  </span>
+                </div>
+              </div>
+              <div className="detail-divider"></div>
+              <div className="detail-section">
+                <h3>Thông tin khách hàng</h3>
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <label>Họ và tên</label>
+                    <span className="detail-value">
+                      {selectedBooking.fullname}
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Email</label>
+                    <span className="detail-value">
+                      {selectedBooking.email}
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Số điện thoại</label>
+                    <span className="detail-value">
+                      {selectedBooking.phone}
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Ngày đặt</label>
+                    <span className="detail-value">
+                      {formatDate(selectedBooking.bookingDate)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="detail-divider"></div>
+              <div className="detail-section">
+                <h3>Thông tin chuyến bay</h3>
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <label>Điểm đi</label>
+                    <span className="detail-value">
+                      {selectedBooking.departure}
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Điểm đến</label>
+                    <span className="detail-value">
+                      {selectedBooking.arrival}
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Trạng thái</label>
+                    {getStatusBadge(selectedBooking.status)}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn-cancel"
+                onClick={() => setShowDetailModal(false)}
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .booking-controls {
@@ -606,9 +730,164 @@ const Booking = () => {
           color: #991b1b;
         }
         
+        /* Modal Styles */
+        .modal-backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          animation: fadeIn 0.2s ease;
+        }
+        
+        .modal-container {
+          background: var(--white);
+          border-radius: var(--border-radius);
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+          max-width: 550px;
+          width: 90%;
+          max-height: 90vh;
+          overflow-y: auto;
+          animation: slideUp 0.3s ease;
+        }
+        
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.5rem;
+          border-bottom: 1px solid var(--extra-light);
+        }
+        
+        .modal-header h2 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: var(--text-dark);
+          margin: 0;
+        }
+        
+        .modal-close {
+          background: none;
+          border: none;
+          color: var(--text-light);
+          cursor: pointer;
+          padding: 0.5rem;
+          border-radius: 6px;
+          transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+          background: var(--extra-light);
+          color: var(--text-dark);
+        }
+        
+        .booking-detail-content {
+          padding: 1.5rem;
+        }
+        
+        .detail-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.25rem;
+        }
+        
+        .detail-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+        
+        .detail-item label {
+          font-size: 0.75rem;
+          color: var(--text-light);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .detail-value {
+          font-size: 0.95rem;
+          color: var(--text-dark);
+          font-weight: 500;
+        }
+        
+        .detail-value.highlight {
+          color: var(--primary-color);
+          font-weight: 600;
+          font-size: 1.1rem;
+        }
+        
+        .detail-value.price {
+          color: #10b981;
+          font-weight: 600;
+          font-size: 1.1rem;
+        }
+        
+        .detail-divider {
+          height: 1px;
+          background: var(--extra-light);
+          margin: 1.5rem 0;
+        }
+        
+        .detail-section h3 {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: var(--text-dark);
+          margin-bottom: 1rem;
+        }
+        
+        .modal-footer {
+          padding: 1rem 1.5rem;
+          border-top: 1px solid var(--extra-light);
+          display: flex;
+          justify-content: flex-end;
+        }
+        
+        .btn-cancel {
+          padding: 0.75rem 1.5rem;
+          border: 1px solid var(--extra-light);
+          background: var(--white);
+          color: var(--text-dark);
+          border-radius: 8px;
+          font-size: 0.875rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: var(--transition);
+          font-family: "DM Sans", sans-serif;
+        }
+        
+        .btn-cancel:hover {
+          background: var(--extra-light);
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        
         body.dark-mode .sort-dropdown-menu {
           background: var(--white);
           border-color: #374151;
+        }
+        
+        body.dark-mode .modal-container {
+          background: var(--white);
+        }
+        
+        @media (max-width: 500px) {
+          .detail-grid {
+            grid-template-columns: 1fr;
+          }
         }
       `}</style>
     </DashboardLayout>
