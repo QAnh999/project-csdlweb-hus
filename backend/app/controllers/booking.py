@@ -145,6 +145,7 @@ class BookingController:
         passenger_details=[
             PassengerDetailSeat(
                 passenger_id=d.passenger_id,
+                reservation_detail_id=d.id,
                 seat_id=d.seat_id,
                 total_fare=d.total_fare
             ) for d in details

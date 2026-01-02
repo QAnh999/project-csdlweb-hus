@@ -111,6 +111,7 @@ class InvoiceInfo(BaseModel):
 
 class PassengerDetailSeat(BaseModel):
     passenger_id: int
+    reservation_detail_id: int
     seat_id: Optional[int]
     total_fare: float
 
