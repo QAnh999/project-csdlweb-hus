@@ -158,7 +158,6 @@ def get_recent_bookings(db: Session = Depends(get_db)):
         })
     
     return response
-
 @router.get("/popular-routes", response_model=List[schemas.PopularRouteResponse])
 def get_popular_routes(db: Session = Depends(get_db)):
     """
@@ -166,83 +165,147 @@ def get_popular_routes(db: Session = Depends(get_db)):
     CHỈ trả về departure_city, arrival_city, percentage
     """
     try:
-        # Đếm tổng số chuyến bay
-        total_flights = db.query(Flight).filter(
-            Flight.status != 'deleted'
-        ).count()
+        # Tạo alias cho Airport
+        Airport_dep = aliased(Airport)
+        Airport_arr = aliased(Airport)
         
-        if total_flights == 0:
+        # Query 1: Đếm tổng số chuyến bay
+        total_flights_query = db.query(func.count(Flight.id)).filter(
+            Flight.status != 'deleted'
+        )
+        total_flights = total_flights_query.scalar()
+        
+        print(f"Total flights: {total_flights}")
+        
+        if total_flights == 0 or total_flights is None:
             return []
         
-        # Lấy tất cả flights
-        flights = db.query(Flight).filter(Flight.status != 'deleted').all()
+        # Query 2: Lấy top 5 routes với percentage
+        # CÁCH 1: Dùng subquery để tính percentage
+        route_counts = db.query(
+            Airport_dep.city.label('departure_city'),
+            Airport_arr.city.label('arrival_city'),
+            func.count(Flight.id).label('flight_count')
+        ).join(Airport_dep, Flight.dep_airport == Airport_dep.id
+        ).join(Airport_arr, Flight.arr_airport == Airport_arr.id
+        ).filter(
+            Flight.status != 'deleted',
+            Airport_dep.city.isnot(None),
+            Airport_arr.city.isnot(None)
+        ).group_by(
+            Airport_dep.city,
+            Airport_arr.city,
+            Airport_dep.id,
+            Airport_arr.id
+        ).order_by(func.count(Flight.id).desc()
+        ).limit(5).all()
         
-        # Nhóm theo cặp sân bay và đếm
-        route_counts = {}
-        for flight in flights:
-            dep_airport = db.query(Airport).filter(Airport.id == flight.dep_airport).first()
-            arr_airport = db.query(Airport).filter(Airport.id == flight.arr_airport).first()
-            
-            if dep_airport and arr_airport:
-                route_key = f"{dep_airport.city}-{arr_airport.city}"
-                if route_key not in route_counts:
-                    route_counts[route_key] = {
-                        "departure_city": dep_airport.city,
-                        "arrival_city": arr_airport.city,
-                        "count": 0
-                    }
-                route_counts[route_key]["count"] += 1
+        print(f"Found {len(route_counts)} routes")
         
-        # Chuyển thành list và sắp xếp
-        routes_list = list(route_counts.values())
-        routes_list.sort(key=lambda x: x["count"], reverse=True)
-        
-        # Lấy top 5
-        top_routes = routes_list[:5]
-        
-        # Format response - CHỈ trả về 3 trường
+        # Format response với tính toán percentage
         response = []
-        for route in top_routes:
-            percentage = (route["count"] / total_flights * 100)
+        for route in route_counts:
+            percentage = (route.flight_count / total_flights * 100) if total_flights > 0 else 0
             response.append({
-                "departure_city": route["departure_city"],
-                "arrival_city": route["arrival_city"],
-                "percentage": round(percentage, 2)  # CHỈ percentage
+                "departure_city": route.departure_city,
+                "arrival_city": route.arrival_city,
+                "percentage": round(percentage, 2)
             })
+            print(f"Route: {route.departure_city} -> {route.arrival_city}, Count: {route.flight_count}, %: {percentage}")
         
         return response
         
     except Exception as e:
-        print(f"Error in popular-routes: {str(e)}")
+        print(f"Error in popular-routes (method 1): {str(e)}")
         
-        # Trả về dữ liệu mẫu (chỉ 3 trường)
-        return [
-            {
-                "departure_city": "Hà Nội",
-                "arrival_city": "TP HCM",
-                "percentage": 10.5
-            },
-            {
-                "departure_city": "TP HCM", 
-                "arrival_city": "Hà Nội",
-                "percentage": 10.47
-            },
-            {
-                "departure_city": "Đà Nẵng",
-                "arrival_city": "TP HCM",
-                "percentage": 5.79
-            },
-            {
-                "departure_city": "TP HCM",
-                "arrival_city": "Đà Nẵng",
-                "percentage": 5.72
-            },
-            {
-                "departure_city": "Phú Quốc",
-                "arrival_city": "TP HCM",
-                "percentage": 4.39
-            }
-        ]
+        # THỬ CÁCH KHÁC: Dùng raw SQL nếu cần
+        try:
+            sql = """
+            SELECT 
+                ad.city as departure_city,
+                aa.city as arrival_city,
+                COUNT(f.id) as flight_count
+            FROM flights f
+            JOIN airports ad ON f.dep_airport = ad.id
+            JOIN airports aa ON f.arr_airport = aa.id
+            WHERE f.status != 'deleted'
+            GROUP BY ad.city, aa.city, ad.id, aa.id
+            ORDER BY flight_count DESC
+            LIMIT 5
+            """
+            
+            result = db.execute(sql)
+            routes = result.fetchall()
+            
+            # Đếm lại total flights
+            total_sql = "SELECT COUNT(*) FROM flights WHERE status != 'deleted'"
+            total_result = db.execute(total_sql)
+            total_flights = total_result.scalar()
+            
+            response = []
+            for route in routes:
+                percentage = (route.flight_count / total_flights * 100) if total_flights > 0 else 0
+                response.append({
+                    "departure_city": route.departure_city,
+                    "arrival_city": route.arrival_city,
+                    "percentage": round(percentage, 2)
+                })
+            
+            return response
+            
+        except Exception as e2:
+            print(f"Error in popular-routes (SQL method): {str(e2)}")
+            
+            # CÁCH CUỐI: Debug bằng cách in ra dữ liệu thực tế
+            try:
+                # In ra để debug
+                print("\n=== DEBUG INFO ===")
+                
+                # 1. Kiểm tra flights
+                flights = db.query(Flight).filter(Flight.status != 'deleted').all()
+                print(f"Total flights in DB: {len(flights)}")
+                
+                # 2. Kiểm tra airports
+                airports = db.query(Airport).all()
+                print(f"Total airports in DB: {len(airports)}")
+                
+                # 3. Kiểm tra một vài flight để xem data
+                for i, flight in enumerate(flights[:3]):
+                    dep = db.query(Airport).filter(Airport.id == flight.dep_airport).first()
+                    arr = db.query(Airport).filter(Airport.id == flight.arr_airport).first()
+                    print(f"Flight {i+1}: {dep.city if dep else 'N/A'} -> {arr.city if arr else 'N/A'}")
+                
+                # 4. Tính thủ công
+                route_dict = {}
+                for flight in flights:
+                    dep = db.query(Airport).filter(Airport.id == flight.dep_airport).first()
+                    arr = db.query(Airport).filter(Airport.id == flight.arr_airport).first()
+                    
+                    if dep and arr:
+                        key = f"{dep.city}|{arr.city}"
+                        route_dict[key] = route_dict.get(key, 0) + 1
+                
+                # Sắp xếp và lấy top 5
+                sorted_routes = sorted(route_dict.items(), key=lambda x: x[1], reverse=True)[:5]
+                
+                response = []
+                for route_key, count in sorted_routes:
+                    dep_city, arr_city = route_key.split("|")
+                    percentage = (count / len(flights) * 100) if flights else 0
+                    response.append({
+                        "departure_city": dep_city,
+                        "arrival_city": arr_city,
+                        "percentage": round(percentage, 2)
+                    })
+                
+                print(f"Calculated {len(response)} routes from manual calculation")
+                return response
+                
+            except Exception as e3:
+                print(f"Error in popular-routes (debug method): {str(e3)}")
+                # Trả về rỗng thay vì dữ liệu mẫu
+                return []
+
 @router.get("/popular-airlines", response_model=List[schemas.PopularAirlinesResponse])
 def get_popular_airlines(db: Session = Depends(get_db)):
     # Đếm tổng số chuyến bay

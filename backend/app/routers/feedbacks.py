@@ -10,6 +10,7 @@ router = APIRouter(prefix="/feedbacks", tags=["Feedbacks"])
 @router.get("/", response_model=List[schemas.FeedbackResponse])
 def get_feedbacks(db: Session = Depends(get_db)):
     feedbacks = db.query(
+        Review.id,  # THÊM ID
         User.first_name,
         User.last_name,
         Review.rating_overall,
@@ -20,6 +21,7 @@ def get_feedbacks(db: Session = Depends(get_db)):
     
     return [
         {
+            "id": feedback.id,  # THÊM ID
             "user_name": f"{feedback.first_name} {feedback.last_name}",
             "rating_overall": feedback.rating_overall,
             "comment_text": feedback.comment_text,

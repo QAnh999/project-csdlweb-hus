@@ -134,6 +134,7 @@ class ServiceUpdate(BaseModel):
 
 # Feedback Schemas
 class FeedbackResponse(BaseModel):
+    id: int  # THÊM TRƯỜNG ID
     user_name: str
     rating_overall: int
     comment_text: Optional[str]
