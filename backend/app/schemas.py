@@ -47,7 +47,7 @@ class RecentBookingResponse(BaseModel):
 class PopularRouteResponse(BaseModel):
     departure_city: str
     arrival_city: str
-    total_bookings: int
+    percentage: float
 
 class PopularAirlinesResponse(BaseModel):
     airline_name: str
