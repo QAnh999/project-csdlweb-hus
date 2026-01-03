@@ -22,6 +22,7 @@ from app.schemas.booking import (
     SeatStatus,
     InvoiceInfo,
     PaymentInfo,
+    ServiceItem,
     BookingServiceRequest,
     BookingServiceResponse,
     ServiceItemRequest,
@@ -306,6 +307,19 @@ class BookingController:
             status=payment.status,
             paid_at=getattr(payment, "paid_at", datetime.utcnow())
         ) if payment else None
+        
+        services = []
+        for d in details:
+            if d.reservation_services:
+                for rs in d.reservation_services:
+                    services.append(
+                        ServiceItem(
+                            service_id=rs.service_id,
+                            service_name=rs.service.name,
+                            quanitity=rs.quantity,
+                            base_price=rs.service.base_price
+                        )
+                    )
 
         return BookingDetailResponse(
             reservation_id=reservation.id,
@@ -319,7 +333,8 @@ class BookingController:
             total_amount=reservation.total_amount,
             tax_amount=reservation.tax_amount,
             invoice=invoice_info,
-            payment=payment_info
+            payment=payment_info,
+            services=services
         )
 
     def confirm_payment(self, db: Session, user_id: int, payment_id: int) -> BookingPaymentResponse:

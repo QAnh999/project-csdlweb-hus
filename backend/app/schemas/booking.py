@@ -134,6 +134,12 @@ class PaymentInfo(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ServiceItem(BaseModel):
+    service_id: int
+    service_name: str
+    quanitity: int
+    base_price: float
+
 class ServiceItemRequest(BaseModel):
     reservation_detail_id: int
     service_id: int 
@@ -179,6 +185,7 @@ class BookingDetailResponse(BaseModel):
 
     invoice: Optional[InvoiceInfo]
     payment: Optional[PaymentInfo]
+    services: Optional[List[ServiceItem]]
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -279,7 +279,11 @@ class ReservationService:
         try:
             reservation = self._get_reservation(db, reservation_id)
             self._assert_user(reservation, user_id)
-            
+
+            existing_details_count = self.detail_repo.count_by_reservation(db, reservation.id)
+            if existing_details_count > 0:
+                raise ValueError("Đặt chỗ đã được hoàn tất. Không thể finalize lại.")
+                
             main_flight = self.flight_repo.get(db, reservation.main_flight_id)
             return_flight = self.flight_repo.get(db, reservation.return_flight_id) if reservation.return_flight_id else None
 

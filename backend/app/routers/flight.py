@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.controllers.flight import flight_controller
-from app.schemas.flight import FlightSearchRequest, FlightSearchResponse
+from app.schemas.flight import FlightSearchRequest, FlightSearchResponse, FlightResponse
 from app.core.database import get_db
 
 router = APIRouter(prefix="/flight", tags=["Flight"])
@@ -16,3 +16,8 @@ def search_flight(params: FlightSearchRequest, db: Session = Depends(get_db)):
     - số lượng hành khách: người lớn, trẻ em, trẻ sơ sinh
     """
     return flight_controller.search_flights(params=params, db=db)
+
+
+@router.get("/{flight_id}", response_model=FlightResponse)
+def get_flight(flight_id: int, db: Session = Depends(get_db)):
+    return flight_controller.display_flight(flight_id, db)

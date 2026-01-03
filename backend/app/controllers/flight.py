@@ -1,13 +1,14 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from app.schemas.flight import FlightSearchRequest, FlightSearchResult, FlightSearchResponse, PassengerSummary
+from app.schemas.flight import FlightSearchRequest, FlightSearchResult, FlightSearchResponse, PassengerSummary, FlightResponse
 from app.services.flight import FlightService
-
+from app.repositories.flight import FlightRepository
 
 class FlightController:
     def __init__(self):
         self.service = FlightService()
+        self.repository = FlightRepository()
 
     def search_flights(self, params: FlightSearchRequest, db: Session) -> FlightSearchResponse:
         try:
@@ -32,5 +33,13 @@ class FlightController:
             main_flights=main_flights,
             return_flights=return_flights
         )
+    
+
+    def display_flight(self, flight_id: int, db: Session) -> FlightResponse:
+        flight = self.repository.get(db, flight_id) 
+        if not flight:
+            raise HTTPException(status_code=404, detail="Flight not found")
+        
+        return FlightResponse.model_validate(flight)
     
 flight_controller = FlightController()

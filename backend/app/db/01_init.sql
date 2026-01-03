@@ -266,6 +266,8 @@ CREATE TABLE Tickets (
         FOREIGN KEY (reservation_detail_id) REFERENCES Reservation_Details(id)
 );
 
+ALTER TABLE tickets ALTER COLUMN qr_code_url TYPE TEXT;
+
 
 CREATE TABLE Payments (
     id SERIAL PRIMARY KEY,

@@ -27,6 +27,18 @@ class CheckinConfirm(BaseModel):
 class CheckinConfirmResponse(BaseModel):
     ticket: CheckinConfirm
 
+class TicketResponse(BaseModel):
+    boarding_pass_code: str
+    qr_code_url: str
+    passenger_name: str
+    flight_number: str
+    seat_number: Optional[str]
+    checkin_time: datetime
+
+class TicketResponseWrapper(BaseModel):
+    ticket: TicketResponse
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 
