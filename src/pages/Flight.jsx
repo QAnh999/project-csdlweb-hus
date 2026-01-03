@@ -5,7 +5,7 @@ import "../styles/main.css";
 import "../styles/flight.css";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "http://localhost:8000/admin";
 
 const getAirlineLogo = (airlineName) => {
   const logoMap = {
@@ -379,7 +379,6 @@ const Flight = () => {
       resetForm();
       setSelectedFlight(null);
 
-      // Re-fetch để có dữ liệu mới nhất
       fetchFlights();
     } catch (error) {
       console.error("Error updating flight:", error);
@@ -456,11 +455,17 @@ const Flight = () => {
               <option value="">
                 {isLoadingMasterData ? "Đang tải..." : "Chọn loại máy bay"}
               </option>
-              {aircrafts.map((aircraft) => (
-                <option key={aircraft.id} value={aircraft.id}>
-                  {aircraft.model}
-                </option>
-              ))}
+              {aircrafts
+                .filter((aircraft) =>
+                  formData.airlineId
+                    ? aircraft.id_airline === parseInt(formData.airlineId)
+                    : true
+                )
+                .map((aircraft) => (
+                  <option key={aircraft.id} value={aircraft.id}>
+                    {aircraft.model}
+                  </option>
+                ))}
             </select>
           </div>
         </div>

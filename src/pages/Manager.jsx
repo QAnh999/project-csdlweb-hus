@@ -18,7 +18,7 @@ import "../styles/main.css";
 import "../styles/managers.css";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "http://localhost:8000/admin";
 
 // Helper function to get authorization headers
 const getAuthHeaders = () => {
@@ -53,6 +53,7 @@ const Manager = () => {
   const [editingId, setEditingId] = useState(null);
   const [viewingCustomerId, setViewingCustomerId] = useState(null);
   const [bookingSearchQuery, setBookingSearchQuery] = useState("");
+  const [bookingHistoryData, setBookingHistoryData] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
 
   // Form states
@@ -264,21 +265,61 @@ const Manager = () => {
   };
 
   // Booking history handlers
-  const handleViewBookingHistory = (customerId) => {
-    setViewingCustomerId(customerId);
-    setBookingSearchQuery("");
-    setShowBookingModal(true);
+  const handleViewBookingHistory = async (customerId) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/managers/users/${customerId}/bookings`,
+        {
+          headers: getAuthHeaders(),
+        }
+      );
+      const data = response.data;
+
+      // data là object có cấu trúc: { user_info, bookings, stats, payment_info }
+      // bookings là array chứa các booking
+      const bookings = data.bookings || [];
+
+      setBookingHistoryData(
+        bookings.map((b) => ({
+          bookingId: b.booking_id,
+          reservationCode: b.reservation_code,
+          flightId: b.main_flight?.flight_id,
+          flightNumber: b.main_flight?.flight_number,
+          departure: b.main_flight?.departure,
+          arrival: b.main_flight?.arrival,
+          departureCity: b.main_flight?.departure_city,
+          arrivalCity: b.main_flight?.arrival_city,
+          bookingDate: b.created_at,
+          totalAmount: b.total_amount,
+          paidAmount: b.paid_amount,
+          status: b.status,
+          totalPassengers: b.total_passengers,
+          hasReturnFlight: b.has_return_flight,
+        }))
+      );
+      setViewingCustomerId(customerId);
+      setBookingSearchQuery("");
+      setShowBookingModal(true);
+    } catch (err) {
+      console.error("Không lấy được lịch sử đặt chuyến bay", err);
+      alert("Không thể tải lịch sử đặt chuyến bay!");
+    }
   };
 
   const getBookingHistory = () => {
-    const customer = customersData.find((c) => c.id === viewingCustomerId);
-    let bookings = customer ? customer.bookings || [] : [];
+    let bookings = bookingHistoryData;
 
     if (bookingSearchQuery) {
       bookings = bookings.filter(
         (b) =>
-          b.bookingId.toString().includes(bookingSearchQuery) ||
-          b.flightId.toString().includes(bookingSearchQuery)
+          b.bookingId?.toString().includes(bookingSearchQuery) ||
+          b.flightId?.toString().includes(bookingSearchQuery) ||
+          b.reservationCode
+            ?.toLowerCase()
+            .includes(bookingSearchQuery.toLowerCase()) ||
+          b.flightNumber
+            ?.toLowerCase()
+            .includes(bookingSearchQuery.toLowerCase())
       );
     }
     return bookings;
@@ -833,49 +874,82 @@ const Manager = () => {
               </button>
             </div>
             <div className="booking-history-content">
-              <div className="history-controls">
-                <button className="filter-btn">
-                  <Filter size={16} /> Lọc
-                </button>
-                <div className="search-container">
-                  <Search className="search-icon" size={16} />
-                  <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Tìm kiếm ID đặt chỗ ho..."
-                    value={bookingSearchQuery}
-                    onChange={(e) => setBookingSearchQuery(e.target.value)}
-                  />
-                </div>
-              </div>
               <div className="booking-table-container">
                 <table className="booking-history-table">
                   <thead>
                     <tr>
-                      <th>BookingID</th>
-                      <th>ID chuyến bay</th>
+                      <th>Mã đặt chỗ</th>
+                      <th>Chuyến bay</th>
+                      <th>Hành trình</th>
                       <th>Thời gian đặt</th>
-                      <th>Thanh toán</th>
+                      <th>Tổng tiền</th>
                       <th>Trạng thái</th>
                     </tr>
                   </thead>
                   <tbody>
                     {getBookingHistory().length === 0 ? (
                       <tr>
-                        <td colSpan="5" className="no-data">
+                        <td colSpan="6" className="no-data">
                           <p>Không có lịch sử đặt chuyến bay</p>
                         </td>
                       </tr>
                     ) : (
                       getBookingHistory().map((booking) => (
                         <tr key={booking.bookingId}>
-                          <td>{booking.bookingId}</td>
-                          <td>{booking.flightId}</td>
-                          <td>{booking.bookingDate}</td>
-                          <td>{booking.paymentDate}</td>
+                          <td style={{ wordBreak: "break-all", fontSize: "0.75rem" }}>
+                            <strong>{booking.reservationCode}</strong>
+                          </td>
                           <td>
-                            <span className="status-badge active">
-                              {booking.status}
+                            <strong>{booking.flightNumber}</strong>
+                            <br />
+                            <small style={{ color: "#666", fontSize: "0.7rem" }}>
+                              {booking.totalPassengers} khách
+                            </small>
+                          </td>
+                          <td style={{ fontSize: "0.75rem" }}>
+                            {booking.departureCity} → {booking.arrivalCity}
+                            {booking.hasReturnFlight && (
+                              <span style={{ color: "#0066cc", display: "block", fontSize: "0.7rem" }}>
+                                (Khứ hồi)
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ fontSize: "0.75rem" }}>
+                            {booking.bookingDate
+                              ? new Date(booking.bookingDate).toLocaleString(
+                                  "vi-VN",
+                                  { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }
+                                )
+                              : "-"}
+                          </td>
+                          <td>
+                            <strong style={{ fontSize: "0.85rem" }}>
+                              {(booking.totalAmount / 1000000).toFixed(2)}M
+                            </strong>
+                            <br />
+                            <small style={{ color: "#28a745", fontSize: "0.7rem" }}>
+                              Trả: {(booking.paidAmount / 1000000).toFixed(2)}M
+                            </small>
+                          </td>
+                          <td>
+                            <span
+                              className={`status-badge ${
+                                booking.status === "confirmed"
+                                  ? "active"
+                                  : booking.status === "pending"
+                                  ? "pending"
+                                  : booking.status === "cancelled"
+                                  ? "inactive"
+                                  : ""
+                              }`}
+                            >
+                              {booking.status === "confirmed"
+                                ? "Xác nhận"
+                                : booking.status === "pending"
+                                ? "Chờ"
+                                : booking.status === "cancelled"
+                                ? "Hủy"
+                                : booking.status}
                             </span>
                           </td>
                         </tr>
