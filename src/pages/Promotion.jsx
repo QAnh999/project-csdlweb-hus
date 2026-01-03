@@ -92,57 +92,6 @@ const Promotion = () => {
     setShowModal(true);
   };
 
-  const handleEdit = async (promotion) => {
-    try {
-      setIsLoading(true);
-      // Fetch chi tiết đầy đủ của promotion từ API
-      const response = await axios.get(
-        `${API_BASE_URL}/promotions/${promotion.id}`
-      );
-      const data = response.data;
-
-      setEditingId(promotion.id);
-      setFormData({
-        code: data.code || "",
-        name: data.name || "",
-        description: data.description || "",
-        discountType: data.discount_type || "percentage",
-        discountValue: data.discount_value
-          ? data.discount_value.toString()
-          : "",
-        minOrderAmount: data.min_order_amount
-          ? data.min_order_amount.toString()
-          : "0",
-        maxDiscountAmount: data.max_discount_amount
-          ? data.max_discount_amount.toString()
-          : "",
-        usageLimit: data.usage_limit ? data.usage_limit.toString() : "0",
-        startDate: data.start_date || "",
-        endDate: data.end_date || "",
-        isActive: data.is_active ?? true,
-      });
-      setShowModal(true);
-    } catch (error) {
-      console.error("Error fetching promotion details:", error);
-      alert("Không thể tải thông tin khuyến mãi!");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa khuyến mãi này?")) {
-      try {
-        await axios.delete(`${API_BASE_URL}/promotions/${id}`);
-        await fetchPromotionsData();
-        alert("Xóa khuyến mãi thành công!");
-      } catch (error) {
-        console.error("Error deleting promotion:", error);
-        alert("Không thể xóa khuyến mãi!");
-      }
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -335,12 +284,11 @@ const Promotion = () => {
               <table className="promo-table">
                 <thead>
                   <tr>
-                    <th style={{ width: "18%" }}>Tên</th>
-                    <th style={{ width: "22%" }}>Mô tả</th>
+                    <th style={{ width: "25%" }}>Tên</th>
+                    <th style={{ width: "27%" }}>Mô tả</th>
                     <th style={{ width: "12%" }}>Ngày bắt đầu</th>
                     <th style={{ width: "12%" }}>Ngày kết thúc</th>
                     <th style={{ width: "12%" }}>Trạng thái</th>
-                    <th style={{ width: "14%" }}>Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -359,26 +307,6 @@ const Promotion = () => {
                         <td>{formatDate(item.startDate)}</td>
                         <td>{formatDate(item.endDate)}</td>
                         <td>{getStatusBadge(item.status)}</td>
-                        <td>
-                          <div className="action-buttons">
-                            <button
-                              className="action-btn edit"
-                              title="Chỉnh sửa"
-                              onClick={() => handleEdit(item)}
-                              disabled={isLoading}
-                            >
-                              <Pencil size={16} />
-                            </button>
-                            <button
-                              className="action-btn delete"
-                              title="Xóa"
-                              onClick={() => handleDelete(item.id)}
-                              disabled={isLoading}
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
                       </tr>
                     ))
                   )}

@@ -24,7 +24,11 @@ const Flight = () => {
   const [airports, setAirports] = useState([]);
   const [airlines, setAirlines] = useState([]);
   const [aircrafts, setAircrafts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Loading states - tách riêng cho từng thao tác
+  const [isLoadingFlights, setIsLoadingFlights] = useState(false);
+  const [isLoadingMasterData, setIsLoadingMasterData] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Search states
   const [from, setFrom] = useState("");
@@ -63,23 +67,30 @@ const Flight = () => {
 
   // Fetch master data
   const fetchMasterData = useCallback(async () => {
+    setIsLoadingMasterData(true);
     try {
       const [airportsRes, airlinesRes, aircraftsRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/master/airports`),
-        axios.get(`${API_BASE_URL}/master/airlines`),
-        axios.get(`${API_BASE_URL}/master/aircrafts`),
+        axios.get(`${API_BASE_URL}/airports`),
+        axios.get(`${API_BASE_URL}/airlines`),
+        axios.get(`${API_BASE_URL}/aircrafts`),
       ]);
       setAirports(airportsRes.data);
       setAirlines(airlinesRes.data);
       setAircrafts(aircraftsRes.data);
     } catch (error) {
       console.error("Error fetching master data:", error);
+      alert("Không thể tải dữ liệu cơ bản. Vui lòng thử lại!");
+    } finally {
+      setIsLoadingMasterData(false);
     }
   }, []);
 
   // Fetch flights
   const fetchFlights = useCallback(async () => {
-    setIsLoading(true);
+    setIsLoadingFlights(true);
+
+    const source = axios.CancelToken.source();
+
     try {
       const params = {};
       if (from) params.departure = from.split("(")[0].trim();
@@ -89,6 +100,7 @@ const Flight = () => {
 
       const response = await axios.get(`${API_BASE_URL}/flights/search`, {
         params,
+        cancelToken: source.token,
       });
 
       setFlightData(
@@ -122,10 +134,16 @@ const Flight = () => {
         }))
       );
     } catch (error) {
-      console.error("Error fetching flights:", error);
+      if (!axios.isCancel(error)) {
+        console.error("Error fetching flights:", error);
+        alert("Không thể tải danh sách chuyến bay. Vui lòng thử lại!");
+      }
     } finally {
-      setIsLoading(false);
+      setIsLoadingFlights(false);
     }
+    return () => {
+      source.cancel("Operation canceled due to new request");
+    };
   }, [from, to, date, seatClass]);
 
   // Initialize
@@ -136,16 +154,18 @@ const Flight = () => {
   }, [fetchMasterData]);
 
   useEffect(() => {
-    fetchFlights();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchFlights();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [fetchFlights]);
 
   // Get display price based on seat class
   const getDisplayPrice = useCallback(
     (flight) => {
-      if (seatClass === "business")
-        return flight.priceBusiness || flight.priceEconomy * 2.5;
-      if (seatClass === "first")
-        return flight.priceFirst || flight.priceEconomy * 5;
+      if (seatClass === "business") return flight.priceBusiness || null;
+      if (seatClass === "first") return flight.priceFirst || null;
       return flight.priceEconomy;
     },
     [seatClass]
@@ -172,14 +192,6 @@ const Flight = () => {
     return sorted;
   }, [flightData, sortPrice, sortTime, getDisplayPrice]);
 
-  // Get aircrafts for selected airline
-  const filteredAircrafts = useMemo(() => {
-    if (!formData.airlineId) return [];
-    return aircrafts.filter(
-      (a) => a.airline_id === parseInt(formData.airlineId)
-    );
-  }, [aircrafts, formData.airlineId]);
-
   // Handlers
   const handleSwapLocations = () => {
     setFrom(to);
@@ -196,7 +208,7 @@ const Flight = () => {
 
   const handleAddFlight = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
       const aircraft = aircrafts.find(
@@ -225,16 +237,16 @@ const Flight = () => {
           : null,
         total_seats: totalSeats || aircraft?.total_capacity || 180,
         available_seats_economy:
-          parseInt(formData.seatsEconomy) || aircraft?.capacity_economy || 150,
+          parseInt(formData.seatsEconomy) || aircraft?.capacity_economy || 0,
         available_seats_business:
-          parseInt(formData.seatsBusiness) || aircraft?.capacity_business || 20,
+          parseInt(formData.seatsBusiness) || aircraft?.capacity_business || 0,
         available_seats_first:
-          parseInt(formData.seatsFirst) || aircraft?.capacity_first || 10,
+          parseInt(formData.seatsFirst) || aircraft?.capacity_first || 0,
         gate: formData.gate || null,
         terminal: formData.terminal || null,
       };
 
-      await axios.post(`${API_BASE_URL}/flights/`, payload);
+      await axios.post(`${API_BASE_URL}/flights`, payload);
       alert("Thêm chuyến bay thành công!");
       setShowModal(false);
       resetForm();
@@ -243,7 +255,7 @@ const Flight = () => {
       console.error("Error adding flight:", error);
       alert(error.response?.data?.detail || "Không thể thêm chuyến bay!");
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -281,13 +293,18 @@ const Flight = () => {
 
   const handleDeleteFlight = async (flightId) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa chuyến bay này?")) {
+      // Optimistic update - xóa ngay trong UI
+      const previousFlights = [...flightData];
+      setFlightData(flightData.filter((f) => f.id !== flightId));
+
       try {
         await axios.delete(`${API_BASE_URL}/flights/${flightId}`);
         alert("Xóa chuyến bay thành công!");
-        fetchFlights();
       } catch (error) {
         console.error("Error deleting flight:", error);
         alert("Không thể xóa chuyến bay!");
+        // Rollback nếu fail
+        setFlightData(previousFlights);
       }
     }
   };
@@ -328,10 +345,48 @@ const Flight = () => {
 
   const handleUpdateFlight = async (e) => {
     e.preventDefault();
-    alert("Cập nhật chuyến bay thành công!");
-    setShowEditModal(false);
-    resetForm();
-    setSelectedFlight(null);
+    setIsSubmitting(true);
+
+    try {
+      // Gọi API update
+      const payload = {
+        flight_number: formData.flightNumber,
+        id_airline: parseInt(formData.airlineId),
+        id_aircraft: parseInt(formData.aircraftId),
+        dep_airport: parseInt(formData.depAirportId),
+        arr_airport: parseInt(formData.arrAirportId),
+        dep_datetime: formData.depDatetime,
+        arr_datetime: formData.arrDatetime,
+        duration_minutes: parseInt(formData.durationMinutes),
+        base_price_economy: parseFloat(formData.priceEconomy),
+        base_price_business: formData.priceBusiness
+          ? parseFloat(formData.priceBusiness)
+          : null,
+        base_price_first: formData.priceFirst
+          ? parseFloat(formData.priceFirst)
+          : null,
+        available_seats_economy: parseInt(formData.seatsEconomy),
+        available_seats_business: parseInt(formData.seatsBusiness),
+        available_seats_first: parseInt(formData.seatsFirst),
+        gate: formData.gate || null,
+        terminal: formData.terminal || null,
+      };
+
+      await axios.put(`${API_BASE_URL}/flights/${selectedFlight.id}`, payload);
+
+      alert("Cập nhật chuyến bay thành công!");
+      setShowEditModal(false);
+      resetForm();
+      setSelectedFlight(null);
+
+      // Re-fetch để có dữ liệu mới nhất
+      fetchFlights();
+    } catch (error) {
+      console.error("Error updating flight:", error);
+      alert(error.response?.data?.detail || "Không thể cập nhật chuyến bay!");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Utilities
@@ -376,8 +431,11 @@ const Flight = () => {
                 })
               }
               required
+              disabled={isLoadingMasterData}
             >
-              <option value="">Chọn hãng hàng không</option>
+              <option value="">
+                {isLoadingMasterData ? "Đang tải..." : "Chọn hãng hàng không"}
+              </option>
               {airlines.map((airline) => (
                 <option key={airline.id} value={airline.id}>
                   {airline.name}
@@ -393,12 +451,14 @@ const Flight = () => {
                 setFormData({ ...formData, aircraftId: e.target.value })
               }
               required
-              disabled={!formData.airlineId}
+              disabled={!formData.airlineId || isLoadingMasterData}
             >
-              <option value="">Chọn loại máy bay</option>
-              {filteredAircrafts.map((aircraft) => (
+              <option value="">
+                {isLoadingMasterData ? "Đang tải..." : "Chọn loại máy bay"}
+              </option>
+              {aircrafts.map((aircraft) => (
                 <option key={aircraft.id} value={aircraft.id}>
-                  {aircraft.model} ({aircraft.manufacturer})
+                  {aircraft.model}
                 </option>
               ))}
             </select>
@@ -624,8 +684,9 @@ const Flight = () => {
         >
           Hủy
         </button>
-        <button type="submit" className="btn-submit" disabled={isLoading}>
-          {isLoading ? "Đang xử lý..." : submitText}
+        <button type="submit" className="btn-submit" disabled={isSubmitting}>
+          {isSubmitting && <span className="inline-spinner"></span>}
+          {isSubmitting ? "Đang xử lý..." : submitText}
         </button>
       </div>
     </form>
@@ -724,7 +785,7 @@ const Flight = () => {
 
           {/* Flight Results */}
           <div className="flight-results">
-            {isLoading ? (
+            {isLoadingFlights ? (
               <div className="no-results">
                 <p>Đang tải...</p>
               </div>

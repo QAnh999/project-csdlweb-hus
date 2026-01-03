@@ -16,14 +16,28 @@ import {
 } from "lucide-react";
 import "../styles/main.css";
 import "../styles/managers.css";
+import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8000";
+
+// Helper function to get authorization headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("accessToken");
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+};
 
 const Manager = () => {
   const [customersData, setCustomersData] = useState([]);
   const [adminsData, setAdminsData] = useState([]);
   const [superAdminsData, setSuperAdminsData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Get current user role from localStorage
+  const currentUserRole = localStorage.getItem("userRole");
+  const isSuperAdmin = currentUserRole === "super_admin";
 
   const [currentTab, setCurrentTab] = useState("customer");
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,15 +75,16 @@ const Manager = () => {
   // Fetch data from API
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/managers/users`);
-      if (!response.ok) throw new Error("Failed to fetch users");
-      const data = await response.json();
+      const response = await axios.get(`${API_BASE_URL}/managers/users`, {
+        headers: getAuthHeaders(),
+      });
+      const data = response.data;
       setCustomersData(
         data.map((u) => ({
           id: u.id,
-          fullname: `${u.first_name} ${u.last_name}`,
+          fullname: u.full_name,
           email: u.email,
-          joined: u.created_at,
+          joined: u.joined_date,
           bookings: [],
         }))
       );
@@ -101,9 +116,13 @@ const Manager = () => {
 
   const fetchSuperAdmins = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/managers/superadmins`);
-      if (!response.ok) throw new Error("Failed to fetch super admins");
-      const data = await response.json();
+      const response = await axios.get(
+        `${API_BASE_URL}/managers/admins/super`,
+        {
+          headers: getAuthHeaders(),
+        }
+      );
+      const data = response.data;
       setSuperAdminsData(
         data.map((s) => ({
           id: s.admin_id,
@@ -112,7 +131,7 @@ const Manager = () => {
           email: s.email,
           role: "Siêu quản trị viên",
           status: s.status,
-          type: "super-admin",
+          type: "super_admin",
         }))
       );
     } catch (error) {
@@ -172,27 +191,54 @@ const Manager = () => {
   };
 
   // Customer handlers
-  const handleViewUserInfo = (customer) => {
-    setSelectedUser(customer);
-    setShowUserInfoModal(true);
+  const handleViewUserInfo = async (id) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/managers/users/${id}`, {
+        headers: getAuthHeaders(),
+      });
+
+      const u = response.data;
+
+      setSelectedUser({
+        id: u.id,
+        fullname: u.full_name,
+        email: u.email,
+        phone: u.phone,
+        address: u.address,
+        birthday: u.date_of_birth,
+        gender: u.gender,
+        joined: u.joined_date,
+      });
+
+      setShowUserInfoModal(true);
+    } catch (err) {
+      console.error("Không lấy được thông tin user", err);
+    }
   };
 
-  const handleEditCustomer = (customer) => {
-    setEditingId(customer.id);
-    setCustomerForm({
-      fullname: customer.fullname || "",
-      email: customer.email || "",
-      phone: customer.phone || "",
-      gender: customer.gender || "",
-      address: customer.address || "",
-    });
-    setShowCustomerModal(true);
-  };
-
-  const handleDeleteCustomer = (id) => {
+  const handleDeleteCustomer = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa khách hàng này?")) {
-      setCustomersData(customersData.filter((c) => c.id !== id));
-      alert("Xóa khách hàng thành công!");
+      try {
+        const response = await fetch(`${API_BASE_URL}/managers/users/${id}`, {
+          method: "DELETE",
+          headers: getAuthHeaders(),
+        });
+
+        if (response.status === 204) {
+          // Refresh user list
+          await fetchUsers();
+          alert("Xóa khách hàng thành công!");
+          return;
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || "Failed to delete user");
+        }
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        alert(error.message || "Có lỗi xảy ra khi xóa khách hàng!");
+      }
     }
   };
 
@@ -240,6 +286,10 @@ const Manager = () => {
 
   // Admin handlers
   const handleAddAdmin = () => {
+    if (!isSuperAdmin) {
+      alert("Chỉ Siêu quản trị viên mới có quyền tạo quản trị viên mới!");
+      return;
+    }
     if (currentTab === "customer") {
       alert("Vui lòng chọn tab Quản trị viên để thêm mới");
       return;
@@ -255,35 +305,29 @@ const Manager = () => {
     setShowAdminModal(true);
   };
 
-  const handleEditAdmin = (admin) => {
-    setEditingId(admin.id);
-    setAdminForm({
-      admin_name: admin.username || admin.fullname || "",
-      email: admin.email || "",
-      password: "",
-      full_name: admin.fullname || "",
-      role: admin.role || "Admin",
-    });
-    setShowAdminModal(true);
-  };
-
   const handleDeleteAdmin = async (id) => {
+    if (!isSuperAdmin) {
+      alert("Chỉ Siêu quản trị viên mới có quyền xóa quản trị viên!");
+      return;
+    }
+
     if (window.confirm("Bạn có chắc chắn muốn xóa quản trị viên này?")) {
       try {
         const response = await fetch(`${API_BASE_URL}/managers/admins/${id}`, {
           method: "DELETE",
+          headers: getAuthHeaders(),
         });
+
+        if (response.status === 204) {
+          // Refresh admin list
+          await fetchAdmins();
+          alert("Xóa quản trị viên thành công!");
+          return;
+        }
 
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.detail || "Failed to delete admin");
-        }
-
-        const data = await response.json();
-        if (data.message) {
-          // Refresh admin list
-          await fetchAdmins();
-          alert("Xóa quản trị viên thành công!");
         }
       } catch (error) {
         console.error("Error deleting admin:", error);
@@ -296,7 +340,6 @@ const Manager = () => {
     e.preventDefault();
 
     if (editingId) {
-      // Update existing admin - hiện tại API chưa hỗ trợ update
       setAdminsData(
         adminsData.map((a) =>
           a.id === editingId
@@ -315,15 +358,13 @@ const Manager = () => {
       try {
         const response = await fetch(`${API_BASE_URL}/managers/admins`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             admin_name: adminForm.admin_name,
             password: adminForm.password,
             full_name: adminForm.full_name,
             email: adminForm.email,
-            role: adminForm.role === "Super Admin" ? "Super Admin" : "Admin",
+            role: "Admin",
           }),
         });
 
@@ -508,9 +549,11 @@ const Manager = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button className="add-btn" onClick={handleAddAdmin}>
-            <Plus size={16} /> Tạo quản trị viên mới
-          </button>
+          {isSuperAdmin && currentTab !== "customer" && (
+            <button className="add-btn" onClick={handleAddAdmin}>
+              <Plus size={16} /> Tạo quản trị viên mới
+            </button>
+          )}
         </div>
 
         {/* Table Section */}
@@ -571,7 +614,7 @@ const Manager = () => {
                           <div className="action-buttons">
                             <button
                               className="action-btn view"
-                              onClick={() => handleViewUserInfo(item)}
+                              onClick={() => handleViewUserInfo(item.id)}
                               title="Xem thông tin"
                             >
                               <Info size={16} />
@@ -603,20 +646,22 @@ const Manager = () => {
                         <td>{item.email}</td>
                         <td>
                           <div className="action-buttons">
-                            <button
-                              className="action-btn edit"
-                              onClick={() => handleEditAdmin(item)}
-                              title="Chỉnh sửa"
-                            >
-                              <Pencil size={16} />
-                            </button>
-                            <button
-                              className="action-btn delete"
-                              onClick={() => handleDeleteAdmin(item.id)}
-                              title="Xóa"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            {isSuperAdmin && (
+                              <>
+                                <button
+                                  className="action-btn delete"
+                                  onClick={() => handleDeleteAdmin(item.id)}
+                                  title="Xóa"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </>
+                            )}
+                            {!isSuperAdmin && (
+                              <span style={{ color: "#999", fontSize: "12px" }}>
+                                Không có quyền
+                              </span>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -993,9 +1038,7 @@ const Manager = () => {
                       }
                       required
                     >
-                      <option value="">Chọn vai trò</option>
                       <option value="Admin">Quản trị viên</option>
-                      <option value="Super Admin">Siêu quản trị viên</option>
                     </select>
                   </div>
                 </div>

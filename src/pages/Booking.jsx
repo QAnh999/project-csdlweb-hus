@@ -30,10 +30,11 @@ const Booking = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/bookings`);
+      const response = await axios.get(`${API_BASE_URL}/booking`);
       setBookingsData(
         response.data.map((item) => ({
           id: item.reservation_code,
+          bookingId: item.id, // Backend returns 'id' as booking_id
           fullname: item.user_name,
           email: item.email,
           bookingDate: item.booking_time,
@@ -86,20 +87,63 @@ const Booking = () => {
   const endIndex = startIndex + itemsPerPage;
   const pageData = filteredData.slice(startIndex, endIndex);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa đơn đặt chỗ này?")) {
-      setBookingsData(bookingsData.filter((b) => b.id !== id));
-    }
-  };
+  const handleViewDetail = async (bookingId) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/booking/${bookingId}`);
+      const data = response.data;
+      setSelectedBooking({
+        // Booking
+        id: data.booking_id,
+        reservationCode: data.reservation_code,
 
-  const handleViewDetail = (booking) => {
-    setSelectedBooking(booking);
-    setShowDetailModal(true);
+        // User
+        fullname: data.user_info?.name || "N/A",
+        email: data.user_info?.email || "N/A",
+        phone: data.user_info?.phone || "N/A",
+
+        // Flight
+        flightCode: data.flight_info?.main_flight?.flight_number || "N/A",
+        departure: data.flight_info?.main_flight?.departure || "N/A",
+        arrival: data.flight_info?.main_flight?.arrival || "N/A",
+        returnFlight: data.flight_info?.return_flight || null,
+
+        // Booking detail
+        passengers: data.booking_details?.total_passengers || 0,
+        totalPrice: data.booking_details?.total_amount || 0,
+        paidAmount: data.booking_details?.paid_amount || 0,
+        discount: data.booking_details?.discount_amount || 0,
+        status: data.booking_details?.status || "pending",
+        bookingDate: data.booking_details?.created_at || null,
+
+        // Payment - handle null payment_info
+        paymentMethod: data.payment_info?.payment_method || "Chưa thanh toán",
+        transactionId: data.payment_info?.transaction_id || "N/A",
+        paymentStatus: data.payment_info?.status || "pending",
+
+        // Passengers list
+        passengersList: data.passengers || [],
+      });
+      setShowDetailModal(true);
+    } catch (error) {
+      console.error("Error fetching booking details:", error);
+      alert("Không thể tải chi tiết đơn đặt chỗ. Vui lòng thử lại!");
+    }
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN");
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString || dateString === "N/A") return "N/A";
+    const date = new Date(dateString);
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${hours}:${minutes} ${day}/${month}/${year}`;
   };
 
   const formatPrice = (price) => {
@@ -323,16 +367,9 @@ const Booking = () => {
                             <button
                               className="action-btn view"
                               title="Xem chi tiết"
-                              onClick={() => handleViewDetail(item)}
+                              onClick={() => handleViewDetail(item.bookingId)}
                             >
                               <Info size={16} />
-                            </button>
-                            <button
-                              className="action-btn delete"
-                              title="Xóa"
-                              onClick={() => handleDelete(item.id)}
-                            >
-                              <Trash2 size={16} />
                             </button>
                           </div>
                         </td>
@@ -447,15 +484,15 @@ const Booking = () => {
                 <h3>Thông tin chuyến bay</h3>
                 <div className="detail-grid">
                   <div className="detail-item">
-                    <label>Điểm đi</label>
+                    <label>Thời gian đi</label>
                     <span className="detail-value">
-                      {selectedBooking.departure}
+                      {formatDateTime(selectedBooking.departure)}
                     </span>
                   </div>
                   <div className="detail-item">
-                    <label>Điểm đến</label>
+                    <label>Thời gian đến</label>
                     <span className="detail-value">
-                      {selectedBooking.arrival}
+                      {formatDateTime(selectedBooking.arrival)}
                     </span>
                   </div>
                   <div className="detail-item">

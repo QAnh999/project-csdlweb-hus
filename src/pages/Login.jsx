@@ -45,7 +45,7 @@ const Login = () => {
       }
 
       // Kiểm tra role phải là admin hoặc superadmin
-      if (data.role !== "admin" && data.role !== "superadmin") {
+      if (data.role !== "admin" && data.role !== "super_admin") {
         alert("Bạn không có quyền truy cập trang quản trị.");
         setIsLoading(false);
         return;

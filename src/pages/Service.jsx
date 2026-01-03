@@ -89,8 +89,8 @@ const Service = () => {
       const response = await axios.get(`${API_BASE_URL}/services/`);
       const data = response.data;
       setServicesData(
-        data.map((item, index) => ({
-          id: index + 1, // Tạo id tạm vì API không trả về id
+        data.map((item) => ({
+          id: item.id,
           name: item.name,
           description: item.description || "",
           category: item.category,
