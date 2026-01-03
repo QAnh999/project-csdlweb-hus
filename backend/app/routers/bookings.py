@@ -10,7 +10,7 @@ from database import get_db
 from models import Reservation, User, Flight, Passenger, Payment, ReservationDetail
 from schemas import BookingResponse, BookingDetailResponse
 
-router = APIRouter(prefix="/booking", tags=["Bookings"])
+router = APIRouter(prefix="/admin/booking", tags=["Bookings"])
 
 logger = logging.getLogger(__name__)
 

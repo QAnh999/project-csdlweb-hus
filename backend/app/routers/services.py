@@ -7,7 +7,7 @@ import schemas
 from typing import List
 
 
-router = APIRouter(prefix="/services", tags=["Services"])
+router = APIRouter(prefix="/admin/services", tags=["Services"])
 
 @router.get("/", response_model=List[schemas.ServiceResponse])
 def get_services(db: Session = Depends(get_db)):

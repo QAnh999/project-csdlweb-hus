@@ -11,7 +11,7 @@ from typing import List
 from decimal import Decimal
 import logging
 
-router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
+router = APIRouter(prefix="/admin/dashboard", tags=["Dashboard"])
 logger = logging.getLogger(__name__)
 
 # ==================== DAILY STATS ====================
@@ -117,103 +117,170 @@ def get_weekly_revenue(db: Session = Depends(get_db)):
 
 # ==================== MONTHLY REVENUE ====================
 
+# routers/dashboard.py - SỬA LẠI MONTHLY REVENUE API
 @router.get("/monthly-revenue")
 def get_monthly_revenue(db: Session = Depends(get_db)):
     """
     Thống kê tổng doanh thu trong tháng hiện tại (theo tuần)
+    Tuần 1: Ngày 1-7 của tháng
+    Tuần 2: Ngày 8-14 của tháng  
+    Tuần 3: Ngày 15-21 của tháng
+    Tuần 4: Ngày 22 đến hết tháng
     """
-    today = date.today()
-    first_day_of_month = date(today.year, today.month, 1)
-    
-    # Tính tuần trong tháng
-    weeks_data = []
-    
-    # Chia tháng thành 4 tuần (xấp xỉ)
-    for week_num in range(1, 5):
-        # Tính ngày bắt đầu và kết thúc của tuần
-        if week_num == 1:
-            week_start = first_day_of_month
-            week_end = first_day_of_month + timedelta(days=6)
-        elif week_num == 2:
-            week_start = first_day_of_month + timedelta(days=7)
-            week_end = first_day_of_month + timedelta(days=13)
-        elif week_num == 3:
-            week_start = first_day_of_month + timedelta(days=14)
-            week_end = first_day_of_month + timedelta(days=20)
-        else:  # week_num == 4
-            week_start = first_day_of_month + timedelta(days=21)
-            week_end = today if today < first_day_of_month + timedelta(days=27) else first_day_of_month + timedelta(days=27)
+    try:
+        today = date.today()
+        first_day_of_month = date(today.year, today.month, 1)
         
-        # Đảm bảo week_end không vượt quá hôm nay
-        if week_end > today:
-            week_end = today
+        # Tính ngày cuối cùng của tháng
+        if today.month == 12:
+            last_day_of_month = date(today.year + 1, 1, 1) - timedelta(days=1)
+        else:
+            last_day_of_month = date(today.year, today.month + 1, 1) - timedelta(days=1)
         
-        # Query doanh thu trong tuần
-        week_revenue = db.query(
-            func.coalesce(func.sum(Reservation.total_amount), 0)
-        ).filter(
-            Reservation.status.in_(['confirmed', 'completed']),
-            func.date(Reservation.created_at).between(week_start, week_end)
-        ).scalar() or 0
+        weeks_data = []
         
-        weeks_data.append({
-            "week_number": week_num,
-            "period": f"{week_start.strftime('%d/%m')} - {week_end.strftime('%d/%m')}",
-            "revenue": float(week_revenue)
-        })
-    
-    return {
-        "month": today.strftime("%Y-%m"),
-        "weeks": weeks_data,
-        "total_month_revenue": sum(week["revenue"] for week in weeks_data)
-    }
+        # Định nghĩa các tuần theo đúng yêu cầu
+        week_definitions = [
+            {"name": "Tuần 1", "start_day": 1, "end_day": 7},
+            {"name": "Tuần 2", "start_day": 8, "end_day": 14},
+            {"name": "Tuần 3", "start_day": 15, "end_day": 21},
+            {"name": "Tuần 4", "start_day": 22, "end_day": 31}  # Sẽ xử lý riêng cho tháng ngắn
+        ]
+        
+        for week_def in week_definitions:
+            week_num = week_def["name"].replace("Tuần ", "")
+            
+            # Tính ngày bắt đầu tuần
+            week_start_day = min(week_def["start_day"], last_day_of_month.day)
+            week_start = date(today.year, today.month, week_start_day)
+            
+            # Tính ngày kết thúc tuần
+            week_end_day = min(week_def["end_day"], last_day_of_month.day)
+            week_end = date(today.year, today.month, week_end_day)
+            
+            # Đảm bảo không tính tương lai
+            if week_start > today:
+                # Tuần này chưa đến
+                week_revenue = 0
+                week_end = week_start  # Để tránh lỗi logic
+            else:
+                # Tuần kết thúc không được sau hôm nay
+                if week_end > today:
+                    week_end = today
+                
+                # Đảm bảo tuần hợp lệ
+                if week_start <= week_end:
+                    # Query doanh thu trong tuần
+                    week_revenue = db.query(
+                        func.coalesce(func.sum(Reservation.total_amount), 0)
+                    ).filter(
+                        Reservation.status.in_(['confirmed', 'completed']),
+                        func.date(Reservation.created_at).between(week_start, week_end)
+                    ).scalar() or 0
+                else:
+                    week_revenue = 0
+                    week_end = week_start  # Tránh lỗi format
+            
+            # Tính phần trăm trong tháng
+            month_revenue_query = db.query(
+                func.coalesce(func.sum(Reservation.total_amount), 0)
+            ).filter(
+                Reservation.status.in_(['confirmed', 'completed']),
+                func.extract('month', Reservation.created_at) == today.month,
+                func.extract('year', Reservation.created_at) == today.year
+            ).scalar() or 0
+            
+            percentage = (float(week_revenue) / float(month_revenue_query) * 100) if month_revenue_query > 0 else 0
+            
+            weeks_data.append({
+                "week_number": int(week_num),
+                "period": f"{week_start.strftime('%d/%m')} - {week_end.strftime('%d/%m')}",
+                "start_date": week_start.isoformat(),
+                "end_date": week_end.isoformat(),
+                "revenue": float(week_revenue),
+                "percentage": round(percentage, 2)
+            })
+        
+        # Tổng doanh thu tháng
+        total_month_revenue = sum(week["revenue"] for week in weeks_data)
+        
+        return {
+            "month": today.strftime("%Y-%m"),
+            "month_name": today.strftime("%B %Y"),
+            "weeks": weeks_data,
+            "total_month_revenue": total_month_revenue,
+            "total_weeks": len([w for w in weeks_data if w["revenue"] > 0])  # Chỉ đếm tuần có doanh thu
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in get_monthly_revenue: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal server error: {str(e)}"
+        )
 
 # ==================== WEEKLY TICKETS ====================
 
 @router.get("/weekly-tickets")
-def get_weekly_tickets(db: Session = Depends(get_db)):
+def get_weekly_tickets_simple(db: Session = Depends(get_db)):
     """
-    Thống kê tổng số vé bán được của các ngày trong 1 tuần
+    Thống kê tổng số vé bán được trong 1 tuần (7 ngày gần nhất)
+    Trả về đơn giản: danh sách các ngày với tickets_sold và revenue
     """
-    today = date.today()
-    week_ago = today - timedelta(days=6)
-    
-    tickets_by_day = []
-    
-    # Query vé bán theo ngày
-    for i in range(7):
-        current_date = week_ago + timedelta(days=i)
+    try:
+        today = date.today()
+        week_ago = today - timedelta(days=6)  # 7 ngày gần nhất
         
-        # Số vé bán (số booking)
-        tickets_sold = db.query(Reservation).filter(
-            Reservation.status.in_(['confirmed', 'completed']),
-            func.date(Reservation.created_at) == current_date
-        ).count()
+        # Tên thứ tiếng Việt
+        day_names = {
+            0: "Thứ Hai",
+            1: "Thứ Ba", 
+            2: "Thứ Tư",
+            3: "Thứ Năm",
+            4: "Thứ Sáu",
+            5: "Thứ Bảy",
+            6: "Chủ Nhật"
+        }
         
-        # Doanh thu ngày
-        day_revenue = db.query(
-            func.coalesce(func.sum(Reservation.total_amount), 0)
-        ).filter(
-            Reservation.status.in_(['confirmed', 'completed']),
-            func.date(Reservation.created_at) == current_date
-        ).scalar() or 0
+        tickets_data = []
         
-        tickets_by_day.append({
-            "date": current_date.isoformat(),
-            "date_formatted": current_date.strftime("%d/%m/%Y"),
-            "tickets_sold": tickets_sold,
-            "revenue": float(day_revenue)
-        })
-    
-    return {
-        "period": {
-            "start_date": week_ago.isoformat(),
-            "end_date": today.isoformat()
-        },
-        "tickets_by_day": tickets_by_day,
-        "total_tickets_week": sum(day["tickets_sold"] for day in tickets_by_day),
-        "total_revenue_week": sum(day["revenue"] for day in tickets_by_day)
-    }
+        # Tạo danh sách 7 ngày
+        for i in range(7):
+            current_date = week_ago + timedelta(days=i)
+            day_index = current_date.weekday()  # 0=Monday, 6=Sunday
+            
+            # Số vé bán (số booking)
+            tickets_sold = db.query(Reservation).filter(
+                Reservation.status.in_(['confirmed', 'completed']),
+                func.date(Reservation.created_at) == current_date
+            ).count()
+            
+            # Doanh thu ngày
+            day_revenue = db.query(
+                func.coalesce(func.sum(Reservation.total_amount), 0)
+            ).filter(
+                Reservation.status.in_(['confirmed', 'completed']),
+                func.date(Reservation.created_at) == current_date
+            ).scalar() or 0
+            
+            tickets_data.append({
+                "date": current_date.isoformat(),
+                "date_formatted": current_date.strftime("%d/%m"),
+                "day_of_week": day_names[day_index],
+                "day_number": day_index + 1,  # Thứ 2=1, Chủ nhật=7
+                "tickets_sold": tickets_sold,
+                "revenue": float(day_revenue)
+            })
+        
+        # CHỈ TRẢ VỀ DANH SÁCH ĐƠN GIẢN
+        return tickets_data
+        
+    except Exception as e:
+        logger.error(f"Error in get_weekly_tickets_simple: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal server error: {str(e)}"
+        )
 
 # ==================== RECENT BOOKINGS ====================
 

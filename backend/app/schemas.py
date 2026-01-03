@@ -1,6 +1,6 @@
 from pydantic import BaseModel, validator, Field, EmailStr
 from datetime import datetime, date
-from typing import Optional, List
+from typing import Optional, List, Dict
 from decimal import Decimal
 
 # Auth Schemas
@@ -30,14 +30,31 @@ class WeeklyRevenueResponse(BaseModel):
     revenue: Decimal
     date: date
 
-class MonthlyRevenueResponse(BaseModel):
+class MonthlyRevenueWeek(BaseModel):
     week_number: int
-    revenue: Decimal
+    period: str
+    start_date: str
+    end_date: str
+    revenue: float
+    percentage: float
 
-class WeeklyTicketsResponse(BaseModel):
-    date: date
+class MonthlyRevenueResponse(BaseModel):
+    month: str
+    month_name: str
+    weeks: List[MonthlyRevenueWeek]
+    total_month_revenue: float
+    total_weeks: int
+
+class SimpleWeeklyTicket(BaseModel):
+    date: str
+    date_formatted: str
+    day_of_week: str
+    day_number: int
     tickets_sold: int
-    revenue: Decimal
+    revenue: float
+
+class SimpleWeeklyTicketsResponse(BaseModel):
+    data: List[SimpleWeeklyTicket]
 
 class RecentBookingResponse(BaseModel):
     user_name: str
@@ -294,3 +311,32 @@ class AdminCreate(BaseModel):
     full_name: str
     role: str = "Admin"
     email: str
+
+class UserBookingInfo(BaseModel):
+    user_id: int
+    name: str
+    email: EmailStr
+    phone: Optional[str]
+    status: str
+
+class BookingSummary(BaseModel):
+    booking_id: int
+    reservation_code: str
+    status: str
+    total_amount: float
+    total_passengers: int
+    created_at: datetime
+    main_flight: Optional[dict]
+
+class BookingStats(BaseModel):
+    total_bookings: int
+    total_revenue: float
+    by_status: Dict[str, int]
+    active_bookings: int
+    completed_bookings: int
+    cancelled_bookings: int
+
+class UserBookingsResponse(BaseModel):
+    user_info: UserBookingInfo
+    bookings: List[BookingSummary]
+    stats: BookingStats

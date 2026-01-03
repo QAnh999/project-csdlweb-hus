@@ -5,7 +5,7 @@ from models import Review, User
 import schemas
 from typing import List
 
-router = APIRouter(prefix="/feedbacks", tags=["Feedbacks"])
+router = APIRouter(prefix="/admin/feedbacks", tags=["Feedbacks"])
 
 @router.get("/", response_model=List[schemas.FeedbackResponse])
 def get_feedbacks(db: Session = Depends(get_db)):

@@ -6,7 +6,7 @@ from database import get_db
 from models import Aircraft
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/aircrafts", tags=["Aircrafts"])
+router = APIRouter(prefix="/admin/aircrafts", tags=["Aircrafts"])
 
 class AircraftResponse(BaseModel):
     id: int

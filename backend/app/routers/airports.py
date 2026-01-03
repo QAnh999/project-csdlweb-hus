@@ -6,7 +6,7 @@ from database import get_db
 from models import Airport
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/airports", tags=["Airports"])
+router = APIRouter(prefix="/admin/airports", tags=["Airports"])
 
 class AirportResponse(BaseModel):
     id: int

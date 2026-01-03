@@ -7,7 +7,7 @@ import schemas
 from typing import List
 from datetime import datetime
 
-router = APIRouter(prefix="/promotions", tags=["Promotions"])
+router = APIRouter(prefix="/admin/promotions", tags=["Promotions"])
 
 def fix_promotion_sequence_now(db: Session):
     """Fix sequence cho promotions table ngay lập tức"""

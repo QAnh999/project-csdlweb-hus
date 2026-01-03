@@ -7,7 +7,7 @@ import schemas
 from typing import List, Optional
 from datetime import datetime, date
 
-router = APIRouter(prefix="/flights", tags=["Flights"])
+router = APIRouter(prefix="/admin/flights", tags=["Flights"])
 
 @router.post("/", response_model=schemas.FlightResponse)
 def create_flight(flight_data: schemas.FlightCreate, db: Session = Depends(get_db)):
