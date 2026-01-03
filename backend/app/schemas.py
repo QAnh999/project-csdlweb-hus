@@ -23,7 +23,7 @@ class DailyStatsResponse(BaseModel):
     active_flights: int
     completed_flights: int
     total_revenue_today: Decimal
-    new_users_today: int
+    new_users_today: int 
 
 class WeeklyRevenueResponse(BaseModel):
     day_of_week: str

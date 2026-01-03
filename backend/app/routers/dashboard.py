@@ -1,18 +1,21 @@
+# routers/dashboard.py - SỬA LẠI TOÀN BỘ
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import func, extract, and_, or_, case, text
-from sqlalchemy.sql import label
+from sqlalchemy import func
+from sqlalchemy.orm import aliased
 from database import get_db
-from models import Flight, Reservation, User, Staff, Airline, Airport, DailyStat, Passenger, Review, Payment
+from models import Flight, Reservation, User, Airline, Airport
 import schemas
 from datetime import datetime, date, timedelta
 from typing import List
 from decimal import Decimal
 import logging
+
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 logger = logging.getLogger(__name__)
-# routers/dashboard.py
-# routers/dashboard.py
+
+# ==================== DAILY STATS ====================
+
 @router.get("/daily-stats")
 def get_daily_stats(db: Session = Depends(get_db)):
     """
@@ -20,40 +23,34 @@ def get_daily_stats(db: Session = Depends(get_db)):
     các chuyến bay đã hoàn thành, 
     tổng doanh thu theo ngày (hôm nay), 
     người dùng mới (hôm nay)
-    TẤT CẢ TÍNH THEO NGÀY HÔM NAY - THỜI GIAN THỰC
     """
     try:
         # Lấy ngày hôm nay
-        today = datetime.now().date()
-        today_start = datetime.combine(today, datetime.min.time())
-        today_end = datetime.combine(today, datetime.max.time())
+        today = date.today()
         
-        logger.info(f"Calculating daily stats for {today}")
-        
-        # 1. Tổng chuyến bay đang hoạt động (hôm nay)
+        # 1. Tổng chuyến bay đang hoạt động (hôm nay) - theo dep_datetime
         active_flights = db.query(Flight).filter(
             Flight.status.in_(['scheduled', 'boarding', 'departed']),
-            Flight.dep_datetime.between(today_start, today_end)
+            func.date(Flight.dep_datetime) == today
         ).count()
         
-        # 2. Chuyến bay đã hoàn thành (hôm nay)
+        # 2. Chuyến bay đã hoàn thành (hôm nay) - theo arr_datetime
         completed_flights = db.query(Flight).filter(
             Flight.status == 'arrived',
-            Flight.arr_datetime.between(today_start, today_end)
+            func.date(Flight.arr_datetime) == today
         ).count()
         
-        # 3. Tổng doanh thu theo ngày (hôm nay)
-        # Tính từ Reservation có status='completed' tạo trong ngày hôm nay
+        # 3. Tổng doanh thu theo ngày (hôm nay) - QUAN TRỌNG: theo status 'confirmed' hoặc 'completed'
         today_revenue = db.query(
             func.coalesce(func.sum(Reservation.total_amount), 0)
         ).filter(
-            Reservation.status == 'completed',
-            Reservation.created_at.between(today_start, today_end)
+            Reservation.status.in_(['confirmed', 'completed']),
+            func.date(Reservation.created_at) == today
         ).scalar() or 0
         
         # 4. Người dùng mới (hôm nay)
         new_users = db.query(User).filter(
-            User.created_at.between(today_start, today_end)
+            func.date(User.created_at) == today
         ).count()
         
         return {
@@ -63,9 +60,7 @@ def get_daily_stats(db: Session = Depends(get_db)):
                 "completed_flights": completed_flights,
                 "today_revenue": float(today_revenue),
                 "new_users": new_users
-                # ĐÃ BỎ debug_info
             }
-            # ĐÃ BỎ time_period
         }
         
     except Exception as e:
@@ -75,92 +70,159 @@ def get_daily_stats(db: Session = Depends(get_db)):
             detail=f"Internal server error: {str(e)}"
         )
 
-@router.get("/weekly-revenue", response_model=List[schemas.WeeklyRevenueResponse])
+# ==================== WEEKLY REVENUE ====================
+
+@router.get("/weekly-revenue")
 def get_weekly_revenue(db: Session = Depends(get_db)):
+    """
+    Thống kê tổng doanh thu trong 1 tuần (7 ngày gần nhất)
+    """
     today = date.today()
-    week_ago = today - timedelta(days=7)
+    week_ago = today - timedelta(days=6)  # 7 ngày: 6 ngày trước + hôm nay
     
-    results = db.query(
-        func.to_char(Reservation.created_at, 'Day').label('day_of_week'),
-        func.date(Reservation.created_at).label('date'),
-        func.coalesce(func.sum(Reservation.total_amount), 0).label('revenue')
-    ).filter(
-        Reservation.created_at >= week_ago,
-        Reservation.created_at <= today,
-        Reservation.status.in_(['confirmed', 'completed'])
-    ).group_by(
-        func.to_char(Reservation.created_at, 'Day'),
-        func.date(Reservation.created_at)
-    ).order_by(func.date(Reservation.created_at)).all()
-    
-    response = []
-    for r in results:
-        response.append({
-            "day_of_week": r.day_of_week.strip(),
-            "date": r.date,
-            "revenue": Decimal(str(r.revenue)) if r.revenue else Decimal('0')
+    # Tạo danh sách tất cả các ngày trong tuần
+    all_days = []
+    for i in range(7):
+        current_date = week_ago + timedelta(days=i)
+        
+        # Query doanh thu cho ngày cụ thể
+        day_revenue = db.query(
+            func.coalesce(func.sum(Reservation.total_amount), 0)
+        ).filter(
+            Reservation.status.in_(['confirmed', 'completed']),  # SỬA: cả confirmed và completed
+            func.date(Reservation.created_at) == current_date
+        ).scalar() or 0
+        
+        # Lấy tên thứ tiếng Việt
+        day_names = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"]
+        day_index = current_date.weekday()  # 0=Monday, 6=Sunday
+        
+        all_days.append({
+            "date": current_date.isoformat(),
+            "day_of_week": day_names[day_index],
+            "revenue": float(day_revenue)
         })
     
-    return response
+    # Tổng doanh thu tuần
+    total_week_revenue = sum(day["revenue"] for day in all_days)
+    
+    return {
+        "period": {
+            "start_date": week_ago.isoformat(),
+            "end_date": today.isoformat()
+        },
+        "revenue_by_day": all_days,
+        "total_week_revenue": total_week_revenue
+    }
 
-@router.get("/monthly-revenue", response_model=List[schemas.MonthlyRevenueResponse])
+# ==================== MONTHLY REVENUE ====================
+
+@router.get("/monthly-revenue")
 def get_monthly_revenue(db: Session = Depends(get_db)):
+    """
+    Thống kê tổng doanh thu trong tháng hiện tại (theo tuần)
+    """
     today = date.today()
     first_day_of_month = date(today.year, today.month, 1)
     
-    results = db.query(
-        label('week_number', 
-              extract('week', Reservation.created_at) - 
-              extract('week', first_day_of_month) + 1),
-        func.coalesce(func.sum(Reservation.total_amount), 0).label('revenue')
-    ).filter(
-        Reservation.created_at >= first_day_of_month,
-        Reservation.created_at <= today,
-        Reservation.status.in_(['confirmed', 'completed'])
-    ).group_by(
-        label('week_number', 
-              extract('week', Reservation.created_at) - 
-              extract('week', first_day_of_month) + 1)
-    ).order_by('week_number').all()
+    # Tính tuần trong tháng
+    weeks_data = []
     
-    response = []
-    for r in results:
-        response.append({
-            "week_number": int(r.week_number),
-            "revenue": Decimal(str(r.revenue)) if r.revenue else Decimal('0')
+    # Chia tháng thành 4 tuần (xấp xỉ)
+    for week_num in range(1, 5):
+        # Tính ngày bắt đầu và kết thúc của tuần
+        if week_num == 1:
+            week_start = first_day_of_month
+            week_end = first_day_of_month + timedelta(days=6)
+        elif week_num == 2:
+            week_start = first_day_of_month + timedelta(days=7)
+            week_end = first_day_of_month + timedelta(days=13)
+        elif week_num == 3:
+            week_start = first_day_of_month + timedelta(days=14)
+            week_end = first_day_of_month + timedelta(days=20)
+        else:  # week_num == 4
+            week_start = first_day_of_month + timedelta(days=21)
+            week_end = today if today < first_day_of_month + timedelta(days=27) else first_day_of_month + timedelta(days=27)
+        
+        # Đảm bảo week_end không vượt quá hôm nay
+        if week_end > today:
+            week_end = today
+        
+        # Query doanh thu trong tuần
+        week_revenue = db.query(
+            func.coalesce(func.sum(Reservation.total_amount), 0)
+        ).filter(
+            Reservation.status.in_(['confirmed', 'completed']),
+            func.date(Reservation.created_at).between(week_start, week_end)
+        ).scalar() or 0
+        
+        weeks_data.append({
+            "week_number": week_num,
+            "period": f"{week_start.strftime('%d/%m')} - {week_end.strftime('%d/%m')}",
+            "revenue": float(week_revenue)
         })
     
-    return response
+    return {
+        "month": today.strftime("%Y-%m"),
+        "weeks": weeks_data,
+        "total_month_revenue": sum(week["revenue"] for week in weeks_data)
+    }
 
-@router.get("/weekly-tickets", response_model=List[schemas.WeeklyTicketsResponse])
+# ==================== WEEKLY TICKETS ====================
+
+@router.get("/weekly-tickets")
 def get_weekly_tickets(db: Session = Depends(get_db)):
+    """
+    Thống kê tổng số vé bán được của các ngày trong 1 tuần
+    """
     today = date.today()
-    week_ago = today - timedelta(days=7)
+    week_ago = today - timedelta(days=6)
     
-    results = db.query(
-        func.date(Reservation.created_at).label('date'),
-        func.count(Reservation.id).label('tickets_sold'),
-        func.coalesce(func.sum(Reservation.total_amount), 0).label('revenue')
-    ).filter(
-        Reservation.created_at >= week_ago,
-        Reservation.created_at <= today,
-        Reservation.status.in_(['confirmed', 'completed'])
-    ).group_by(func.date(Reservation.created_at)
-    ).order_by(func.date(Reservation.created_at)).all()
+    tickets_by_day = []
     
-    response = []
-    for r in results:
-        response.append({
-            "date": r.date,
-            "tickets_sold": r.tickets_sold,
-            "revenue": Decimal(str(r.revenue)) if r.revenue else Decimal('0')
+    # Query vé bán theo ngày
+    for i in range(7):
+        current_date = week_ago + timedelta(days=i)
+        
+        # Số vé bán (số booking)
+        tickets_sold = db.query(Reservation).filter(
+            Reservation.status.in_(['confirmed', 'completed']),
+            func.date(Reservation.created_at) == current_date
+        ).count()
+        
+        # Doanh thu ngày
+        day_revenue = db.query(
+            func.coalesce(func.sum(Reservation.total_amount), 0)
+        ).filter(
+            Reservation.status.in_(['confirmed', 'completed']),
+            func.date(Reservation.created_at) == current_date
+        ).scalar() or 0
+        
+        tickets_by_day.append({
+            "date": current_date.isoformat(),
+            "date_formatted": current_date.strftime("%d/%m/%Y"),
+            "tickets_sold": tickets_sold,
+            "revenue": float(day_revenue)
         })
     
-    return response
+    return {
+        "period": {
+            "start_date": week_ago.isoformat(),
+            "end_date": today.isoformat()
+        },
+        "tickets_by_day": tickets_by_day,
+        "total_tickets_week": sum(day["tickets_sold"] for day in tickets_by_day),
+        "total_revenue_week": sum(day["revenue"] for day in tickets_by_day)
+    }
 
-@router.get("/recent-bookings", response_model=List[schemas.RecentBookingResponse])
+# ==================== RECENT BOOKINGS ====================
+
+@router.get("/recent-bookings")
 def get_recent_bookings(db: Session = Depends(get_db)):
-    results = db.query(
+    """
+    Hiển thị top 3 user đặt vé gần nhất
+    """
+    recent_bookings = db.query(
         User.first_name,
         User.last_name,
         Reservation.id,
@@ -170,190 +232,95 @@ def get_recent_bookings(db: Session = Depends(get_db)):
     ).join(Reservation, Reservation.user_id == User.id
     ).join(Flight, Reservation.main_flight_id == Flight.id
     ).filter(
-        Reservation.status.in_(['pending', 'confirmed'])
+        Reservation.status.in_(['pending', 'confirmed', 'completed'])
     ).order_by(Reservation.created_at.desc()
     ).limit(3).all()
     
-    response = []
-    for r in results:
-        response.append({
-            "user_name": f"{r.first_name} {r.last_name}",
-            "booking_id": r.id,
-            "flight_number": r.flight_number,
-            "booking_time": r.created_at.strftime("%H:%M"),
-            "status": r.status
+    result = []
+    for booking in recent_bookings:
+        result.append({
+            "user_name": f"{booking.first_name} {booking.last_name}",
+            "booking_id": booking.id,
+            "flight_number": booking.flight_number,
+            "booking_time": booking.created_at.strftime("%H:%M"),
+            "status": booking.status
         })
     
-    return response
-@router.get("/popular-routes", response_model=List[schemas.PopularRouteResponse])
+    return result
+
+# ==================== POPULAR ROUTES ====================
+
+@router.get("/popular-routes")
 def get_popular_routes(db: Session = Depends(get_db)):
     """
     Hiển thị top 5 tuyến bay phổ biến nhất
-    CHỈ trả về departure_city, arrival_city, percentage
     """
     try:
         # Tạo alias cho Airport
         Airport_dep = aliased(Airport)
         Airport_arr = aliased(Airport)
-        # Query 1: Đếm tổng số chuyến bay
-        total_flights_query = db.query(func.count(Flight.id)).filter(
-            Flight.status != 'deleted'
-        )
-        total_flights = total_flights_query.scalar()
         
-        print(f"Total flights: {total_flights}")
-        
-        if total_flights == 0 or total_flights is None:
-            return []
-        
-        # Query 2: Lấy top 5 routes với percentage
-        # CÁCH 1: Dùng subquery để tính percentage
-        route_counts = db.query(
+        # Query các route phổ biến
+        routes = db.query(
             Airport_dep.city.label('departure_city'),
             Airport_arr.city.label('arrival_city'),
             func.count(Flight.id).label('flight_count')
         ).join(Airport_dep, Flight.dep_airport == Airport_dep.id
         ).join(Airport_arr, Flight.arr_airport == Airport_arr.id
         ).filter(
-            Flight.status != 'deleted',
-            Airport_dep.city.isnot(None),
-            Airport_arr.city.isnot(None)
+            Flight.status != 'deleted'
         ).group_by(
-            Airport_dep.city,
-            Airport_arr.city,
-            Airport_dep.id,
-            Airport_arr.id
+            Airport_dep.city, Airport_arr.city
         ).order_by(func.count(Flight.id).desc()
         ).limit(5).all()
         
-        print(f"Found {len(route_counts)} routes")
+        # Tính tổng số chuyến bay
+        total_flights = db.query(func.count(Flight.id)).filter(
+            Flight.status != 'deleted'
+        ).scalar() or 1  # Tránh chia cho 0
         
-        # Format response với tính toán percentage
-        response = []
-        for route in route_counts:
-            percentage = (route.flight_count / total_flights * 100) if total_flights > 0 else 0
-            response.append({
+        result = []
+        for route in routes:
+            percentage = (route.flight_count / total_flights * 100)
+            result.append({
                 "departure_city": route.departure_city,
                 "arrival_city": route.arrival_city,
                 "percentage": round(percentage, 2)
             })
-            print(f"Route: {route.departure_city} -> {route.arrival_city}, Count: {route.flight_count}, %: {percentage}")
         
-        return response
+        return result
         
     except Exception as e:
-        print(f"Error in popular-routes (method 1): {str(e)}")
-        
-        # THỬ CÁCH KHÁC: Dùng raw SQL nếu cần
-        try:
-            sql = """
-            SELECT 
-                ad.city as departure_city,
-                aa.city as arrival_city,
-                COUNT(f.id) as flight_count
-            FROM flights f
-            JOIN airports ad ON f.dep_airport = ad.id
-            JOIN airports aa ON f.arr_airport = aa.id
-            WHERE f.status != 'deleted'
-            GROUP BY ad.city, aa.city, ad.id, aa.id
-            ORDER BY flight_count DESC
-            LIMIT 5
-            """
-            
-            result = db.execute(sql)
-            routes = result.fetchall()
-            
-            # Đếm lại total flights
-            total_sql = "SELECT COUNT(*) FROM flights WHERE status != 'deleted'"
-            total_result = db.execute(total_sql)
-            total_flights = total_result.scalar()
-            
-            response = []
-            for route in routes:
-                percentage = (route.flight_count / total_flights * 100) if total_flights > 0 else 0
-                response.append({
-                    "departure_city": route.departure_city,
-                    "arrival_city": route.arrival_city,
-                    "percentage": round(percentage, 2)
-                })
-            
-            return response
-            
-        except Exception as e2:
-            print(f"Error in popular-routes (SQL method): {str(e2)}")
-            
-            # CÁCH CUỐI: Debug bằng cách in ra dữ liệu thực tế
-            try:
-                # In ra để debug
-                print("\n=== DEBUG INFO ===")
-                
-                # 1. Kiểm tra flights
-                flights = db.query(Flight).filter(Flight.status != 'deleted').all()
-                print(f"Total flights in DB: {len(flights)}")
-                
-                # 2. Kiểm tra airports
-                airports = db.query(Airport).all()
-                print(f"Total airports in DB: {len(airports)}")
-                
-                # 3. Kiểm tra một vài flight để xem data
-                for i, flight in enumerate(flights[:3]):
-                    dep = db.query(Airport).filter(Airport.id == flight.dep_airport).first()
-                    arr = db.query(Airport).filter(Airport.id == flight.arr_airport).first()
-                    print(f"Flight {i+1}: {dep.city if dep else 'N/A'} -> {arr.city if arr else 'N/A'}")
-                
-                # 4. Tính thủ công
-                route_dict = {}
-                for flight in flights:
-                    dep = db.query(Airport).filter(Airport.id == flight.dep_airport).first()
-                    arr = db.query(Airport).filter(Airport.id == flight.arr_airport).first()
-                    
-                    if dep and arr:
-                        key = f"{dep.city}|{arr.city}"
-                        route_dict[key] = route_dict.get(key, 0) + 1
-                
-                # Sắp xếp và lấy top 5
-                sorted_routes = sorted(route_dict.items(), key=lambda x: x[1], reverse=True)[:5]
-                
-                response = []
-                for route_key, count in sorted_routes:
-                    dep_city, arr_city = route_key.split("|")
-                    percentage = (count / len(flights) * 100) if flights else 0
-                    response.append({
-                        "departure_city": dep_city,
-                        "arrival_city": arr_city,
-                        "percentage": round(percentage, 2)
-                    })
-                
-                print(f"Calculated {len(response)} routes from manual calculation")
-                return response
-                
-            except Exception as e3:
-                print(f"Error in popular-routes (debug method): {str(e3)}")
-                # Trả về rỗng thay vì dữ liệu mẫu
-                return []
-
-@router.get("/popular-airlines", response_model=List[schemas.PopularAirlinesResponse])
-def get_popular_airlines(db: Session = Depends(get_db)):
-    # Đếm tổng số chuyến bay
-    total_flights = db.query(Flight).count()
-    
-    if total_flights == 0:
+        logger.error(f"Error in popular-routes: {e}")
         return []
+
+# ==================== POPULAR AIRLINES ====================
+
+@router.get("/popular-airlines")
+def get_popular_airlines(db: Session = Depends(get_db)):
+    """
+    Hiển thị hãng bay phổ biến
+    """
+    # Tổng số chuyến bay
+    total_flights = db.query(func.count(Flight.id)).filter(
+        Flight.status != 'deleted'
+    ).scalar() or 1
     
-    results = db.query(
+    airlines = db.query(
         Airline.name,
         func.count(Flight.id).label('flight_count')
     ).join(Flight, Airline.id == Flight.id_airline
+    ).filter(Flight.status != 'deleted'
     ).group_by(Airline.id, Airline.name
     ).all()
     
-    response = []
-    for r in results:
-        percentage = (r.flight_count / total_flights) * 100 if total_flights > 0 else 0
-        response.append({
-            "airline_name": r.name,
-            "total_flights": r.flight_count,
+    result = []
+    for airline in airlines:
+        percentage = (airline.flight_count / total_flights * 100)
+        result.append({
+            "airline_name": airline.name,
+            "total_flights": airline.flight_count,
             "percentage": round(percentage, 2)
         })
     
-    return response
+    return result
