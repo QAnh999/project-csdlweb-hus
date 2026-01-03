@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from routers import (
     auth, dashboard, flights, bookings, services, 
-    feedbacks, promotions, managers
+    feedbacks, promotions, managers,
+    airports, aircrafts, airlines  # THÊM 3 API MỚI
 )
 from database import init_db
 from datetime import datetime
@@ -38,6 +39,11 @@ app.include_router(feedbacks.router)
 app.include_router(promotions.router)
 app.include_router(managers.router)
 
+# THÊM 3 ROUTERS MỚI
+app.include_router(airports.router)
+app.include_router(aircrafts.router)
+app.include_router(airlines.router)
+
 @app.get("/")
 def read_root():
     return {
@@ -52,7 +58,11 @@ def read_root():
             "/services/",
             "/feedbacks/",
             "/promotions/",
-            "/managers/users"
+            "/managers/users",
+            # THÊM 3 ENDPOINTS MỚI
+            "/airports/",
+            "/aircrafts/",
+            "/airlines/"
         ]
     }
 

@@ -3,50 +3,77 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, extract, and_, or_, case, text
 from sqlalchemy.sql import label
 from database import get_db
-from models import Flight, Reservation, User, Staff, Airline, Airport, DailyStat, Passenger, Review
+from models import Flight, Reservation, User, Staff, Airline, Airport, DailyStat, Passenger, Review, Payment
 import schemas
 from datetime import datetime, date, timedelta
 from typing import List
 from decimal import Decimal
-
+import logging
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
-
-@router.get("/daily-stats", response_model=schemas.DailyStatsResponse)
+logger = logging.getLogger(__name__)
+# routers/dashboard.py
+# routers/dashboard.py
+@router.get("/daily-stats")
 def get_daily_stats(db: Session = Depends(get_db)):
-    today = date.today()
-    
-    # 1. Tổng chuyến bay đang hoạt động
-    active_flights = db.query(Flight).filter(
-        Flight.status.in_(['scheduled', 'boarding', 'departed']),
-        func.date(Flight.dep_datetime) == today
-    ).count()
-    
-    # 2. Tổng chuyến bay đã hoàn thành
-    completed_flights = db.query(Flight).filter(
-        Flight.status == 'arrived',
-        func.date(Flight.arr_datetime) == today
-    ).count()
-    
-    # 3. Tổng doanh thu theo ngày
-    today_revenue_result = db.query(func.coalesce(func.sum(Reservation.total_amount), 0)).filter(
-        func.date(Reservation.created_at) == today,
-        Reservation.status.in_(['confirmed', 'completed'])
-    ).scalar()
-    
-    today_revenue = Decimal(str(today_revenue_result)) if today_revenue_result else Decimal('0')
-    
-    # 4. Người dùng mới
-    new_users = db.query(User).filter(
-        func.date(User.created_at) == today,
-        User.status == 'active'
-    ).count()
-    
-    return {
-        "active_flights": active_flights,
-        "completed_flights": completed_flights,
-        "total_revenue_today": today_revenue,
-        "new_users_today": new_users
-    }
+    """
+    Thống kê tổng các chuyến bay đang hoạt động, 
+    các chuyến bay đã hoàn thành, 
+    tổng doanh thu theo ngày (hôm nay), 
+    người dùng mới (hôm nay)
+    TẤT CẢ TÍNH THEO NGÀY HÔM NAY - THỜI GIAN THỰC
+    """
+    try:
+        # Lấy ngày hôm nay
+        today = datetime.now().date()
+        today_start = datetime.combine(today, datetime.min.time())
+        today_end = datetime.combine(today, datetime.max.time())
+        
+        logger.info(f"Calculating daily stats for {today}")
+        
+        # 1. Tổng chuyến bay đang hoạt động (hôm nay)
+        active_flights = db.query(Flight).filter(
+            Flight.status.in_(['scheduled', 'boarding', 'departed']),
+            Flight.dep_datetime.between(today_start, today_end)
+        ).count()
+        
+        # 2. Chuyến bay đã hoàn thành (hôm nay)
+        completed_flights = db.query(Flight).filter(
+            Flight.status == 'arrived',
+            Flight.arr_datetime.between(today_start, today_end)
+        ).count()
+        
+        # 3. Tổng doanh thu theo ngày (hôm nay)
+        # Tính từ Reservation có status='completed' tạo trong ngày hôm nay
+        today_revenue = db.query(
+            func.coalesce(func.sum(Reservation.total_amount), 0)
+        ).filter(
+            Reservation.status == 'completed',
+            Reservation.created_at.between(today_start, today_end)
+        ).scalar() or 0
+        
+        # 4. Người dùng mới (hôm nay)
+        new_users = db.query(User).filter(
+            User.created_at.between(today_start, today_end)
+        ).count()
+        
+        return {
+            "date": today.isoformat(),
+            "stats": {
+                "active_flights": active_flights,
+                "completed_flights": completed_flights,
+                "today_revenue": float(today_revenue),
+                "new_users": new_users
+                # ĐÃ BỎ debug_info
+            }
+            # ĐÃ BỎ time_period
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in get_daily_stats: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal server error: {str(e)}"
+        )
 
 @router.get("/weekly-revenue", response_model=List[schemas.WeeklyRevenueResponse])
 def get_weekly_revenue(db: Session = Depends(get_db)):
@@ -168,7 +195,6 @@ def get_popular_routes(db: Session = Depends(get_db)):
         # Tạo alias cho Airport
         Airport_dep = aliased(Airport)
         Airport_arr = aliased(Airport)
-        
         # Query 1: Đếm tổng số chuyến bay
         total_flights_query = db.query(func.count(Flight.id)).filter(
             Flight.status != 'deleted'

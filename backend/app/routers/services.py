@@ -6,23 +6,24 @@ from models import Service, ReservationService
 import schemas
 from typing import List
 
+
 router = APIRouter(prefix="/services", tags=["Services"])
 
 @router.get("/", response_model=List[schemas.ServiceResponse])
 def get_services(db: Session = Depends(get_db)):
     """
-    Lấy danh sách tất cả dịch vụ (chỉ trả về 4 trường)
+    Lấy danh sách tất cả dịch vụ (có id)
     """
     try:
-        # Chỉ lấy các dịch vụ còn tồn tại trong database
         services = db.query(Service).filter(
-            Service.is_available == True  # CHỈ lấy dịch vụ available
+            Service.is_available == True
         ).order_by(Service.name).all()
         
-        # Chỉ trả về 4 trường, không cần id và is_available
+        # Trả về CÓ ID
         response = []
         for service in services:
             response.append({
+                "id": service.id,  # THÊM ID
                 "name": service.name,
                 "description": service.description,
                 "category": service.category,
@@ -34,22 +35,23 @@ def get_services(db: Session = Depends(get_db)):
         print(f"Error getting services: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@router.get("/{service_id}")
+@router.get("/{service_id}", response_model=schemas.ServiceResponse)
 def get_service(service_id: int, db: Session = Depends(get_db)):
     """
-    Lấy thông tin chi tiết 1 dịch vụ
+    Lấy thông tin chi tiết 1 dịch vụ (có id)
     """
     try:
         service = db.query(Service).filter(
             Service.id == service_id,
-            Service.is_available == True  # CHỈ lấy dịch vụ available
+            Service.is_available == True
         ).first()
         
         if not service:
             raise HTTPException(status_code=404, detail="Service not found")
         
-        # Chỉ trả về 4 trường
+        # Trả về CÓ ID
         return {
+            "id": service.id,  # THÊM ID
             "name": service.name,
             "description": service.description,
             "category": service.category,
@@ -60,6 +62,7 @@ def get_service(service_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Error getting service: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 
 @router.post("/")
 def create_service(service_data: schemas.ServiceCreate, db: Session = Depends(get_db)):
