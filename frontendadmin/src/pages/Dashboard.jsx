@@ -14,7 +14,7 @@ import "../styles/main.css";
 import { toast } from "sonner";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "http://localhost:8000/admin";
 
 const Dashboard = () => {
   // KPI states
@@ -63,10 +63,10 @@ const Dashboard = () => {
       const data = res.data; // axios tự parse JSON
 
       // Cập nhật từng state riêng biệt
-      setSuccessfulBookings(data.completed_flights || 0);
-      setActiveFlights(data.active_flights || 0);
-      setNewUsers(data.new_users_today || 0);
-      setTotalRevenue(data.total_revenue_today || 0);
+      setSuccessfulBookings(data.stats.completed_flights || 0);
+      setActiveFlights(data.stats.active_flights || 0);
+      setNewUsers(data.stats.new_users || 0);
+      setTotalRevenue(data.stats.today_revenue || 0);
     } catch (error) {
       console.error("Error fetching KPI data:", error);
       toast.error("Lỗi khi tải dữ liệu KPI");
@@ -130,7 +130,12 @@ const Dashboard = () => {
   const fetchWeeklyTickets = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/dashboard/weekly-tickets`);
-      setWeeklyTickets(res.data);
+      setWeeklyTickets(
+        res.data.map((item) => ({
+          date: item.date,
+          tickets_sold: item.tickets_sold,
+        }))
+      );
     } catch (error) {
       console.error("Error fetching weekly tickets:", error);
       toast.error("Lỗi khi tải dữ liệu vé bán ra trong tuần");
@@ -141,7 +146,12 @@ const Dashboard = () => {
   const fetchWeeklyRevenue = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/dashboard/weekly-revenue`);
-      setWeeklyRevenue(res.data);
+      setWeeklyRevenue(
+        res.data.revenue_by_day.map((item) => ({
+          date: item.date,
+          revenue: item.revenue,
+        }))
+      );
     } catch (error) {
       console.error("Error fetching weekly revenue:", error);
       toast.error("Lỗi khi tải dữ liệu doanh thu tuần");
@@ -152,7 +162,12 @@ const Dashboard = () => {
   const fetchMonthlyRevenue = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/dashboard/monthly-revenue`);
-      setMonthlyRevenue(res.data);
+      setMonthlyRevenue(
+        res.data.weeks.map((week) => ({
+          week_number: week.week_number,
+          revenue: week.revenue,
+        }))
+      );
     } catch (error) {
       console.error("Error fetching monthly revenue:", error);
       toast.error("Lỗi khi tải dữ liệu doanh thu tháng");
@@ -236,7 +251,7 @@ const Dashboard = () => {
       data = defaultLabels.map((day) => dataByDay[day] || 0);
     }
 
-    const maxValue = Math.max(...data, 100);
+    const maxValue = Math.max(...data, 50);
     const ctx = ticketChartRef.current.getContext("2d");
 
     ticketChartInstance.current = new Chart(ctx, {
@@ -250,7 +265,7 @@ const Dashboard = () => {
             backgroundColor: "#87b3ea",
             borderRadius: 4,
             borderSkipped: false,
-            minBarLength: 5,
+            minBarLength: 1,
           },
         ],
       },
@@ -350,7 +365,7 @@ const Dashboard = () => {
             min: 0,
             max: 100000000, // 100 triệu
             ticks: {
-              stepSize: 20000000, // 20 triệu
+              stepSize: 10000000, // 10 triệu
               callback: (value) => {
                 if (value === 0) return "0";
                 return value / 1000000 + " triệu";
@@ -391,10 +406,6 @@ const Dashboard = () => {
               <div className="kpi-value">
                 {loadingKPI ? "..." : successfulBookings.toLocaleString()}
               </div>
-              <div className="kpi-trend positive">
-                <ArrowUp size={14} />
-                <span>+12%</span>
-              </div>
             </div>
           </div>
 
@@ -406,10 +417,6 @@ const Dashboard = () => {
               <h3>Đang hoạt động</h3>
               <div className="kpi-value">
                 {loadingKPI ? "..." : activeFlights.toLocaleString()}
-              </div>
-              <div className="kpi-trend">
-                <ArrowDown size={14} />
-                <span>0%</span>
               </div>
             </div>
           </div>
@@ -423,10 +430,6 @@ const Dashboard = () => {
               <div className="kpi-value">
                 {loadingKPI ? "..." : newUsers.toLocaleString()}
               </div>
-              <div className="kpi-trend negative">
-                <ArrowDown size={14} />
-                <span>-5%</span>
-              </div>
             </div>
           </div>
 
@@ -438,10 +441,6 @@ const Dashboard = () => {
               <h3>Doanh thu</h3>
               <div className="kpi-value">
                 {loadingKPI ? "..." : formatCurrency(totalRevenue)}
-              </div>
-              <div className="kpi-trend positive">
-                <ArrowUp size={14} />
-                <span>+2%</span>
               </div>
             </div>
           </div>
