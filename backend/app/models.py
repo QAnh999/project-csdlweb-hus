@@ -281,8 +281,8 @@ class Reservation(Base):
     reservation_passengers = relationship("ReservationPassenger", back_populates="reservation")
     booked_seats = relationship("BookedSeat", back_populates="reservation")
     reservation_details = relationship("ReservationDetail", back_populates="reservation")
-    payments = relationship("Payment", back_populates="reservation")
-    invoices = relationship("Invoice", back_populates="reservation")
+    payment = relationship("Payment", back_populates="reservation", uselist=False)
+    invoice = relationship("Invoice", back_populates="reservation", uselist=False)
     promotion_usages = relationship("PromotionUsage", back_populates="reservation")
 
 class ReservationPassenger(Base):
@@ -407,7 +407,7 @@ class Payment(Base):
     )
     
     # Relationships
-    reservation = relationship("Reservation", back_populates="payments")
+    reservation = relationship("Reservation", back_populates="payment")
 
 class Invoice(Base):
     __tablename__ = "invoices"
@@ -427,7 +427,7 @@ class Invoice(Base):
     )
     
     # Relationships
-    reservation = relationship("Reservation", back_populates="invoices")
+    reservation = relationship("Reservation", back_populates="invoice")
     user = relationship("User", back_populates="invoices")
 
 # =========================

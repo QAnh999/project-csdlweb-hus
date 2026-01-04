@@ -99,3 +99,39 @@ if __name__ == "__main__":
         reload=True,
         log_level="info"
     )
+
+
+# from fastapi import FastAPI, HTTPException
+# from fastapi.responses import FileResponse
+# from pydantic import BaseModel
+# from backup_module.backup import backup_database, restore_database, list_backups
+# from datetime import datetime
+
+# # Model cho restore request
+# class RestoreRequest(BaseModel):
+#     file_path: str
+
+# # Backup routes
+# @app.get("/backup")
+# def create_backup():
+#     file = backup_database()
+#     if file:
+#         return {"status": "success", "file": file}
+#     raise HTTPException(status_code=500, detail="Backup thất bại")
+
+# @app.post("/restore")
+# def restore_backup(req: RestoreRequest):
+#     restore_database(req.file_path)
+#     return {"status": "success"}
+
+# @app.get("/backups")
+# def get_backups():
+#     files = list_backups()
+#     return {"backups": files}
+
+# @app.get("/download")
+# def download(file: str):
+#     path = Path(file)
+#     if not path.exists():
+#         raise HTTPException(status_code=404, detail="File không tồn tại")
+#     return FileResponse(path, filename=path.name)
