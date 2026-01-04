@@ -20,7 +20,18 @@ const PassengerInfoPage = () => {
     phone_number: "",
 
     document_type: "CCCD",
-    document_number: ""
+    document_number: "",
+  });
+
+  const [baggageChecked, setBaggageChecked] = useState(false);
+  const [mealChecked, setMealChecked] = useState(false);
+  const [seatChecked, setSeatChecked] = useState(false);
+
+  const [baggage, setBaggage] = useState({ type: "Không", price: 0 });
+  const [meal, setMeal] = useState({ type: "Không", price: 0 });
+  const [seatPreference, setSeatPreference] = useState({
+    type: "Không",
+    price: 0,
   });
 
   /* =======================
@@ -51,7 +62,6 @@ const PassengerInfoPage = () => {
         ...draft.passengers[passengerIndex].info,
       });
     }
-
   }, [navigate, passengerIndex]);
 
   /* =======================
@@ -87,7 +97,6 @@ const PassengerInfoPage = () => {
     return base;
   };
 
-
   const savePassengerToBE = async () => {
     const token = getAuthToken();
     const draft = JSON.parse(localStorage.getItem("bookingDraft"));
@@ -105,7 +114,7 @@ const PassengerInfoPage = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          
+
           body: JSON.stringify({
             passengers: [passengerPayload],
             passenger_count: {
@@ -147,8 +156,9 @@ const PassengerInfoPage = () => {
       );
       console.log(
         "🆔 passenger_id đã lưu:",
-        JSON.parse(localStorage.getItem("bookingDraft"))
-          ?.passengers?.[passengerIndex]?.passenger_id
+        JSON.parse(localStorage.getItem("bookingDraft"))?.passengers?.[
+          passengerIndex
+        ]?.passenger_id
       );
 
       return true;
@@ -333,7 +343,6 @@ const PassengerInfoPage = () => {
             </div>
           </div>
         </div>
-
 
         <div className="form-actions">
           <button

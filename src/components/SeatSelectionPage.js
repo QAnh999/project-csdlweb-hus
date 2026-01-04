@@ -18,7 +18,7 @@ const Seat = ({ seat, selected, onSelect }) => {
       onClick={() => status === "available" && onSelect(seat)}
       title={`Ghế ${seat_number} - ${seat_class} - ${status}`}
     >
-      {seat_number}
+      {seat_number.match(/[A-Z]/)?.[0] || seat_number}
     </div>
   );
 };
@@ -38,7 +38,8 @@ const SeatSelectionPage = () => {
   const [loading, setLoading] = useState(false);
   const cabinClass = draft?.cabinClass;
 
-  const getAuthToken = () => JSON.parse(localStorage.getItem("auth") || "{}")?.access_token || "";
+  const getAuthToken = () =>
+    JSON.parse(localStorage.getItem("auth") || "{}")?.access_token || "";
 
   // Load draft, flight & sơ đồ ghế
   useEffect(() => {
@@ -85,7 +86,9 @@ const SeatSelectionPage = () => {
         // Load ghế đã chọn trước đó cho hành khách
         const passenger = bookingDraft.passengers[passengerIndex];
         if (passenger?.seatMap?.[leg]) {
-          const prevSeat = data.seats.find(s => s.seat_id === passenger.seatMap[leg]);
+          const prevSeat = data.seats.find(
+            (s) => s.seat_id === passenger.seatMap[leg]
+          );
           if (prevSeat) setSelectedSeat(prevSeat);
         }
       } catch (err) {
@@ -110,7 +113,8 @@ const SeatSelectionPage = () => {
       setLoading(true);
 
       // Lấy flightId theo leg
-      let flightId = leg === "inbound" ? draft.returnFlightId : draft.mainFlightId;
+      let flightId =
+        leg === "inbound" ? draft.returnFlightId : draft.mainFlightId;
 
       const payload = {
         flight_id: flightId,
@@ -133,9 +137,10 @@ const SeatSelectionPage = () => {
       );
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || data.message || "Lỗi giữ ghế");
+      if (!res.ok)
+        throw new Error(data.detail || data.message || "Lỗi giữ ghế");
 
-      const { held_seats } = data;  // Sử dụng response để xác nhận
+      const { held_seats } = data; // Sử dụng response để xác nhận
 
       alert(data.message || "Giữ ghế thành công");
 
@@ -143,7 +148,8 @@ const SeatSelectionPage = () => {
       const updatedDraft = { ...draft };
       if (!updatedDraft.passengers[passengerIndex].seatMap)
         updatedDraft.passengers[passengerIndex].seatMap = {};
-      updatedDraft.passengers[passengerIndex].seatMap[leg] = selectedSeat.seat_id;
+      updatedDraft.passengers[passengerIndex].seatMap[leg] =
+        selectedSeat.seat_id;
 
       // // Cập nhật passenger_id nếu chưa có
       // if (!updatedDraft.passengers[passengerIndex].passenger_id) {
@@ -169,21 +175,36 @@ const SeatSelectionPage = () => {
 
     if (updatedDraft.tripType === "oneway") {
       if (passengerIndex + 1 < total)
-        navigate(`/seatselection?leg=main&index=${passengerIndex + 1}&reservation_id=${reservationId}`);
+        navigate(
+          `/seatselection?leg=main&index=${
+            passengerIndex + 1
+          }&reservation_id=${reservationId}`
+        );
       else navigate(`/review?reservation_id=${reservationId}`);
       return;
     }
 
     if (leg === "outbound") {
       if (passengerIndex + 1 < total)
-        navigate(`/seatselection?leg=outbound&index=${passengerIndex + 1}&reservation_id=${reservationId}`);
-      else navigate(`/seatselection?leg=inbound&index=0&reservation_id=${reservationId}`);
+        navigate(
+          `/seatselection?leg=outbound&index=${
+            passengerIndex + 1
+          }&reservation_id=${reservationId}`
+        );
+      else
+        navigate(
+          `/seatselection?leg=inbound&index=0&reservation_id=${reservationId}`
+        );
       return;
     }
 
     if (leg === "inbound") {
       if (passengerIndex + 1 < total)
-        navigate(`/seatselection?leg=inbound&index=${passengerIndex + 1}&reservation_id=${reservationId}`);
+        navigate(
+          `/seatselection?leg=inbound&index=${
+            passengerIndex + 1
+          }&reservation_id=${reservationId}`
+        );
       else navigate(`/review?reservation_id=${reservationId}`);
     }
   };
@@ -193,31 +214,40 @@ const SeatSelectionPage = () => {
 
   // Chia ghế theo hàng để hiển thị
   const rows = {};
-  seats.forEach(s => {
+  seats.forEach((s) => {
     const rowNumber = s.seat_number.match(/\d+/)[0];
     if (!rows[rowNumber]) rows[rowNumber] = [];
     rows[rowNumber].push(s);
   });
-  Object.keys(rows).forEach(r => rows[r].sort((a, b) => a.seat_number.localeCompare(b.seat_number)));
-  const sortedRowNumbers = Object.keys(rows).sort((a, b) => Number(a) - Number(b));
+  Object.keys(rows).forEach((r) =>
+    rows[r].sort((a, b) => a.seat_number.localeCompare(b.seat_number))
+  );
+  const sortedRowNumbers = Object.keys(rows).sort(
+    (a, b) => Number(a) - Number(b)
+  );
 
   return (
     <div className="seat-selection-page">
-      <header className="site-header"><div className="logo">Lotus Travel</div></header>
+      <header className="site-header">
+        <div className="logo">Lotus Travel</div>
+      </header>
       <div className="page-content">
         <h1>Chọn ghế</h1>
         <p>
-          Chuyến bay: {flight?.flight_number || "N/A"} | Hành khách {passengerIndex + 1}/{draft?.passengerCount || draft?.passengers.length} | Hạng vé: {cabinClass}
+          Chuyến bay: {flight?.flight_number || "N/A"} | Hành khách{" "}
+          {passengerIndex + 1}/
+          {draft?.passengerCount || draft?.passengers.length} | Hạng vé:{" "}
+          {cabinClass}
         </p>
 
         <div id="seat-map" className="plane">
           <div className="plane-nose">ĐẦU MÁY BAY</div>
           <div className="cabin">
-            {sortedRowNumbers.map(rowNum => (
+            {sortedRowNumbers.map((rowNum) => (
               <div className="row" key={rowNum}>
                 <div className="row-number">{rowNum}</div>
                 <div className="seat-group">
-                  {rows[rowNum].map(seat => (
+                  {rows[rowNum].map((seat) => (
                     <Seat
                       key={seat.seat_id}
                       seat={seat}
@@ -234,12 +264,15 @@ const SeatSelectionPage = () => {
 
         {selectedSeat && (
           <div className="note">
-            Đã chọn: {selectedSeat.seat_number} | Hạng: {selectedSeat.seat_class}
+            Đã chọn: {selectedSeat.seat_number} | Hạng:{" "}
+            {selectedSeat.seat_class}
           </div>
         )}
 
         <div className="controls">
-          <button onClick={() => navigate(-1)} disabled={loading}>Quay lại</button>
+          <button onClick={() => navigate(-1)} disabled={loading}>
+            Quay lại
+          </button>
           <button onClick={holdSeat} disabled={!selectedSeat || loading}>
             {loading ? "Đang xử lý..." : "Xác nhận ghế"}
           </button>
