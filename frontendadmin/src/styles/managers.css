@@ -224,16 +224,22 @@
 
 /* Status Badge */
 .status-badge {
-  padding: 0.375rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
   font-weight: 500;
   display: inline-block;
+  white-space: nowrap;
 }
 
 .status-badge.active {
   background: #dcfce7;
   color: #166534;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .status-badge.inactive {
@@ -385,17 +391,18 @@
 /* Booking History Modal */
 .large-modal {
   max-width: 900px;
+  width: 95%;
 }
 
 .booking-history-content {
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 .history-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -403,9 +410,9 @@
 .filter-btn {
   background: var(--extra-light);
   border: 1px solid var(--extra-light);
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -423,12 +430,13 @@
 }
 
 .booking-table-container {
-  overflow-x: auto;
+  overflow-x: fixed;
 }
 
 .booking-history-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .booking-history-table thead {
@@ -436,20 +444,54 @@
 }
 
 .booking-history-table th {
-  padding: 1rem;
+  padding: 0.75rem 0.65rem;
   text-align: center;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-dark);
-  border-bottom: 1px solid rgba(135, 179, 234, 0.3);
+  border-bottom: 2px solid rgba(135, 179, 234, 0.3);
+  white-space: nowrap;
 }
 
 .booking-history-table td {
-  padding: 1rem;
-  font-size: 0.875rem;
+  padding: 0.75rem 0.5rem;
+  font-size: 0.8rem;
   color: var(--text-light);
   border-bottom: 1px solid rgba(243, 244, 246, 0.8);
   text-align: center;
+  vertical-align: middle;
+  word-wrap: break-word;
+}
+
+/* Column widths for booking history table */
+.booking-history-table th:nth-child(1),
+.booking-history-table td:nth-child(1) {
+  width: 22%;
+}
+
+.booking-history-table th:nth-child(2),
+.booking-history-table td:nth-child(2) {
+  width: 14%;
+}
+
+.booking-history-table th:nth-child(3),
+.booking-history-table td:nth-child(3) {
+  width: 18%;
+}
+
+.booking-history-table th:nth-child(4),
+.booking-history-table td:nth-child(4) {
+  width: 16%;
+}
+
+.booking-history-table th:nth-child(5),
+.booking-history-table td:nth-child(5) {
+  width: 18%;
+}
+
+.booking-history-table th:nth-child(6),
+.booking-history-table td:nth-child(6) {
+  width: 12%;
 }
 
 .booking-history-table tbody tr:hover {

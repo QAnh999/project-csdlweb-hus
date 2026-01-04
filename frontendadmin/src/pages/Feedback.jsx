@@ -14,7 +14,7 @@ import "../styles/managers.css";
 import "../styles/feedback.css";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "http://localhost:8000/admin";
 const Feedback = () => {
   const [feedbackData, setFeedbackData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
