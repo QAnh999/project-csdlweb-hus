@@ -1,0 +1,173 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
+
+:root {
+    --primary-color: #d0e1f9;
+    --primary-color-dark: #283655;
+    --text-dark: #283655;
+    --text-light: #4d648d;
+    --extra-light: #f3f4f6;
+    --max-width: 1200px;
+      --header-color: #e9effdff;
+}
+
+/* * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+} */
+
+body {
+    font-family: "Noto Serif", serif;
+    margin: 0;
+    min-height: 100vh;
+    background-image: url("/public/assets/background2.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.managebooking-wrapper {
+    width: 100vw;
+    min-height: 100vh;
+    /* background-image: url("/public/assets/background2.jpg"); bật lại hình nền */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* cố định background khi scroll */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* bắt đầu từ trên, tránh container tràn ra */
+    padding-top: 70px; /* tránh che header cố định */
+}
+
+
+.managebooking-container {
+    width: 40%; /* giảm so với 100% để không tràn ra ngoài */
+    max-width: 1200px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 12px 30px rgba(40, 54, 85, 0.12);
+    box-sizing: border-box;
+    /* xóa height: 100vh; để container co theo nội dung */
+}
+
+
+/* Title */
+.managebooking-container h2 {
+    font-size: 1.5rem;
+    text-align: center;
+    color: var(--primary-color-dark);
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 12px;
+}
+
+/* Thông tin booking */
+.booking-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Box chuyến bay */
+.booking-info .flight-detail {
+    /* background: linear-gradient(180deg, #f8fbff, #ffffff); */
+    background-color: var(--header-color);
+    border-radius: 14px;
+    padding: 20px 22px;
+    border: 1px solid #dfe3e8;
+}
+
+/* Tiêu đề chặng */
+.booking-info .flight-detail h3 {
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--primary-color-dark);
+    margin-bottom: 14px;
+}
+
+.booking-info .flight-detail p {
+    display: grid;
+    grid-template-columns: 1fr auto; /* label chiếm 1 phần, value auto */
+    gap: 10px;
+    font-size: 0.95rem;
+    padding: 6px 0;
+    color: var(--text-dark);
+    border-bottom: 1px dashed #d6deea;
+    align-items: center; /* canh giữa theo chiều dọc nếu cần */
+}
+
+.booking-info .flight-detail p strong {
+    justify-self: start; /* label canh trái */
+}
+
+.booking-info .flight-detail p span {
+    justify-self: end;   /* value canh phải */
+}
+
+
+.booking-info .flight-detail p:last-child {
+    border-bottom: none;
+}
+
+
+/* Button */
+.booking-info button {
+    margin-top: 10px;
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: var(--primary-color-dark);
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+.booking-info button:hover {
+    background: var(--primary-color);
+    color: var(--text-dark);
+    transform: translateY(-2px);
+}
+
+
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 12px 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    background-color: var(--header-color);
+}
+
+.logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;   
+  gap: 20px;             
+}
+
+.logo img {
+  height: 40px;
+  width: auto;
+  transform: scale(1.5);     
+  transform-origin: left center;
+}
+
+.logo span {
+  font-family: "Noto Serif", serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-color-dark);
+}
