@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from sqlalchemy.orm import aliased
-from app.database import get_db
+from database import get_db
 from models import Flight, Reservation, User, Airline, Airport
 import schemas.admin_schemas as schemas
 from datetime import datetime, date, timedelta

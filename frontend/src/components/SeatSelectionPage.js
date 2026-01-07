@@ -1,305 +1,284 @@
-import React, { useState, useEffect, useRef } from "react";
+// SeatSelectionPage.jsx
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "../style/seatselection.css";
-import { isSameFlight } from "../utils/bookingUtils";
 
-
-const Seat = ({ code, booked, selected, onSelect }) => {
-  const handleClick = () => {
-    if (!booked) onSelect(code);
-  };
+// Component hiển thị 1 ghế
+const Seat = ({ seat, selected, onSelect }) => {
+  const { seat_number, seat_class, status } = seat;
 
   let className = "seat";
-  if (booked) className += " booked";
-  else if (selected) className += " selected";
-  else className += " regular";
+  if (status === "booked") className += " booked";
+  else if (status === "held") className += " held";
+  else className += ` available ${seat_class}`;
 
   return (
-    <div className={className} onClick={handleClick}>
-      {code.slice(-1)}
+    <div
+      className={className + (selected ? " selected" : "")}
+      onClick={() => status === "available" && onSelect(seat)}
+      title={`Ghế ${seat_number} - ${seat_class} - ${status}`}
+    >
+      {seat_number.match(/[A-Z]/)?.[0] || seat_number}
     </div>
   );
 };
 
 const SeatSelectionPage = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [params] = useSearchParams();
 
-  const [bookingDraft, setBookingDraft] = useState(null);
-  const [bookedSeats, setBookedSeats] = useState([]);
+  const passengerIndex = Number(params.get("index")) || 0; // hành khách hiện tại
+  const leg = params.get("leg") || "main"; // main, outbound, inbound
+  const reservationId = params.get("reservation_id");
+
+  const [draft, setDraft] = useState(null);
+  const [seats, setSeats] = useState([]);
   const [selectedSeat, setSelectedSeat] = useState(null);
+  const [flight, setFlight] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const cabinClass = draft?.cabinClass;
 
-  const leg = searchParams.get("leg") || "outbound";
-  const hasAlertedInbound = useRef(false);
+  const getAuthToken = () =>
+    JSON.parse(localStorage.getItem("auth") || "{}")?.access_token || "";
 
-  const rows = 40;
-  const colsLeft = ["A", "B", "C"];
-  const colsRight = ["D", "E", "F"];
-  const exitAfter = [3, 27];
+  // Load draft, flight & sơ đồ ghế
+  useEffect(() => {
+    const init = async () => {
+      try {
+        setLoading(true);
+        const stored = localStorage.getItem("bookingDraft");
+        if (!stored) throw new Error("Không tìm thấy booking draft");
 
-  const toggleSelect = (code) => {
-    setSelectedSeat((prev) => (prev === code ? null : code));
+        const bookingDraft = JSON.parse(stored);
+        setDraft(bookingDraft);
+        // setCabinClass(bookingDraft.cabinClass || "economy");
+
+        // Xác định chuyến bay hiện tại theo leg
+        let flightData = null;
+        let flightId = null;
+        if (bookingDraft.tripType === "oneway") {
+          flightData = bookingDraft.mainFlight;
+          flightId = bookingDraft.mainFlightId;
+        } else {
+          if (leg === "outbound") {
+            flightData = bookingDraft.outboundFlight;
+            flightId = bookingDraft.mainFlightId;
+          } else {
+            flightData = bookingDraft.inboundFlight;
+            flightId = bookingDraft.returnFlightId;
+          }
+        }
+
+        if (!flightId) throw new Error("Không tìm thấy thông tin chuyến bay");
+        setFlight(flightData);
+
+        // Lấy danh sách ghế từ BE (lưu ý: BE không có seat_class trong response, nhưng FE không dùng)
+        const res = await fetch(
+          `http://localhost:8000/booking/seats/${flightId}?seat_class=${bookingDraft.cabinClass}`,
+          {
+            headers: { Authorization: `Bearer ${getAuthToken()}` },
+          }
+        );
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Không thể tải sơ đồ ghế");
+        setSeats(data.seats || []);
+
+        // Load ghế đã chọn trước đó cho hành khách
+        const passenger = bookingDraft.passengers[passengerIndex];
+        if (passenger?.seatMap?.[leg]) {
+          const prevSeat = data.seats.find(
+            (s) => s.seat_id === passenger.seatMap[leg]
+          );
+          if (prevSeat) setSelectedSeat(prevSeat);
+        }
+      } catch (err) {
+        console.error(err);
+        alert(err.message);
+        navigate("/booking");
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
+  }, [navigate, leg, passengerIndex, cabinClass]);
+
+  // Giữ ghế
+  const holdSeat = async () => {
+    if (!selectedSeat || !draft) {
+      alert("Vui lòng chọn ghế");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Lấy flightId theo leg
+      let flightId =
+        leg === "inbound" ? draft.returnFlightId : draft.mainFlightId;
+
+      const payload = {
+        flight_id: flightId,
+        seat_ids: [selectedSeat.seat_id],
+        seat_class: draft.cabinClass,
+      };
+
+      console.log("Payload gửi lên BE /hold-seats:", payload);
+
+      const res = await fetch(
+        `http://localhost:8000/booking/${reservationId}/hold-seats`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(data.detail || data.message || "Lỗi giữ ghế");
+
+      const { held_seats } = data; // Sử dụng response để xác nhận
+
+      alert(data.message || "Giữ ghế thành công");
+
+      // Cập nhật draft hành khách với seatMap đầy đủ
+      const updatedDraft = { ...draft };
+      if (!updatedDraft.passengers[passengerIndex].seatMap)
+        updatedDraft.passengers[passengerIndex].seatMap = {};
+      updatedDraft.passengers[passengerIndex].seatMap[leg] =
+        selectedSeat.seat_id;
+
+      // // Cập nhật passenger_id nếu chưa có
+      // if (!updatedDraft.passengers[passengerIndex].passenger_id) {
+      //   updatedDraft.passengers[passengerIndex].passenger_id =
+      //     updatedDraft.passengers[passengerIndex].info.passenger_id;
+      // }
+
+      setDraft(updatedDraft);
+      localStorage.setItem("bookingDraft", JSON.stringify(updatedDraft));
+
+      goNext(updatedDraft);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
-  useEffect(() => {
-    const draftStr = localStorage.getItem("bookingDraft");
-    if (!draftStr) {
-      alert("Không tìm thấy thông tin đặt chỗ!");
-      navigate("/");
+
+  // Chuyển sang hành khách tiếp theo hoặc Review
+  const goNext = (updatedDraft) => {
+    const total = updatedDraft.passengerCount || updatedDraft.passengers.length;
+
+    if (updatedDraft.tripType === "oneway") {
+      if (passengerIndex + 1 < total)
+        navigate(
+          `/seatselection?leg=main&index=${
+            passengerIndex + 1
+          }&reservation_id=${reservationId}`
+        );
+      else navigate(`/review?reservation_id=${reservationId}`);
       return;
     }
-
-    const draft = JSON.parse(draftStr);
-
-    // chỉ kiểm tra có chuyến bay hay không
-    const hasFlight =
-      draft.flight || draft.outbound || draft.inbound;
-
-    if (!hasFlight) {
-      alert("Thông tin chuyến bay không hợp lệ!");
-      navigate("/booking");
-      return;
-    }
-
-    if (!draft.type) {
-      draft.type = draft.outbound ? "roundtrip" : "oneway";
-      localStorage.setItem("bookingDraft", JSON.stringify(draft));
-    }
-    setBookingDraft(draft);
-
-
-  }, [navigate]);
-
-  useEffect(() => {
-    if (leg !== "inbound") return;
-
-    const draftStr = localStorage.getItem("bookingDraft");
-    if (!draftStr) return;
-
-    const draft = JSON.parse(draftStr);
-
-    if (!draft.seatOutbound) {
-      alert("Vui lòng chọn ghế chặng đi trước");
-      navigate("/seatselection");
-    }
-  }, [leg, navigate]);
-
-
-
-  // ================= LOAD BOOKED SEATS THEO CHUYẾN BAY =================
-  useEffect(() => {
-    if (!bookingDraft) return;
-
-    const currentFlight = (() => {
-      if (leg === "outbound") return bookingDraft.outbound;
-      if (leg === "inbound") return bookingDraft.inbound;
-      return bookingDraft.flight;
-    })();
-
-
-    if (!currentFlight) return;
-
-    setSelectedSeat(null);
-    setBookedSeats([]);
-
-    const seats = [];
-
-    Object.keys(localStorage).forEach((key) => {
-      if (!key.startsWith("booking_")) return;
-
-      const b = JSON.parse(localStorage.getItem(key));
-      if (!b || !b.bookingCode) return;
-
-      if (b.flight && isSameFlight(b.flight, currentFlight) && b.seat) {
-        seats.push(b.seat);
-      }
-
-      if (b.outbound && isSameFlight(b.outbound, currentFlight) && b.seatOutbound) {
-        seats.push(b.seatOutbound);
-      }
-
-
-      if (b.inbound && isSameFlight(b.inbound, currentFlight) && b.seatInbound) {
-        seats.push(b.seatInbound);
-      }
-    });
-
-
-    setBookedSeats(seats);
-  }, [bookingDraft, leg]);
-
-  useEffect(() => {
-    if (!bookingDraft) return;
 
     if (leg === "outbound") {
-      setSelectedSeat(bookingDraft.seatOutbound || null);
-    } else if (leg === "inbound") {
-      setSelectedSeat(bookingDraft.seatInbound || null);
-    } else {
-      setSelectedSeat(bookingDraft.seat || null);
-    }
-  }, [bookingDraft, leg]);
-
-  useEffect(() => {
-    if (!bookingDraft) return;
-
-    if (
-      bookingDraft.type === "roundtrip" &&
-      leg === "inbound" &&
-      bookingDraft.seatOutbound &&
-      !hasAlertedInbound.current
-    ) {
-      alert("Tiếp tục chọn ghế chuyến về");
-      hasAlertedInbound.current = true;
-    }
-  }, [bookingDraft, leg]);
-
-
-  const confirmSeat = () => {
-    if (!bookingDraft || !selectedSeat) return;
-
-    if (bookingDraft.type === "oneway") {
-      const updated = {
-        ...bookingDraft,
-        seat: selectedSeat,
-      };
-
-      localStorage.setItem("bookingDraft", JSON.stringify(updated));
-      setBookingDraft(updated);
-      navigate("/payment");
-      return;
-    }
-
-    // ===== ROUNDTRIP =====
-    if (leg === "outbound") {
-      const updated = {
-        ...bookingDraft,
-        seatOutbound: selectedSeat,
-      };
-
-      localStorage.setItem("bookingDraft", JSON.stringify(updated));
-      setBookingDraft(updated);
-      navigate("/seatselection?leg=inbound");
+      if (passengerIndex + 1 < total)
+        navigate(
+          `/seatselection?leg=outbound&index=${
+            passengerIndex + 1
+          }&reservation_id=${reservationId}`
+        );
+      else
+        navigate(
+          `/seatselection?leg=inbound&index=0&reservation_id=${reservationId}`
+        );
       return;
     }
 
     if (leg === "inbound") {
-      const updated = {
-        ...bookingDraft,
-        seatInbound: selectedSeat,
-      };
-
-      localStorage.setItem("bookingDraft", JSON.stringify(updated));
-      setBookingDraft(updated);
-      navigate("/payment");
+      if (passengerIndex + 1 < total)
+        navigate(
+          `/seatselection?leg=inbound&index=${
+            passengerIndex + 1
+          }&reservation_id=${reservationId}`
+        );
+      else navigate(`/review?reservation_id=${reservationId}`);
     }
   };
 
+  if (loading && !seats.length)
+    return <div className="loading-page">Đang tải sơ đồ ghế...</div>;
 
-
-  const renderRow = (i) => {
-    const leftSeats = colsLeft.map((col) => {
-      const code = `${i}${col}`;
-      return (
-        <Seat
-          key={code}
-          code={code}
-          booked={bookedSeats.includes(code)}
-          selected={selectedSeat === code}
-          onSelect={toggleSelect}
-        />
-      );
-    });
-
-    const rightSeats = colsRight.map((col) => {
-      const code = `${i}${col}`;
-      return (
-        <Seat
-          key={code}
-          code={code}
-          booked={bookedSeats.includes(code)}
-          selected={selectedSeat === code}
-          onSelect={toggleSelect}
-        />
-      );
-    });
-
-    return (
-      <React.Fragment key={i}>
-        <div className="row">
-          <div className="row-number">{i}</div>
-          <div className="seat-group">{leftSeats}</div>
-          <div className="aisle" />
-          <div className="seat-group">{rightSeats}</div>
-        </div>
-        {exitAfter.includes(i) && (
-          <div className="exit-row">
-            <div className="exit exit-left">EXIT</div>
-            <div className="exit exit-right">EXIT</div>
-          </div>
-        )}
-      </React.Fragment>
-    );
-  };
+  // Chia ghế theo hàng để hiển thị
+  const rows = {};
+  seats.forEach((s) => {
+    const rowNumber = s.seat_number.match(/\d+/)[0];
+    if (!rows[rowNumber]) rows[rowNumber] = [];
+    rows[rowNumber].push(s);
+  });
+  Object.keys(rows).forEach((r) =>
+    rows[r].sort((a, b) => a.seat_number.localeCompare(b.seat_number))
+  );
+  const sortedRowNumbers = Object.keys(rows).sort(
+    (a, b) => Number(a) - Number(b)
+  );
 
   return (
-    <>
+    <div className="seat-selection-page">
       <header className="site-header">
-        <a href="/" className="logo">
-          <img
-            src="/assets/Lotus_Logo-removebg-preview.png"
-            alt="Lotus Travel"
-          />
-          <span>Lotus Travel</span>
-        </a>
+        <div className="logo">Lotus Travel</div>
       </header>
+      <div className="page-content">
+        <h1>Chọn ghế</h1>
+        <p>
+          Chuyến bay: {flight?.flight_number || "N/A"} | Hành khách{" "}
+          {passengerIndex + 1}/
+          {draft?.passengerCount || draft?.passengers.length} | Hạng vé:{" "}
+          {cabinClass}
+        </p>
 
-
-      {/* <div className="page-content"> */}
-      <h1>Chọn chỗ ngồi trên máy bay</h1>
-
-
-      <div className="note">
-        <p>Chọn chỗ ngồi mong muốn của bạn</p>
-        <p>Ghế đã chọn sẽ được tô màu vàng</p>
-      </div>
-      <section className="seat-selection">
-        <div className="plane">
-          <div className="plane-nose">
-            <div className="restroom">
-              <span>Restroom</span>
-            </div>
+        <div id="seat-map" className="plane">
+          <div className="plane-nose">ĐẦU MÁY BAY</div>
+          <div className="cabin">
+            {sortedRowNumbers.map((rowNum) => (
+              <div className="row" key={rowNum}>
+                <div className="row-number">{rowNum}</div>
+                <div className="seat-group">
+                  {rows[rowNum].map((seat) => (
+                    <Seat
+                      key={seat.seat_id}
+                      seat={seat}
+                      selected={selectedSeat?.seat_id === seat.seat_id}
+                      onSelect={setSelectedSeat}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
+          <div className="plane-tail">ĐUÔI MÁY BAY</div>
+        </div>
 
-          <div className="seat-map">{Array.from({ length: rows }, (_, i) => renderRow(i + 1))}</div>
-
-          <div className="plane-tail">
-            <div className="restroom">
-              <span>Restroom</span>
-            </div>
+        {selectedSeat && (
+          <div className="note">
+            Đã chọn: {selectedSeat.seat_number} | Hạng:{" "}
+            {selectedSeat.seat_class}
           </div>
+        )}
 
-          <div className="seat-order">
-            <div className="seat-status">
-              <div className="status available"></div>
-              <span>Ghế trống</span>
-            </div>
-            <div className="seat-status">
-              <div className="status selected"></div>
-              <span>Ghế bạn chọn</span>
-            </div>
-            <div className="seat-status">
-              <div className="status booked"></div>
-              <span>Ghế đã đặt</span>
-            </div>
-          </div>
-          <button id="confirmSeat" onClick={confirmSeat}>
-            Xác nhận chỗ ngồi
+        <div className="controls">
+          <button onClick={() => navigate(-1)} disabled={loading}>
+            Quay lại
+          </button>
+          <button onClick={holdSeat} disabled={!selectedSeat || loading}>
+            {loading ? "Đang xử lý..." : "Xác nhận ghế"}
           </button>
         </div>
-      </section>
-
-      {/* </div> */}
-    </>
+      </div>
+    </div>
   );
 };
 

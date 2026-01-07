@@ -9,6 +9,7 @@ import MyFlightsPage from './components/MyFlightsPage';
 import PassengerInfoPage from './components/PassengerInfoPage';
 import PaymentPage from './components/PaymentPage';
 import SeatSelectionPage from './components/SeatSelectionPage';
+import ReviewPage from './components/ReviewPage';   // 👈 THÊM
 import Layout from "./components/Layout";
 
 function App() {
@@ -17,25 +18,35 @@ function App() {
       <Routes>
         <Route path="/" element={<IndexPage />} />
         <Route path="/booking" element={<BookingPage />} />
+
         <Route path="/managebooking" element={
           <Layout bg="/assets/background2.jpg">
             <ManageBookingPage />
-          </Layout>} />
+          </Layout>
+        } />
+
         <Route path="/login" element={
           <Layout bg="/assets/background2.jpg">
             <LoginPage />
-          </Layout>} />
+          </Layout>
+        } />
+
         <Route path="/checkin" element={
           <Layout bg="/assets/background2.jpg">
             <CheckinPage />
-          </Layout>} />
+          </Layout>
+        } />
+
         <Route path="/myflights" element={
           <Layout bg="/assets/background2.jpg">
             <MyFlightsPage />
-          </Layout>} />
+          </Layout>
+        } />
+
         <Route path="/passengerinfo" element={<PassengerInfoPage />} />
-        <Route path="/payment" element={<PaymentPage />} />
         <Route path="/seatselection" element={<SeatSelectionPage />} />
+        <Route path="/review" element={<ReviewPage />} />   {/* ✅ FIX */}
+        <Route path="/payment" element={<PaymentPage />} />
       </Routes>
     </Router>
   );

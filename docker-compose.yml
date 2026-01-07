@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./backend/db:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U lotus_admin -d lotus_db"]
       interval: 5s
@@ -26,10 +27,17 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://lotus_admin:LotusTravel2025@db:5432/lotus_db
+      POSTGRES_USER: lotus_admin
+      POSTGRES_PASSWORD: LotusTravel2025
+      POSTGRES_DB: lotus_db
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      SECRET_KEY: super-secret-key-change-me
+
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
+      - ./backend/app:/app
 
   frontend:
     build:

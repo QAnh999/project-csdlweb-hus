@@ -125,7 +125,6 @@ label {
   text-wrap: none;
 }
 
-
 /* Input và Select */
 input,
 select {
@@ -245,4 +244,126 @@ select:focus {
 .service-item select:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 5px rgba(135, 179, 234, 0.4);
+}
+
+/* Form section styling */
+.passenger-info-page {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 80px;
+}
+
+.passenger-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.passenger-header h1 {
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+.passenger-header .progress {
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.passenger-form {
+  background: var(--white);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.form-section {
+  margin-bottom: 30px;
+}
+
+.form-section h3 {
+  color: var(--primary-color-dark);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  margin-top: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn-back,
+.btn-next {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: "Noto Serif", serif;
+  transition: all 0.3s ease;
+}
+
+.btn-back {
+  background: var(--extra-light);
+  color: var(--text-dark);
+  border: 2px solid var(--primary-color-dark);
+}
+
+.btn-back:hover {
+  background: var(--primary-color);
+}
+
+.btn-next {
+  background: var(--primary-color-dark);
+  color: var(--white);
+}
+
+.btn-next:hover {
+  background: var(--primary-color);
+  color: var(--text-dark);
+}
+
+.btn-next:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: var(--text-light);
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
 }
