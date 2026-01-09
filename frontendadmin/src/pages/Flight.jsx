@@ -5,7 +5,9 @@ import "../styles/main.css";
 import "../styles/flight.css";
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://backend-599200532420.europe-west4.run.app";
 
 const getAirlineLogo = (airlineName) => {
   const logoMap = {
