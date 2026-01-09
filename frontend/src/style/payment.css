@@ -1,267 +1,82 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
-
-:root {
-  --primary-color: #d0e1f9;
-  --primary-color-dark: #283655;
-  --text-dark: #283655;
-  --text-light: #4d648d;
-  --extra-light: #f3f4f6;
-  --header-color: #e9effdff;
-  --white: #ffffff;
-}
-
-/* Reset cơ bản */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
+.payment-page {
+  max-width: 800px;
+  margin: 100px auto 50px auto; /* căn giữa và tạo khoảng cho header */
+  padding: 20px;
   font-family: "Noto Serif", serif;
-  background: var(--extra-light);
   color: var(--text-dark);
+  background: var(--extra-light);
 }
 
-/* Header */
-.site-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  padding: 12px 40px;
-  background-color: var(--header-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  text-decoration: none;
-}
-
-.logo img {
-  height: 40px;
-  width: auto;
-  transform: scale(1.5);
-  transform-origin: left center;
-}
-
-.logo span {
-  font-family: "Noto Serif", serif;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--primary-color-dark);
-}
-
-/* Container chính */
-.payment-container {
-  width: 40vw;
-  max-width: 1200px;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  margin-top: 90px;
-}
-
-/* Tiêu đề chính */
-h1 {
+/* Tiêu đề */
+.payment-page h2 {
   width: 100%;
   background-color: var(--primary-color-dark);
   color: var(--extra-light);
   padding: 25px;
   text-align: center;
   border-radius: 15px;
-  font-size: 1.5rem;
-  font-family: "Noto Serif", serif;
+  font-size: 1.4rem;
   margin-bottom: 35px;
 }
 
-/* Card chung: passenger info + services */
-.passenger-info-form {
-  background: var(--white);
-  padding: 25px 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  box-sizing: border-box;
-  border: none;
-}
-
-.services {
-  background: var(--white);
-  padding: 25px 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  box-sizing: border-box;
-  border: none;
-  max-width: 100%;
-}
-
-
-.passenger-info-form p,
-.services p {
+/* Các thông tin thanh toán */
+.payment-page p {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0;
+  padding: 8px 0;
   font-size: 1rem;
-  padding: 10px 0;
 }
 
-.passenger-info-form p span.label,
-.services p span.label {
+.payment-page p strong {
   font-weight: 600;
-  color: var(--text-dark);
 }
 
-.passenger-info-form p span.value,
-.services p span.value {
-  font-weight: 500;
-  color: var(--text-dark);
-  text-align: right;
+/* Container nút chung cho tất cả các button */
+.payment-buttons {
+  display: flex;
+  justify-content: center; /* căn giữa nút */
+  gap: 20px; /* khoảng cách giữa các nút */
+  flex-wrap: wrap; /* xuống dòng nếu màn hình nhỏ */
+  margin-top: 20px;
 }
 
-/* .service-item select {
-  width: 100%;
-  padding: 8px;
+/* Nút button chung */
+.payment-page button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
   border-radius: 8px;
-  border: 1px solid #ccc;
-  transition: 0.2s;
-}
-
-.service-item select:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 5px rgba(135, 179, 234, 0.4);
-} */
-
-.payment-container button {
-  display: block;           /* block để dễ căn giữa */
-  margin: -20px auto 20px;      /* cách trên 20px, tự động căn giữa, dưới 0 */
-  width: 60%;
-  padding: 12px;
-  background: var(--primary-color-dark);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
+  font-family: "Noto Serif", serif;
   cursor: pointer;
+  border: none;
+  background: var(--primary-color-dark);
+  color: var(--white);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
 }
 
-.payment-container button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  filter: brightness(1.05);
-  background-color: var(--primary-color);
+.payment-page button:hover:not(:disabled),
+.payment-page button:active:not(:disabled) {
+  background-color: #1e90ff;
   color: var(--text-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-
-/* QR overlay */
-.qr-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(217, 221, 232, 0.55); /* xanh đậm dịu */
-  backdrop-filter: blur(5px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
+.payment-page button:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* Hộp QR */
-.qr-box {
-  background: #ffffff;
-  padding: 40px 45px;
-  border-radius: 24px;
+/* Success section (các nút nằm ngang, căn giữa) */
+.payment-page .success {
   text-align: center;
-  width: min(90vw, 520px);
-  box-shadow:
-    0 15px 40px rgba(183, 152, 152, 0.25);
-  animation: qrFadeIn 0.35s ease;
 }
 
-/* QR image */
-.qr-box img {
-  width: 280px;
-  height: 280px;
-  object-fit: contain;
-  margin: 30px auto;
-  display: block;
-  border-radius: 12px;
-  background: #f8f9fc;
-  padding: 12px;
-}
-
-/* Button */
-.qr-box button {
-  width: 100%;
-  margin-top: 15px;
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
-  background: var(--primary-color-dark);
-  color: #fff;
-  font-size: 1.05rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.qr-box button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(40, 54, 85, 0.3);
-  filter: brightness(1.05);
-  color: var(--text-dark);
-}
-
-/* Animation */
-@keyframes qrFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.payment-container h3 {
-  font-family: "Noto Serif", serif;
-  font-weight: 700;
-  color: var(--primary-color-dark);
-  margin-bottom: 20px;
-}
-
-.payment-container h2 {
-  font-size: 1.4rem;
-  border-bottom: 2px solid var(--primary-color);
-  padding-bottom: 8px;
-}
-
-
-.passenger-block {
-  padding: 1rem;
-  border-bottom: 1px solid #ccc;
-}
-
-.passenger-block:last-child {
-  border-bottom: none;
-}
-
-/* nền xen kẽ để dễ phân biệt */
-.passenger-block.even {
-  background-color: #f9f9f9;
-}
-
-.passenger-block.odd {
-  background-color: #ffffff;
+.payment-page .success .payment-buttons {
+  justify-content: center;
+  margin-top: 20px;
 }

@@ -124,7 +124,7 @@ nav {
 }
 
 .nav_logo .logo img {
-  width: 60px;         /* tăng kích thước hình ảnh */
+  width: 60px; /* tăng kích thước hình ảnh */
   height: auto;
 }
 
@@ -536,7 +536,6 @@ footer {
   }
 } */
 
-
 /* phan booking */
 .booking-section {
   background: rgba(255, 255, 255, 0.6);
@@ -558,7 +557,6 @@ footer {
   height: 42px;
   align-self: flex-end;
   margin-top: 48px;
-
 }
 
 .booking-container,
@@ -625,7 +623,6 @@ footer {
   margin: 0;
   vertical-align: middle;
 }
-
 
 .content-row {
   display: flex;
@@ -903,7 +900,7 @@ footer {
 }
 
 .feedback_user h4 {
-  color: var(--text-dark)
+  color: var(--text-dark);
 }
 
 .feedback_user small,

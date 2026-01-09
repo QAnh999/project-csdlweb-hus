@@ -163,23 +163,6 @@ body {
   padding-right: 45px;
 }
 
-.eye-icon {
-  position: absolute;
-  right: 14px;
-  height: 42px;
-  top: 15%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  color: var(--text-light);
-  font-size: 1.1rem;
-  transition: color 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-}
-
 .eye-icon:hover {
   color: var(--primary-color-dark);
 }
@@ -377,9 +360,8 @@ body {
 }
 .eye-icon {
   position: absolute;
-  right: 14px;
-  height: 42px;
-  top: 15%;
+  right: 12px;
+  top: 50%;
   transform: translateY(-50%);
 
   background: none;

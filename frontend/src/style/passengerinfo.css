@@ -147,11 +147,11 @@ select:focus {
 }
 
 /* Button chính */
-#nextButton {
+/* #nextButton {
   width: 60%;
   padding: 12px;
   background: var(--primary-color-dark);
-  color: white;
+  color: var(--white);
   border: none;
   border-radius: 8px;
   font-size: 1.1rem;
@@ -161,29 +161,17 @@ select:focus {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   margin-top: 20px;
-  margin-bottom: 20px; /* SỬA: từ 0 thành 30px */
-}
+  margin-bottom: 20px;
+} */
 
-#nextButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  filter: brightness(1.05);
-  background-color: var(--primary-color);
-  color: var(--text-dark);
-}
-
-#nextButton:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-#nextButton:disabled {
+/* Disabled */
+/* #nextButton:disabled {
   background: #ccc;
   color: #666;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
-}
+} */
 
 /* Dịch vụ bổ sung */
 .services {
@@ -307,42 +295,59 @@ select:focus {
 
 .form-actions {
   display: flex;
-  justify-content: space-between;
-  gap: 15px;
+  gap: 15px; /* khoảng cách giữa 2 nút */
   margin-top: 30px;
 }
 
-.btn-back,
-.btn-next {
-  flex: 1;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
+/* Hai nút cùng kích thước */
+.btn-pass-back,
+.btn-pass-next {
+  flex: 1; /* chiếm đều 50% mỗi nút */
+  padding: 12px 0; /* padding dọc */
   font-size: 1rem;
   font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
   font-family: "Noto Serif", serif;
   transition: all 0.3s ease;
 }
 
-.btn-back {
+/* Nút Back */
+.btn-pass-back {
   background: var(--extra-light);
   color: var(--text-dark);
-  border: 2px solid var(--primary-color-dark);
+  border: 1.5px solid var(--primary-color-dark);
+  text-align: center; /* căn giữa chữ */
+  box-shadow: 0 4px 12px rgba(40, 54, 85, 0.15);
 }
 
-.btn-back:hover {
-  background: var(--primary-color);
-}
-
-.btn-next {
+/* Nút Next */
+.btn-pass-next {
   background: var(--primary-color-dark);
   color: var(--white);
+  text-align: center;
 }
 
-.btn-next:hover {
-  background: var(--primary-color);
+/* Hover/active Next */
+.btn-pass-next:hover,
+.btn-pass-next:active {
+  background-color: var(--primary-color); /* xanh da trời */
   color: var(--text-dark);
+  border: 1px solid var(--primary-color-dark); /* viền xanh mỏng */
+  box-shadow: 0 4px 12px rgba(40, 54, 85, 0.15); /* shadow nhẹ hơn */
+  transform: translateY(-1px); /* hiệu ứng nhích lên nhẹ */
+  transition: all 0.25s ease;
+}
+
+/* Hover/active Back */
+.btn-pass-back:hover,
+.btn-pass-back:active {
+  background-color: var(--primary-color); /* xanh da trời */
+  color: var(--text-dark);
+  border: 1px solid var(--primary-color-dark); /* viền xanh mỏng */
+  box-shadow: 0 4px 12px rgba(40, 54, 85, 0.15); /* shadow nhẹ */
+  transform: translateY(-1px); /* hiệu ứng nhích lên */
+  transition: all 0.25s ease;
 }
 
 .btn-next:disabled {

@@ -221,3 +221,63 @@ body {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* Container chứa các nút */
+.booking-actions {
+  display: flex; /* xếp nút theo hàng ngang */
+  gap: 15px; /* khoảng cách giữa các nút */
+  justify-content: center; /* căn giữa theo chiều ngang */
+  margin-top: 20px;
+  flex-wrap: wrap; /* responsive: xuống hàng nếu quá nhỏ */
+}
+
+/* Nút chung */
+.booking-actions .action-btn {
+  flex: 1; /* chiếm đều không gian */
+  max-width: 180px; /* giới hạn tối đa */
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: "Noto Serif", serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  color: #fff;
+}
+
+/* Nút View Details */
+.booking-actions .view-details {
+  background-color: #283655; /* primary dark */
+}
+
+.booking-actions .view-details:hover:not(:disabled),
+.booking-actions .view-details:active:not(:disabled) {
+  background-color: var(--primary-color); /* xanh da trời */
+  color: var(--text-dark);
+  border: 1px solid var(--primary-color-dark); /* viền xanh mỏng */
+  box-shadow: 0 4px 12px rgba(40, 54, 85, 0.15); /* shadow nhẹ hơn */
+  transform: translateY(-1px); /* hiệu ứng nhích lên nhẹ */
+  transition: all 0.25s ease;
+}
+
+/* Nút Check-in */
+.booking-actions .check-in {
+  background-color: #4d648d; /* màu khác để phân biệt */
+}
+
+.booking-actions .check-in:hover:not(:disabled),
+.booking-actions .check-in:active:not(:disabled) {
+  background-color: var(--primary-color); /* xanh da trời hover */
+  color: #fff;
+}
+
+/* Disabled */
+.booking-actions button:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+}
