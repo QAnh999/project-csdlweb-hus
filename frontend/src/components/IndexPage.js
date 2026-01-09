@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../style/indexPage.css";
 import "remixicon/fonts/remixicon.css";
 
+const API_URL = process.env.REACT_APP_API_URL;
 const IndexPage = () => {
   const navigate = useNavigate();
 
@@ -84,12 +85,9 @@ const IndexPage = () => {
   const getBookingDetailsWithFlightId = async (reservationCode, token) => {
     try {
       // 1. Lấy base booking từ history để có reservation_id
-      const historyResponse = await fetch(
-        "http://localhost:8000/booking/history",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const historyResponse = await fetch(`${API_URL}/booking/history`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (!historyResponse.ok) {
         const errData = await historyResponse.json().catch(() => ({}));
@@ -107,7 +105,7 @@ const IndexPage = () => {
 
       // 2. Lấy chi tiết booking (có flights array)
       const detailResponse = await fetch(
-        `http://localhost:8000/booking/${baseBooking.reservation_id}`,
+        `${API_URL}/booking/${baseBooking.reservation_id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -196,7 +194,7 @@ const IndexPage = () => {
         try {
           // Thử gọi checkin API cho flight này
           const checkinResponse = await fetch(
-            `http://localhost:8000/checkin/online?reservation_code=${code}&flight_id=${flightId}`,
+            `${API_URL}/checkin/online?reservation_code=${code}&flight_id=${flightId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -268,7 +266,7 @@ const IndexPage = () => {
 
         // Gọi API với flight_id đã chọn
         const finalResponse = await fetch(
-          `http://localhost:8000/checkin/online?reservation_code=${code}&flight_id=${selectedFlightId}`,
+          `${API_URL}/checkin/online?reservation_code=${code}&flight_id=${selectedFlightId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -371,12 +369,9 @@ const IndexPage = () => {
 
     try {
       // Lấy lịch sử booking từ API để verify mã
-      const historyResponse = await fetch(
-        "http://localhost:8000/booking/history",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const historyResponse = await fetch(`${API_URL}/booking/history`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!historyResponse.ok) {
         const errData = await historyResponse.json().catch(() => ({}));
         alert(errData.detail || "Không thể tải lịch sử booking");
@@ -625,7 +620,7 @@ const IndexPage = () => {
                   type="text"
                   value={checkinCode}
                   onChange={(e) => setCheckinCode(e.target.value.toUpperCase())}
-                  placeholder="123ABC"
+                  placeholder="ABC-123123-A12312"
                 />
               </div>
             </div>
@@ -648,7 +643,7 @@ const IndexPage = () => {
                   type="text"
                   value={bookingCode}
                   onChange={(e) => setBookingCode(e.target.value.toUpperCase())}
-                  placeholder="123ABC"
+                  placeholder="ABC-123123-A12312"
                 />
               </div>
             </div>

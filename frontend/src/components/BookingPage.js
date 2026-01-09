@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/booking.css";
 
+const API_URL = process.env.REACT_APP_API_URL;
 const airportMap = {
   HAN: 1,
   SGN: 2,
@@ -101,7 +102,7 @@ const BookingPage = () => {
   const fetchFlights = async (fromId, toId, depDate, retDate = null, cabin) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/flight/search", {
+      const res = await fetch(`${API_URL}/flight/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -170,7 +171,7 @@ const BookingPage = () => {
       const returnFlightId = tripType === "roundtrip" ? flight.flight_id : null;
 
       // 1. Tạo reservation
-      const res = await fetch("http://localhost:8000/booking/", {
+      const res = await fetch(`${API_URL}/booking/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -268,7 +269,7 @@ const BookingPage = () => {
           ) : (
             flights.map((f, idx) => (
               <div key={idx} className="flight-card">
-                <div className="flight-info">
+                <div className="flight-info-box">
                   <div className="time">
                     <div
                       style={{

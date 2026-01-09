@@ -5,7 +5,7 @@ import "../styles/main.css";
 import "../styles/flight.css";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000/admin";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const getAirlineLogo = (airlineName) => {
   const logoMap = {
@@ -70,9 +70,9 @@ const Flight = () => {
     setIsLoadingMasterData(true);
     try {
       const [airportsRes, airlinesRes, aircraftsRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/airports`),
-        axios.get(`${API_BASE_URL}/airlines`),
-        axios.get(`${API_BASE_URL}/aircrafts`),
+        axios.get(`${API_BASE_URL}/admin/airports`),
+        axios.get(`${API_BASE_URL}/admin/airlines`),
+        axios.get(`${API_BASE_URL}/admin/aircrafts`),
       ]);
       setAirports(airportsRes.data);
       setAirlines(airlinesRes.data);
@@ -98,7 +98,7 @@ const Flight = () => {
       if (date) params.departure_date = date;
       if (seatClass) params.seat_class = seatClass;
 
-      const response = await axios.get(`${API_BASE_URL}/flights/search`, {
+      const response = await axios.get(`${API_BASE_URL}/admin/flights/search`, {
         params,
         cancelToken: source.token,
       });
@@ -246,7 +246,7 @@ const Flight = () => {
         terminal: formData.terminal || null,
       };
 
-      await axios.post(`${API_BASE_URL}/flights`, payload);
+      await axios.post(`${API_BASE_URL}/admin/flights/`, payload);
       alert("Thêm chuyến bay thành công!");
       setShowModal(false);
       resetForm();
@@ -261,7 +261,9 @@ const Flight = () => {
 
   const viewFlightDetail = async (flightId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/flights/${flightId}`);
+      const response = await axios.get(
+        `${API_BASE_URL}/admin/flights/${flightId}`
+      );
       const data = response.data;
 
       setSelectedFlight({
@@ -298,7 +300,7 @@ const Flight = () => {
       setFlightData(flightData.filter((f) => f.id !== flightId));
 
       try {
-        await axios.delete(`${API_BASE_URL}/flights/${flightId}`);
+        await axios.delete(`${API_BASE_URL}/admin/flights/${flightId}`);
         alert("Xóa chuyến bay thành công!");
       } catch (error) {
         console.error("Error deleting flight:", error);
@@ -372,7 +374,10 @@ const Flight = () => {
         terminal: formData.terminal || null,
       };
 
-      await axios.put(`${API_BASE_URL}/flights/${selectedFlight.id}`, payload);
+      await axios.put(
+        `${API_BASE_URL}/admin/flights/${selectedFlight.id}`,
+        payload
+      );
 
       alert("Cập nhật chuyến bay thành công!");
       setShowEditModal(false);

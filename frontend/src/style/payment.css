@@ -1,65 +1,88 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
+
+:root {
+  --primary-color: #d0e1f9;
+  --primary-color-dark: #283655;
+  --text-dark: #283655;
+  --text-light: #4d648d;
+  --extra-light: #f3f4f6;
+  --max-width: 1200px;
+  --header-color: #e9effdff;
+}
+
+/* ================= WRAPPER ================= */
+.payment-wrapper {
+  min-height: 100vh;
+  /* background-color: #f5f7fa; */
+  padding-top: 80px;
+}
+
+/* ================= PAGE ================= */
 .payment-page {
   max-width: 800px;
-  margin: 100px auto 50px auto; /* căn giữa và tạo khoảng cho header */
-  padding: 20px;
+  margin: 0 auto 50px;
+  padding: 25px;
   font-family: "Noto Serif", serif;
   color: var(--text-dark);
   background: var(--extra-light);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-/* Tiêu đề */
-.payment-page h2 {
-  width: 100%;
+.payment-page-container h2 {
   background-color: var(--primary-color-dark);
   color: var(--extra-light);
   padding: 25px;
   text-align: center;
   border-radius: 15px;
   font-size: 1.4rem;
-  margin-bottom: 35px;
+  margin-bottom: 30px;
 }
 
-/* Các thông tin thanh toán */
 .payment-page p {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto; /* label trái – value phải */
   align-items: center;
-  padding: 8px 0;
+  gap: 80px;
+  padding: 10px 0;
   font-size: 1rem;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
 .payment-page p strong {
   font-weight: 600;
+  color: var(--text-dark);
+  text-align: left;
 }
 
-/* Container nút chung cho tất cả các button */
-.payment-buttons {
-  display: flex;
-  justify-content: center; /* căn giữa nút */
-  gap: 20px; /* khoảng cách giữa các nút */
-  flex-wrap: wrap; /* xuống dòng nếu màn hình nhỏ */
-  margin-top: 20px;
+.payment-page p span,
+.payment-page p:not(:has(strong)) {
+  text-align: right;
 }
 
-/* Nút button chung */
 .payment-page button {
-  padding: 12px 24px;
+  display: block;
+  margin: 25px auto 0;
+  padding: 12px 28px;
   font-size: 1rem;
   font-weight: 600;
   border-radius: 8px;
   font-family: "Noto Serif", serif;
   cursor: pointer;
   border: none;
-  background: var(--primary-color-dark);
-  color: var(--white);
+
+  /* ================= CHÍNH ================= */
+  background-color: var(--primary-color-dark); /* nền chính */
+  color: #fff; /* text trắng */
+
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
 }
 
 .payment-page button:hover:not(:disabled),
 .payment-page button:active:not(:disabled) {
-  background-color: #1e90ff;
-  color: var(--text-dark);
+  background-color: var(--primary-color); /* hover nền sáng hơn */
+  color: var(--primary-color-dark); /* chữ màu tối */
   transform: translateY(-1px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
@@ -71,12 +94,24 @@
   box-shadow: none;
 }
 
-/* Success section (các nút nằm ngang, căn giữa) */
-.payment-page .success {
+.payment-page .warning {
+  margin-top: 15px;
+  text-align: center;
+  color: #d97706;
+  font-style: italic;
+}
+
+/* ================= SUCCESS ================= */
+.payment-page .success-card {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
   text-align: center;
 }
 
-.payment-page .success .payment-buttons {
-  justify-content: center;
-  margin-top: 20px;
+.payment-page .success h3 {
+  color: #2e7d32;
+  margin: 6px;
 }

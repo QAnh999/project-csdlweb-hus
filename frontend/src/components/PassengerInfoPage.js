@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "../style/passengerinfo.css";
 
+const API = process.env.REACT_APP_API_URL;
+
 const PassengerInfoPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -106,25 +108,22 @@ const PassengerInfoPage = () => {
 
       const passengerPayload = buildPassengerPayload();
 
-      const res = await fetch(
-        `http://localhost:8000/booking/${reservationId}/passengers`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`${API}/booking/${reservationId}/passengers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
 
-          body: JSON.stringify({
-            passengers: [passengerPayload],
-            passenger_count: {
-              adult: draft.passengerCount,
-              child: 0,
-              infant: 0,
-            },
-          }),
-        }
-      );
+        body: JSON.stringify({
+          passengers: [passengerPayload],
+          passenger_count: {
+            adult: draft.passengerCount,
+            child: 0,
+            infant: 0,
+          },
+        }),
+      });
 
       if (!res.ok) {
         const errData = await res.json();
@@ -206,9 +205,19 @@ const PassengerInfoPage = () => {
   ======================= */
   return (
     <div className="passenger-info-page">
+      <header className="site-header">
+        <a href="/" className="logo">
+          <img
+            src="/assets/Lotus_Logo-removebg-preview.png"
+            alt="Lotus Travel"
+          />
+          <span>Lotus Travel</span>
+        </a>
+      </header>
+
       <header className="passenger-header">
         <h1>Thông tin hành khách {passengerIndex + 1}</h1>
-        <div className="progress">Bước 2/4: Thông tin hành khách</div>
+        {/* <div className="progress">Bước 2/4: Thông tin hành khách</div> */}
       </header>
 
       <form onSubmit={handleSubmit} className="passenger-form">
@@ -347,13 +356,13 @@ const PassengerInfoPage = () => {
         <div className="form-actions">
           <button
             type="button"
-            className="btn-back"
+            className="btn-pass-back"
             onClick={() => navigate(-1)}
           >
             Quay lại
           </button>
 
-          <button type="submit" className="btn-next" disabled={loading}>
+          <button type="submit" className="btn-pass-next" disabled={loading}>
             {passengerIndex + 1 <
             JSON.parse(localStorage.getItem("bookingDraft")).passengerCount
               ? "Tiếp tục hành khách tiếp theo"

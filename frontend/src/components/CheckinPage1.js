@@ -2,9 +2,23 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/checkin.css";
 
-const API = "http://localhost:8000";
+const API_URL = process.env.REACT_APP_API_URL;
 
-const airportMap = { HAN:1, SGN:2, DLI:3, PQC:4, DAD:5, CXR:6, HPH:7, VII:8, VCL:9, HUI:10, THD:11, VCA:12, UIH:13 };
+const airportMap = {
+  HAN: 1,
+  SGN: 2,
+  DLI: 3,
+  PQC: 4,
+  DAD: 5,
+  CXR: 6,
+  HPH: 7,
+  VII: 8,
+  VCL: 9,
+  HUI: 10,
+  THD: 11,
+  VCA: 12,
+  UIH: 13,
+};
 const airportIdToIata = Object.fromEntries(
   Object.entries(airportMap).map(([iata, id]) => [id, iata])
 );
@@ -25,14 +39,20 @@ const parseTime = (time) => {
 // Hàm lấy thông tin flight chi tiết từ API
 const fetchFlightDetails = async (flightId, token) => {
   try {
-    const response = await fetch(`${API}/flight/${flightId}`, {
-      headers: { "Authorization": `Bearer ${token}` }
+    const response = await fetch(`${API_URL}/flight/${flightId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (response.ok) {
       const flightData = await response.json();
       return {
-        airport_from: airportIdToIata[flightData.dep_airport] || flightData.airport_from || "N/A",
-        airport_to: airportIdToIata[flightData.arr_airport] || flightData.airport_to || "N/A",
+        airport_from:
+          airportIdToIata[flightData.dep_airport] ||
+          flightData.airport_from ||
+          "N/A",
+        airport_to:
+          airportIdToIata[flightData.arr_airport] ||
+          flightData.airport_to ||
+          "N/A",
         f_time_from: flightData.dep_datetime || flightData.f_time_from || "N/A",
         f_code: flightData.flight_number || flightData.f_code || "N/A",
         flight_number: flightData.flight_number || flightData.f_code || "N/A",
@@ -42,10 +62,12 @@ const fetchFlightDetails = async (flightId, token) => {
         gate: flightData.gate || null,
         terminal: flightData.terminal || null,
         duration_minutes: flightData.duration_minutes,
-        status: flightData.status
+        status: flightData.status,
       };
     } else {
-      console.warn(`Flight ${flightId} fetch failed (${response.status}): using basic fallback`);
+      console.warn(
+        `Flight ${flightId} fetch failed (${response.status}): using basic fallback`
+      );
       return null;
     }
   } catch (e) {
@@ -87,20 +109,22 @@ const CheckinPage = () => {
   // Lấy tất cả passengers chưa check-in cho flight được chọn
   const getUncheckedPassengersForSelectedFlight = useCallback(() => {
     if (!selectedFlight || !checkinInfo.length) return [];
-    
+
     const flightNumber = selectedFlight.flight_number || selectedFlight.f_code;
-    return checkinInfo.filter(p => 
-      p.flight_number === flightNumber && p.checkin_status !== "checked_in"
+    return checkinInfo.filter(
+      (p) =>
+        p.flight_number === flightNumber && p.checkin_status !== "checked_in"
     );
   }, [checkinInfo, selectedFlight]);
 
   // Lấy tất cả passengers ĐÃ check-in cho flight được chọn
   const getCheckedPassengersForSelectedFlight = useCallback(() => {
     if (!selectedFlight || !checkinInfo.length) return [];
-    
+
     const flightNumber = selectedFlight.flight_number || selectedFlight.f_code;
-    return checkinInfo.filter(p => 
-      p.flight_number === flightNumber && p.checkin_status === "checked_in"
+    return checkinInfo.filter(
+      (p) =>
+        p.flight_number === flightNumber && p.checkin_status === "checked_in"
     );
   }, [checkinInfo, selectedFlight]);
 
@@ -108,14 +132,14 @@ const CheckinPage = () => {
   const selectLeg = useCallback(
     (leg) => {
       setSelectedLeg(leg);
-      
+
       if (flights.length === 0) return;
-      
+
       if (isOneway && flights.length > 0) {
         setSelectedFlight(flights[0]);
         return;
       }
-      
+
       if (leg === "outbound") {
         setSelectedFlight(flights[0]);
       } else if (leg === "inbound" && flights.length > 1) {
@@ -128,10 +152,11 @@ const CheckinPage = () => {
   // Kiểm tra nếu đã check-in flight được chọn (có ít nhất 1 người đã check-in)
   const showBoardingPass = useMemo(() => {
     if (!selectedFlight || !checkinInfo.length) return false;
-    
+
     const flightNumber = selectedFlight.flight_number || selectedFlight.f_code;
-    const checkedPassengers = checkinInfo.filter(p => 
-      p.flight_number === flightNumber && p.checkin_status === "checked_in"
+    const checkedPassengers = checkinInfo.filter(
+      (p) =>
+        p.flight_number === flightNumber && p.checkin_status === "checked_in"
     );
     return checkedPassengers.length > 0;
   }, [checkinInfo, selectedFlight]);
@@ -140,14 +165,14 @@ const CheckinPage = () => {
   const confirmCheckin = async () => {
     try {
       setCheckinError("");
-      
+
       if (!selectedFlight) {
         setCheckinError("Vui lòng chọn chặng bay để check-in");
         return;
       }
 
       const uncheckedPassengers = getUncheckedPassengersForSelectedFlight();
-      
+
       if (uncheckedPassengers.length === 0) {
         setCheckinError("Tất cả hành khách đã được check-in cho chặng bay này");
         return;
@@ -158,7 +183,7 @@ const CheckinPage = () => {
       // Check-in cho từng hành khách chưa check-in
       const checkinPromises = uncheckedPassengers.map(async (passenger) => {
         const res = await fetch(
-          `${API}/checkin/${passenger.reservation_detail_id}/confirm`,
+          `${API_URL}/checkin/${passenger.reservation_detail_id}/confirm`,
           {
             method: "POST",
             headers: {
@@ -170,7 +195,11 @@ const CheckinPage = () => {
 
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
-          throw new Error(`Check-in thất bại cho ${passenger.passenger_name}: ${errorData.detail || "Lỗi không xác định"}`);
+          throw new Error(
+            `Check-in thất bại cho ${passenger.passenger_name}: ${
+              errorData.detail || "Lỗi không xác định"
+            }`
+          );
         }
 
         return res.json();
@@ -178,29 +207,32 @@ const CheckinPage = () => {
 
       // Chờ tất cả check-in hoàn thành
       const results = await Promise.all(checkinPromises);
-      
+
       // Lưu boarding passes
-      const newBoardingPasses = results.map(result => result.ticket || result);
-      setBoardingPasses(prev => [...prev, ...newBoardingPasses]);
+      const newBoardingPasses = results.map(
+        (result) => result.ticket || result
+      );
+      setBoardingPasses((prev) => [...prev, ...newBoardingPasses]);
 
       // Refresh checkin info
       const refreshRes = await fetch(
-        `${API}/checkin/online?reservation_code=${reservationCode}`,
-        { 
-          headers: { 
+        `${API_URL}/checkin/online?reservation_code=${reservationCode}`,
+        {
+          headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          } 
+            "Content-Type": "application/json",
+          },
         }
       );
-      
+
       if (refreshRes.ok) {
         const refreshData = await refreshRes.json();
         setCheckinInfo(refreshData.passengers || []);
       }
 
-      alert(`Đã check-in thành công cho ${uncheckedPassengers.length} hành khách`);
-
+      alert(
+        `Đã check-in thành công cho ${uncheckedPassengers.length} hành khách`
+      );
     } catch (e) {
       console.error("Check-in error:", e);
       setCheckinError(e.message || "Có lỗi xảy ra khi check-in");
@@ -213,19 +245,19 @@ const CheckinPage = () => {
   const loadBoardingPasses = async () => {
     try {
       const checkedPassengers = getCheckedPassengersForSelectedFlight();
-      
+
       // Load boarding pass cho từng hành khách đã check-in
       const boardingPassPromises = checkedPassengers.map(async (passenger) => {
         const res = await fetch(
-          `${API}/checkin/${passenger.reservation_detail_id}/ticket`,
-          { 
-            headers: { 
+          `${API_URL}/checkin/${passenger.reservation_detail_id}/ticket`,
+          {
+            headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
-            } 
+              "Content-Type": "application/json",
+            },
           }
         );
-        
+
         if (res.ok) {
           const data = await res.json();
           return data.ticket || data;
@@ -235,7 +267,6 @@ const CheckinPage = () => {
 
       const boardingPasses = await Promise.all(boardingPassPromises);
       setBoardingPasses(boardingPasses.filter(Boolean)); // Lọc bỏ null
-
     } catch (e) {
       console.warn("Không thể load boarding passes:", e);
     }
@@ -246,33 +277,42 @@ const CheckinPage = () => {
     try {
       setLoading(true);
       setError("");
-      
+
       if (!reservationCode) {
-        throw new Error("Không tìm thấy mã đặt chỗ. Vui lòng quay lại trang đặt chỗ.");
+        throw new Error(
+          "Không tìm thấy mã đặt chỗ. Vui lòng quay lại trang đặt chỗ."
+        );
       }
 
       if (!token) {
-        throw new Error("Chưa đăng nhập hoặc token hết hạn. Vui lòng đăng nhập lại.");
+        throw new Error(
+          "Chưa đăng nhập hoặc token hết hạn. Vui lòng đăng nhập lại."
+        );
       }
 
       // Bước 1: Lấy base booking từ history để có reservation_id
-      const historyResponse = await fetch(`${API}/booking/history`, {
-        headers: { "Authorization": `Bearer ${token}` }
+      const historyResponse = await fetch(`${API_URL}/booking/history`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!historyResponse.ok) {
         const errData = await historyResponse.json().catch(() => ({}));
         throw new Error(errData.detail || "Không thể tải lịch sử booking");
       }
       const historyData = await historyResponse.json();
-      const baseBooking = historyData.find(b => b.reservation_code === reservationCode);
+      const baseBooking = historyData.find(
+        (b) => b.reservation_code === reservationCode
+      );
       if (!baseBooking) {
         throw new Error("Mã đặt chỗ không tồn tại");
       }
 
       // Bước 2: Lấy chi tiết booking
-      const detailResponse = await fetch(`${API}/booking/${baseBooking.reservation_id}`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
+      const detailResponse = await fetch(
+        `${API_URL}/booking/${baseBooking.reservation_id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (!detailResponse.ok) {
         const errData = await detailResponse.json().catch(() => ({}));
         throw new Error(errData.detail || "Không thể tải chi tiết booking");
@@ -289,7 +329,7 @@ const CheckinPage = () => {
           })
         );
         setEnrichedFlights(enriched);
-        
+
         // Auto-select flight đầu tiên
         if (enriched.length > 0) {
           setSelectedFlight(enriched[0]);
@@ -298,8 +338,8 @@ const CheckinPage = () => {
 
       // Bước 4: Lấy checkin info
       const checkinResponse = await fetch(
-        `${API}/checkin/online?reservation_code=${reservationCode}`,
-        { headers: { "Authorization": `Bearer ${token}` } }
+        `${API_URL}/checkin/online?reservation_code=${reservationCode}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       if (checkinResponse.ok) {
         const checkinData = await checkinResponse.json();
@@ -307,7 +347,6 @@ const CheckinPage = () => {
       } else {
         console.warn("Không thể tải checkin info");
       }
-
     } catch (err) {
       console.error("Fetch booking data error:", err);
       setError(err.message);
@@ -335,32 +374,37 @@ const CheckinPage = () => {
 
   // Lấy thông tin flight để hiển thị
   const getFlightDisplayInfo = (flight) => {
-    if (!flight) return { 
-      flightNumber: "N/A", 
-      from: "N/A", 
-      to: "N/A", 
-      date: "", 
-      time: "", 
-      gate: "CHƯA XÁC ĐỊNH", 
-      terminal: "CHƯA XÁC ĐỊNH" 
-    };
-    
+    if (!flight)
+      return {
+        flightNumber: "N/A",
+        from: "N/A",
+        to: "N/A",
+        date: "",
+        time: "",
+        gate: "CHƯA XÁC ĐỊNH",
+        terminal: "CHƯA XÁC ĐỊNH",
+      };
+
     const flightNumber = flight.flight_number || flight.f_code || "N/A";
-    const from = flight.airport_from || airportIdToIata[flight.dep_airport] || "N/A";
-    const to = flight.airport_to || airportIdToIata[flight.arr_airport] || "N/A";
-    const { date, hour } = parseTime(flight.f_time_from || flight.departure_time || flight.dep_datetime);
+    const from =
+      flight.airport_from || airportIdToIata[flight.dep_airport] || "N/A";
+    const to =
+      flight.airport_to || airportIdToIata[flight.arr_airport] || "N/A";
+    const { date, hour } = parseTime(
+      flight.f_time_from || flight.departure_time || flight.dep_datetime
+    );
     const gate = flight.gate || "CHƯA XÁC ĐỊNH";
     const terminal = flight.terminal || "CHƯA XÁC ĐỊNH";
-    
-    return { 
-      flightNumber, 
-      from, 
-      to, 
-      date, 
-      time: hour, 
-      gate, 
+
+    return {
+      flightNumber,
+      from,
+      to,
+      date,
+      time: hour,
+      gate,
       terminal,
-      duration: flight.duration_minutes 
+      duration: flight.duration_minutes,
     };
   };
 
@@ -386,10 +430,7 @@ const CheckinPage = () => {
       <div className="checkin-wrapper">
         <div className="checkin-container error-container">
           <p className="error-message">{error}</p>
-          <button 
-            className="btn-back"
-            onClick={() => navigate("/myflights")}
-          >
+          <button className="btn-back" onClick={() => navigate("/myflights")}>
             Quay lại danh sách chuyến bay
           </button>
         </div>
@@ -401,13 +442,13 @@ const CheckinPage = () => {
     <div className="checkin-wrapper">
       <div className="checkin-container">
         <h2>Check-in Trực Tuyến</h2>
-        <p className="booking-code">Mã đặt chỗ: <strong>{reservationCode}</strong></p>
-        
+        <p className="booking-code">
+          Mã đặt chỗ: <strong>{reservationCode}</strong>
+        </p>
+
         {/* Hiển thị thông báo lỗi check-in */}
         {checkinError && (
-          <div className="error-message alert">
-            {checkinError}
-          </div>
+          <div className="error-message alert">{checkinError}</div>
         )}
 
         {/* Hiển thị options để chọn chặng bay nếu có nhiều hơn 1 flight */}
@@ -415,29 +456,39 @@ const CheckinPage = () => {
           <div className="checkin-options">
             <h3>Chọn chặng bay để check-in:</h3>
             <div className="leg-buttons">
-              <button 
-                className={`leg-btn ${selectedLeg === "outbound" ? "active" : ""}`}
+              <button
+                className={`leg-btn ${
+                  selectedLeg === "outbound" ? "active" : ""
+                }`}
                 onClick={() => selectLeg("outbound")}
                 disabled={uncheckedPassengers.length === 0}
               >
                 Chặng đi
                 <br />
                 <small>
-                  {getFlightDisplayInfo(flights[0]).from} → {getFlightDisplayInfo(flights[0]).to}
+                  {getFlightDisplayInfo(flights[0]).from} →{" "}
+                  {getFlightDisplayInfo(flights[0]).to}
                 </small>
-                {uncheckedPassengers.length === 0 && <span className="already-checked">✓ Đã check-in</span>}
+                {uncheckedPassengers.length === 0 && (
+                  <span className="already-checked">✓ Đã check-in</span>
+                )}
               </button>
-              <button 
-                className={`leg-btn ${selectedLeg === "inbound" ? "active" : ""}`}
+              <button
+                className={`leg-btn ${
+                  selectedLeg === "inbound" ? "active" : ""
+                }`}
                 onClick={() => selectLeg("inbound")}
                 disabled={uncheckedPassengers.length === 0}
               >
                 Chặng về
                 <br />
                 <small>
-                  {getFlightDisplayInfo(flights[1]).from} → {getFlightDisplayInfo(flights[1]).to}
+                  {getFlightDisplayInfo(flights[1]).from} →{" "}
+                  {getFlightDisplayInfo(flights[1]).to}
                 </small>
-                {uncheckedPassengers.length === 0 && <span className="already-checked">✓ Đã check-in</span>}
+                {uncheckedPassengers.length === 0 && (
+                  <span className="already-checked">✓ Đã check-in</span>
+                )}
               </button>
             </div>
           </div>
@@ -447,27 +498,51 @@ const CheckinPage = () => {
         {selectedFlight && (
           <div className="selected-flight-info">
             <h3>Thông tin chặng bay:</h3>
-            <p><strong>Mã chuyến:</strong> {flightInfo.flightNumber}</p>
-            <p><strong>Hành trình:</strong> {flightInfo.from} → {flightInfo.to}</p>
-            <p><strong>Ngày bay:</strong> {flightInfo.date || "N/A"}</p>
-            <p><strong>Giờ bay:</strong> {flightInfo.time || "N/A"}</p>
-            <p><strong>Nhà ga:</strong> {flightInfo.terminal}</p>
-            <p><strong>Cổng:</strong> {flightInfo.gate}</p>
-            
+            <p>
+              <strong>Mã chuyến:</strong> {flightInfo.flightNumber}
+            </p>
+            <p>
+              <strong>Hành trình:</strong> {flightInfo.from} → {flightInfo.to}
+            </p>
+            <p>
+              <strong>Ngày bay:</strong> {flightInfo.date || "N/A"}
+            </p>
+            <p>
+              <strong>Giờ bay:</strong> {flightInfo.time || "N/A"}
+            </p>
+            <p>
+              <strong>Nhà ga:</strong> {flightInfo.terminal}
+            </p>
+            <p>
+              <strong>Cổng:</strong> {flightInfo.gate}
+            </p>
+
             {/* Hiển thị thông tin hành khách */}
             <div className="passengers-section">
               <h4>Hành khách:</h4>
               <div className="passengers-list">
                 {checkinInfo
-                  .filter(p => p.flight_number === (selectedFlight.flight_number || selectedFlight.f_code))
+                  .filter(
+                    (p) =>
+                      p.flight_number ===
+                      (selectedFlight.flight_number || selectedFlight.f_code)
+                  )
                   .map((passenger, index) => (
                     <div key={index} className="passenger-item">
-                      <span className="passenger-name">{passenger.passenger_name.toUpperCase()}</span>
-                      <span className={`checkin-status-badge ${passenger.checkin_status}`}>
-                        {passenger.checkin_status === "checked_in" ? "✓ Đã check-in" : "Chưa check-in"}
+                      <span className="passenger-name">
+                        {passenger.passenger_name.toUpperCase()}
+                      </span>
+                      <span
+                        className={`checkin-status-badge ${passenger.checkin_status}`}
+                      >
+                        {passenger.checkin_status === "checked_in"
+                          ? "✓ Đã check-in"
+                          : "Chưa check-in"}
                       </span>
                       {passenger.seat_number && (
-                        <span className="seat-number">Ghế: {passenger.seat_number}</span>
+                        <span className="seat-number">
+                          Ghế: {passenger.seat_number}
+                        </span>
                       )}
                     </div>
                   ))}
@@ -479,16 +554,23 @@ const CheckinPage = () => {
         {/* Nút xác nhận check-in */}
         {canCheckin && (
           <div className="confirm-section">
-            <button 
+            <button
               className="btn-confirm"
               onClick={confirmCheckin}
               disabled={isCheckingIn}
             >
-              {isCheckingIn ? "Đang xử lý..." : `Check-in ${uncheckedPassengers.length} hành khách cho chặng ${selectedLeg === "outbound" ? "đi" : "về"}`}
+              {isCheckingIn
+                ? "Đang xử lý..."
+                : `Check-in ${
+                    uncheckedPassengers.length
+                  } hành khách cho chặng ${
+                    selectedLeg === "outbound" ? "đi" : "về"
+                  }`}
             </button>
             <p className="note">
-              Lưu ý: Check-in online chỉ mở từ 48 giờ đến 1 giờ trước giờ bay. 
-              Sau khi check-in, bạn sẽ nhận được Boarding Pass và không thể hủy check-in.
+              Lưu ý: Check-in online chỉ mở từ 48 giờ đến 1 giờ trước giờ bay.
+              Sau khi check-in, bạn sẽ nhận được Boarding Pass và không thể hủy
+              check-in.
             </p>
           </div>
         )}
@@ -506,11 +588,14 @@ const CheckinPage = () => {
                       <span>LOTUS AIR</span>
                     </div>
                   </div>
-                  
+
                   <div className="passenger-info">
                     <div className="info-row">
                       <span className="label">HÀNH KHÁCH: </span>
-                      <span className="value">{boardingPass.passenger_name?.toUpperCase() || "HÀNH KHÁCH"}</span>
+                      <span className="value">
+                        {boardingPass.passenger_name?.toUpperCase() ||
+                          "HÀNH KHÁCH"}
+                      </span>
                     </div>
                     <div className="info-row">
                       <span className="label">CHUYẾN BAY: </span>
@@ -522,18 +607,22 @@ const CheckinPage = () => {
                     </div>
                     <div className="info-row">
                       <span className="label">GHẾ: </span>
-                      <span className="value seat">{boardingPass.seat_number || "CHƯA CÓ"}</span>
+                      <span className="value seat">
+                        {boardingPass.seat_number || "CHƯA CÓ"}
+                      </span>
                     </div>
                     <div className="info-row">
                       <span className="label">NHÀ GA: </span>
-                      <span className="value terminal">{flightInfo.terminal}</span>
+                      <span className="value terminal">
+                        {flightInfo.terminal}
+                      </span>
                     </div>
                     <div className="info-row">
                       <span className="label">CỔNG: </span>
                       <span className="value gate">{flightInfo.gate}</span>
                     </div>
                   </div>
-                  
+
                   <div className="qr-section">
                     {boardingPass.qr_code_url && (
                       <img
@@ -546,18 +635,20 @@ const CheckinPage = () => {
                       Thời gian lên máy bay: 40 phút trước giờ khởi hành
                     </p>
                   </div>
-                  
+
                   <div className="boarding-pass-footer">
                     <p>Vui lòng có mặt tại cổng trước ít nhất 30 phút</p>
-                    <button 
+                    <button
                       className="btn-print"
                       onClick={() => {
                         // Tạo một window mới để in boarding pass này
-                        const printWindow = window.open('', '_blank');
+                        const printWindow = window.open("", "_blank");
                         printWindow.document.write(`
                           <html>
                             <head>
-                              <title>Boarding Pass - ${boardingPass.passenger_name || "Passenger"}</title>
+                              <title>Boarding Pass - ${
+                                boardingPass.passenger_name || "Passenger"
+                              }</title>
                               <style>
                                 body { font-family: 'Courier New', monospace; padding: 20px; }
                                 .boarding-pass { border: 2px solid #000; padding: 20px; max-width: 400px; margin: 0 auto; }
@@ -572,7 +663,10 @@ const CheckinPage = () => {
                                 <h2>BOARDING PASS</h2>
                                 <div class="info-row">
                                   <span class="label">HÀNH KHÁCH:</span>
-                                  <span>${boardingPass.passenger_name?.toUpperCase() || "HÀNH KHÁCH"}</span>
+                                  <span>${
+                                    boardingPass.passenger_name?.toUpperCase() ||
+                                    "HÀNH KHÁCH"
+                                  }</span>
                                 </div>
                                 <div class="info-row">
                                   <span class="label">CHUYẾN BAY:</span>
@@ -584,7 +678,9 @@ const CheckinPage = () => {
                                 </div>
                                 <div class="info-row">
                                   <span class="label">GHẾ:</span>
-                                  <span>${boardingPass.seat_number || "CHƯA CÓ"}</span>
+                                  <span>${
+                                    boardingPass.seat_number || "CHƯA CÓ"
+                                  }</span>
                                 </div>
                                 <div class="info-row">
                                   <span class="label">NHÀ GA:</span>
@@ -594,9 +690,10 @@ const CheckinPage = () => {
                                   <span class="label">CỔNG:</span>
                                   <span>${flightInfo.gate}</span>
                                 </div>
-                                ${boardingPass.qr_code_url ? 
-                                  `<img src="data:image/png;base64,${boardingPass.qr_code_url}" alt="QR Code" class="qr-code" />` : 
-                                  ''
+                                ${
+                                  boardingPass.qr_code_url
+                                    ? `<img src="data:image/png;base64,${boardingPass.qr_code_url}" alt="QR Code" class="qr-code" />`
+                                    : ""
                                 }
                               </div>
                             </body>
@@ -617,14 +714,11 @@ const CheckinPage = () => {
 
         {/* Nút quay lại */}
         <div className="action-buttons">
-          <button 
-            className="btn-back"
-            onClick={() => navigate("/myflights")}
-          >
+          <button className="btn-back" onClick={() => navigate("/myflights")}>
             Quay lại danh sách chuyến bay
           </button>
           {bookingDetails && (
-            <button 
+            <button
               className="btn-manage"
               onClick={() => navigate("/managebooking")}
             >

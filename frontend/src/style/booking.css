@@ -21,18 +21,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--text-light);
-  /* background: #eef1f8; */
+  background: #eef1f8;
   padding: 5px 2rem 5px 2rem;
   border-radius: 0;
   margin: 0;
   width: 80vw;
   max-width: 100%;
-  /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 h1 {
   background: var(--primary-color-dark);
   color: var(--extra-light);
+  /* padding: 25px; */
   border-radius: 15px;
   text-align: center;
   font-size: 1.5rem;
@@ -43,56 +44,90 @@ h1 {
 
 .flight-card {
   display: flex;
-  justify-content: space-between; /* căn đều ngang */
+  justify-content: space-between;
   align-items: center;
+  background: rgba(255, 255, 255, 0.6);
   border-radius: 1rem;
   padding: 1rem 2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   transition: transform 0.2s ease;
   width: 100%;
   max-width: 100%;
   white-space: nowrap;
   box-sizing: border-box;
   gap: 40px;
-  border: none; /* bỏ viền */
 }
-
 .flight-card:hover {
   transform: translateY(-4px);
 }
 
-.flight-info {
+.flight-info-box {
   flex: 2;
-  color: var(--text-dark);
   display: flex;
-  flex-direction: column; /* xếp các nội dung dọc */
-  justify-content: center; /* căn giữa theo trục dọc */
-  gap: 0.3rem; /* khoảng cách giữa các dòng */
-  border: none !important;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.selected-flight-info {
+  background: linear-gradient(135deg, #eef4ff, #f8fbff);
+  border-left: 5px solid var(--primary-color-dark);
+  padding: 16px 20px;
+  margin: 20px 0;
+  border-radius: 12px;
+
+  font-family: "Noto Serif", serif;
+  color: var(--text-dark);
+
+  box-shadow: 0 4px 12px rgba(40, 54, 85, 0.12);
+}
+
+/* Tiêu đề */
+.selected-flight-info h4 {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-color-dark);
+}
+
+/* Nội dung */
+.selected-flight-info p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-light);
+}
+
+/* Số hiệu chuyến bay */
+.selected-flight-info p strong {
+  color: var(--primary-color-dark);
+  font-weight: 700;
 }
 
 .time {
   display: flex;
-  justify-content: space-between; /* depart/arrive hai đầu */
-  align-items: center; /* căn giữa theo trục dọc */
+  justify-content: space-between;
+  align-items: center;
   font-weight: bold;
   font-size: larger;
   color: var(--text-dark);
   margin-bottom: 0.5rem;
-  padding-top: 0;
+  padding-top: 1rem;
   padding-right: 0;
 }
 
-.depart,
+.depart {
+  text-align: left;
+  justify-content: space-between;
+}
+
 .arrive {
-  display: flex;
-  align-items: center; /* căn giữa theo trục dọc */
+  text-align: right;
 }
 
 .route {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* căn giữa theo trục dọc */
+  align-items: center;
   margin-top: 0.5rem;
   gap: 10px;
 }
@@ -112,12 +147,6 @@ h1 {
   text-align: right;
 }
 
-.details {
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* căn giữa theo trục dọc */
-}
-
 .details p {
   margin: 0.2rem 0;
   font-size: 0.9rem;
@@ -125,16 +154,13 @@ h1 {
 
 .flight-price {
   flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* căn giữa theo trục dọc */
-  align-items: center; /* căn giữa theo trục ngang */
   text-align: center;
   margin-left: auto;
+  justify-content: flex-end;
 }
 
 .price-block {
-  background: #58a6cd;
+  background: #578be5;
   color: #fff;
   border-radius: 0.5rem;
   width: 200px;
@@ -159,6 +185,7 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  /* padding: 2rem 0; */
   width: 100%;
 }
 
@@ -212,17 +239,4 @@ h1 {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 1.5rem;
   background-color: var(--header-color);
-}
-
-.flight-card {
-  box-shadow: none;
-  border: none;
-  background: #fff;
-}
-
-#flight-list,
-#flight-list .flight-card {
-  border: none; /* loại bỏ viền */
-  outline: none; /* loại bỏ outline nếu có focus */
-  box-shadow: none; /* nếu bạn không muốn bóng */
 }

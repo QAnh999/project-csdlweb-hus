@@ -1,8 +1,26 @@
 import React, { useEffect, useState } from "react";
 import "../style/myflights.css";
 
-const airportMap = { HAN:1, SGN:2, DLI:3, PQC:4, DAD:5, CXR:6, HPH:7, VII:8, VCL:9, HUI:10, THD:11, VCA:12, UIH:13 };
-const airportIdToIata = Object.fromEntries(Object.entries(airportMap).map(([iata,id])=>[id,iata]));
+const API = process.env.REACT_APP_API_URL;
+
+const airportMap = {
+  HAN: 1,
+  SGN: 2,
+  DLI: 3,
+  PQC: 4,
+  DAD: 5,
+  CXR: 6,
+  HPH: 7,
+  VII: 8,
+  VCL: 9,
+  HUI: 10,
+  THD: 11,
+  VCA: 12,
+  UIH: 13,
+};
+const airportIdToIata = Object.fromEntries(
+  Object.entries(airportMap).map(([iata, id]) => [id, iata])
+);
 
 const ITEMS_PER_PAGE = 2;
 
@@ -20,15 +38,22 @@ const MyFlightsPage = () => {
   // Enrich flight details (shared with ManageBooking)
   const fetchFlightDetails = async (flightId, token) => {
     try {
-      const response = await fetch(`http://localhost:8000/flight/${flightId}`, {
-        headers: { "Authorization": `Bearer ${token}` }
+      const response = await fetch(`${API}/flight/${flightId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
         const flightData = await response.json();
         return {
-          airport_from: airportIdToIata[flightData.dep_airport] || flightData.airport_from || "N/A",
-          airport_to: airportIdToIata[flightData.arr_airport] || flightData.airport_to || "N/A",
-          f_time_from: flightData.dep_datetime || flightData.f_time_from || "N/A",
+          airport_from:
+            airportIdToIata[flightData.dep_airport] ||
+            flightData.airport_from ||
+            "N/A",
+          airport_to:
+            airportIdToIata[flightData.arr_airport] ||
+            flightData.airport_to ||
+            "N/A",
+          f_time_from:
+            flightData.dep_datetime || flightData.f_time_from || "N/A",
           f_code: flightData.flight_number || flightData.f_code || "N/A",
         };
       }
@@ -43,7 +68,7 @@ const MyFlightsPage = () => {
     const fetchBookings = async () => {
       try {
         setLoading(true);
-        
+
         const token = getAuthToken();
         if (!token) {
           console.warn("Chưa đăng nhập");
@@ -52,10 +77,10 @@ const MyFlightsPage = () => {
         }
 
         // Gọi API lấy booking history từ BE (base info only)
-        const response = await fetch("http://localhost:8000/booking/history", {
+        const response = await fetch(`${API}/booking/history`, {
           headers: {
-            "Authorization": `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (!response.ok) {
@@ -63,40 +88,46 @@ const MyFlightsPage = () => {
         }
 
         const baseBookings = await response.json();
-        
+
         // Lấy chi tiết cho từng booking từ BE và enrich flights
         const detailedBookings = await Promise.all(
           baseBookings.map(async (baseBooking) => {
             try {
               const detailResponse = await fetch(
-                `http://localhost:8000/booking/${baseBooking.reservation_id}`,
+                `${API}/booking/${baseBooking.reservation_id}`,
                 {
                   headers: {
-                    "Authorization": `Bearer ${token}`
-                  }
+                    Authorization: `Bearer ${token}`,
+                  },
                 }
               );
-              
+
               if (detailResponse.ok) {
                 const details = await detailResponse.json();
-                
+
                 // Enrich flights với chi tiết flight (tương tự ManageBooking)
                 const enrichedFlights = await Promise.all(
                   details.flights.map(async (flight) => {
-                    const flightDetails = await fetchFlightDetails(flight.flight_id, token);
+                    const flightDetails = await fetchFlightDetails(
+                      flight.flight_id,
+                      token
+                    );
                     return { ...flight, ...flightDetails };
                   })
                 );
-                
+
                 return {
                   ...baseBooking,
-                  details: { ...details, flights: enrichedFlights }
+                  details: { ...details, flights: enrichedFlights },
                 };
               }
               // Nếu detail fail, return base only
               return baseBooking;
             } catch (error) {
-              console.warn(`Failed to fetch details for ${baseBooking.reservation_id}:`, error);
+              console.warn(
+                `Failed to fetch details for ${baseBooking.reservation_id}:`,
+                error
+              );
               return baseBooking;
             }
           })
@@ -151,7 +182,11 @@ const MyFlightsPage = () => {
       });
 
       // Sort by created_at descending
-      cards.sort((a, b) => new Date(b.created_at || b.createdAt || 0) - new Date(a.created_at || a.createdAt || 0));
+      cards.sort(
+        (a, b) =>
+          new Date(b.created_at || b.createdAt || 0) -
+          new Date(a.created_at || a.createdAt || 0)
+      );
       setBookings(cards);
     };
 
@@ -168,7 +203,7 @@ const MyFlightsPage = () => {
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
     const date = new Date(dateStr);
-    return isNaN(date.getTime()) ? "N/A" : date.toLocaleString('vi-VN');
+    return isNaN(date.getTime()) ? "N/A" : date.toLocaleString("vi-VN");
   };
 
   // Format booking for display, aligned with BE structure
@@ -177,39 +212,53 @@ const MyFlightsPage = () => {
     if (booking.details) {
       const { details } = booking;
       const firstPassenger = details.passengers?.[0];
-      
+
       return {
         bookingCode: details.reservation_code || booking.reservation_code,
-        passengerName: firstPassenger 
-          ? `${firstPassenger.last_name || ''} ${firstPassenger.first_name || ''}`.trim().toUpperCase() || "Không có thông tin"
+        passengerName: firstPassenger
+          ? `${firstPassenger.last_name || ""} ${
+              firstPassenger.first_name || ""
+            }`
+              .trim()
+              .toUpperCase() || "Không có thông tin"
           : "Không có thông tin",
         flights: details.flights || [],
         totalAmount: details.total_amount,
         createdAt: details.created_at || booking.created_at,
         status: details.status || booking.status,
-        expiresAt: details.expires_at || booking.expires_at
+        expiresAt: details.expires_at || booking.expires_at,
       };
     }
-    
+
     // LocalStorage fallback (legacy structure)
     else if (booking.bookingCode) {
       return {
         bookingCode: booking.bookingCode,
-        passengerName: booking.passenger?.info 
-          ? `${booking.passenger.info.Ho || ''} ${booking.passenger.info.Ten_dem_va_ten || ''}`.trim().toUpperCase() 
+        passengerName: booking.passenger?.info
+          ? `${booking.passenger.info.Ho || ""} ${
+              booking.passenger.info.Ten_dem_va_ten || ""
+            }`
+              .trim()
+              .toUpperCase()
           : "Không có thông tin",
         flights: [
-          ...(booking.flight ? [{ flight: booking.flight, direction: "oneway" }] : []),
-          ...(booking.outbound ? [{ flight: booking.outbound, direction: "outbound" }] : []),
-          ...(booking.inbound ? [{ flight: booking.inbound, direction: "inbound" }] : [])
+          ...(booking.flight
+            ? [{ flight: booking.flight, direction: "oneway" }]
+            : []),
+          ...(booking.outbound
+            ? [{ flight: booking.outbound, direction: "outbound" }]
+            : []),
+          ...(booking.inbound
+            ? [{ flight: booking.inbound, direction: "inbound" }]
+            : []),
         ],
         totalAmount: booking.totalAmount,
         createdAt: booking.createdAt || booking.created_at,
         status: booking.status || "confirmed",
-        expiresAt: booking.expires_at
+        expiresAt: booking.expires_at,
       };
     }
-    
+
     // Base BE response only (no details, minimal display)
     else {
       return {
@@ -219,7 +268,7 @@ const MyFlightsPage = () => {
         totalAmount: "N/A",
         createdAt: booking.created_at,
         status: booking.status || "unknown",
-        expiresAt: booking.expires_at
+        expiresAt: booking.expires_at,
       };
     }
   };
@@ -227,11 +276,16 @@ const MyFlightsPage = () => {
   // Status display mapping (aligned with BE statuses)
   const getStatusDisplay = (status) => {
     switch (status) {
-      case "confirmed": return "Đã xác nhận";
-      case "pending": return "Chờ thanh toán";
-      case "cancelled": return "Đã hủy";
-      case "expired": return "Đã hết hạn"; // If using expires_at
-      default: return status || "Không xác định";
+      case "confirmed":
+        return "Đã xác nhận";
+      case "pending":
+        return "Chờ thanh toán";
+      case "cancelled":
+        return "Đã hủy";
+      case "expired":
+        return "Đã hết hạn"; // If using expires_at
+      default:
+        return status || "Không xác định";
     }
   };
 
@@ -240,7 +294,10 @@ const MyFlightsPage = () => {
       <div className="flights-wrapper">
         <header className="site-header">
           <a href="/" className="logo">
-            <img src="/assets/Lotus_Logo-removebg-preview.png" alt="Lotus Travel Logo" />
+            <img
+              src="/assets/Lotus_Logo-removebg-preview.png"
+              alt="Lotus Travel Logo"
+            />
             <span>Lotus Travel</span>
           </a>
         </header>
@@ -255,7 +312,10 @@ const MyFlightsPage = () => {
     <div className="flights-wrapper">
       <header className="site-header">
         <a href="/" className="logo">
-          <img src="/assets/Lotus_Logo-removebg-preview.png" alt="Lotus Travel Logo" />
+          <img
+            src="/assets/Lotus_Logo-removebg-preview.png"
+            alt="Lotus Travel Logo"
+          />
           <span>Lotus Travel</span>
         </a>
       </header>
@@ -265,21 +325,29 @@ const MyFlightsPage = () => {
 
         {bookings.length === 0 ? (
           <p className="empty-message">
-            Bạn chưa có chuyến bay nào. <a href="/search">Tìm kiếm chuyến bay ngay!</a>
+            Bạn chưa có chuyến bay nào.{" "}
+            <a href="/search">Tìm kiếm chuyến bay ngay!</a>
           </p>
         ) : (
           <>
             <div id="my-flights-list">
               {paginatedBookings.map((booking, idx) => {
                 const formatted = formatBookingForDisplay(booking);
-                
+
                 return (
-                  <div key={booking.reservation_id || booking.bookingCode || idx} className="my-flight-card">
+                  <div
+                    key={booking.reservation_id || booking.bookingCode || idx}
+                    className="my-flight-card"
+                  >
                     <div className="booking-header">
-                      <span className={`status-badge ${formatted.status.toLowerCase()}`}>
+                      <span
+                        className={`status-badge ${formatted.status.toLowerCase()}`}
+                      >
                         {getStatusDisplay(formatted.status)}
                       </span>
-                      <span className="booking-code">{formatted.bookingCode}</span>
+                      <span className="booking-code">
+                        {formatted.bookingCode}
+                      </span>
                     </div>
 
                     <p>
@@ -291,13 +359,16 @@ const MyFlightsPage = () => {
                       formatted.flights.map((flightItem, flightIdx) => {
                         const flightData = flightItem; // Enriched flight object
                         const direction = flightItem.direction;
-                        
+
                         return (
                           <div key={flightIdx} className="flight-section">
                             <p>
                               <strong>
-                                {direction === "outbound" ? "Chặng đi:" : 
-                                 direction === "inbound" ? "Chặng về:" : "Chuyến bay:"}
+                                {direction === "outbound"
+                                  ? "Chặng đi:"
+                                  : direction === "inbound"
+                                  ? "Chặng về:"
+                                  : "Chuyến bay:"}
                               </strong>
                               <span>
                                 {flightData.airport_from || "N/A"} →{" "}
@@ -316,15 +387,18 @@ const MyFlightsPage = () => {
                         );
                       })
                     ) : (
-                      <p className="no-flights">Chi tiết chuyến bay không khả dụng</p>
+                      <p className="no-flights">
+                        Chi tiết chuyến bay không khả dụng
+                      </p>
                     )}
 
                     <p>
                       <strong>Tổng tiền:</strong>
                       <span>
-                        {typeof formatted.totalAmount === 'number'
+                        {typeof formatted.totalAmount === "number"
                           ? formatted.totalAmount.toLocaleString("vi-VN")
-                          : formatted.totalAmount} VND
+                          : formatted.totalAmount}{" "}
+                        VND
                       </span>
                     </p>
 
@@ -341,22 +415,30 @@ const MyFlightsPage = () => {
                     )}
 
                     <div className="booking-actions">
-                      <button 
+                      <button
                         className="action-btn view-details"
                         onClick={() => {
-                          localStorage.setItem("current_booking_code", formatted.bookingCode);
+                          localStorage.setItem(
+                            "current_booking_code",
+                            formatted.bookingCode
+                          );
                           window.location.href = `/managebooking`;
                         }}
-                        disabled={!booking.reservation_id && !booking.bookingCode}
+                        disabled={
+                          !booking.reservation_id && !booking.bookingCode
+                        }
                       >
                         Xem chi tiết
                       </button>
-                      
+
                       {formatted.status === "confirmed" && (
-                        <button 
+                        <button
                           className="action-btn check-in"
                           onClick={() => {
-                            localStorage.setItem("current_booking_code", formatted.bookingCode);
+                            localStorage.setItem(
+                              "current_booking_code",
+                              formatted.bookingCode
+                            );
                             window.location.href = `/checkin`;
                           }}
                         >
@@ -371,14 +453,16 @@ const MyFlightsPage = () => {
 
             {totalPages > 1 && (
               <div className="pagination">
-                <button 
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(1, prev - 1))
+                  }
                   disabled={currentPage === 1}
                   aria-label="Trang trước"
                 >
                   &laquo;
                 </button>
-                
+
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
                     key={i + 1}
@@ -389,9 +473,11 @@ const MyFlightsPage = () => {
                     {i + 1}
                   </button>
                 ))}
-                
-                <button 
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  }
                   disabled={currentPage === totalPages}
                   aria-label="Trang sau"
                 >

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "../style/review.css";
 
+const API = process.env.REACT_APP_API_URL;
 const ReviewPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -44,7 +45,7 @@ const ReviewPage = () => {
 
   const fetchServices = async () => {
     try {
-      const res = await fetch("http://localhost:8000/booking/services", {
+      const res = await fetch(`${API}/booking/services`, {
         headers: { Authorization: `Bearer ${getAuthToken()}` },
       });
       if (res.ok) {
@@ -86,17 +87,14 @@ const ReviewPage = () => {
 
       console.log("🚀 Payload gửi lên BE /finalize:", payload);
 
-      const res = await fetch(
-        `http://localhost:8000/booking/${reservationId}/finalize`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getAuthToken()}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch(`${API}/booking/${reservationId}/finalize`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!res.ok) {
         const err = await res.json();
@@ -152,17 +150,14 @@ const ReviewPage = () => {
 
     try {
       setLoading(true);
-      const res = await fetch(
-        `http://localhost:8000/booking/${reservationId}/services`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getAuthToken()}`,
-          },
-          body: JSON.stringify({ services: payload }),
-        }
-      );
+      const res = await fetch(`${API}/booking/${reservationId}/services`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify({ services: payload }),
+      });
 
       if (!res.ok) {
         const err = await res.json();
@@ -183,17 +178,14 @@ const ReviewPage = () => {
   const createPayment = async (method) => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `http://localhost:8000/booking/${reservationId}/payment`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getAuthToken()}`,
-          },
-          body: JSON.stringify({ payment_method: method }),
-        }
-      );
+      const res = await fetch(`${API}/booking/${reservationId}/payment`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify({ payment_method: method }),
+      });
 
       if (!res.ok) {
         const err = await res.json();
@@ -223,6 +215,16 @@ const ReviewPage = () => {
 
   return (
     <div className="review-page">
+      <header className="site-header">
+        <a href="/" className="logo">
+          <img
+            src="/assets/Lotus_Logo-removebg-preview.png"
+            alt="Lotus Travel"
+          />
+          <span>Lotus Travel</span>
+        </a>
+      </header>
+
       {step === 1 && (
         <div>
           <h2>Đang hoàn tất đặt chỗ...</h2>
@@ -284,7 +286,7 @@ const ReviewPage = () => {
       )}
 
       {step === 4 && (
-        <>
+        <div className="payment-subsection">
           <h2>Thanh toán</h2>
           <button
             onClick={() => createPayment("credit_card")}
@@ -301,7 +303,7 @@ const ReviewPage = () => {
           <button onClick={() => createPayment("e_wallet")} disabled={loading}>
             {loading ? "Đang xử lý..." : "📱 Ví điện tử"}
           </button>
-        </>
+        </div>
       )}
     </div>
   );

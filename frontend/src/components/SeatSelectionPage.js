@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "../style/seatselection.css";
 
+const API = process.env.REACT_APP_API_URL;
 // Component hiển thị 1 ghế
 const Seat = ({ seat, selected, onSelect }) => {
   const { seat_number, seat_class, status } = seat;
@@ -74,7 +75,7 @@ const SeatSelectionPage = () => {
 
         // Lấy danh sách ghế từ BE (lưu ý: BE không có seat_class trong response, nhưng FE không dùng)
         const res = await fetch(
-          `http://localhost:8000/booking/seats/${flightId}?seat_class=${bookingDraft.cabinClass}`,
+          `${API}/booking/seats/${flightId}?seat_class=${bookingDraft.cabinClass}`,
           {
             headers: { Authorization: `Bearer ${getAuthToken()}` },
           }
@@ -124,17 +125,14 @@ const SeatSelectionPage = () => {
 
       console.log("Payload gửi lên BE /hold-seats:", payload);
 
-      const res = await fetch(
-        `http://localhost:8000/booking/${reservationId}/hold-seats`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getAuthToken()}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch(`${API}/booking/${reservationId}/hold-seats`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
       const data = await res.json();
       if (!res.ok)
@@ -229,9 +227,16 @@ const SeatSelectionPage = () => {
   return (
     <div className="seat-selection-page">
       <header className="site-header">
-        <div className="logo">Lotus Travel</div>
+        <a href="/" className="logo">
+          <img
+            src="/assets/Lotus_Logo-removebg-preview.png"
+            alt="Lotus Travel"
+          />
+          <span>Lotus Travel</span>
+        </a>
       </header>
-      <div className="page-content">
+
+      <div className="seat-page-content">
         <h1>Chọn ghế</h1>
         <p>
           Chuyến bay: {flight?.flight_number || "N/A"} | Hành khách{" "}
@@ -269,7 +274,7 @@ const SeatSelectionPage = () => {
           </div>
         )}
 
-        <div className="controls">
+        <div className="seat-controls">
           <button onClick={() => navigate(-1)} disabled={loading}>
             Quay lại
           </button>

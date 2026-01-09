@@ -18,7 +18,7 @@ import "../styles/main.css";
 import "../styles/managers.css";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000/admin";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 // Helper function to get authorization headers
 const getAuthHeaders = () => {
@@ -76,7 +76,7 @@ const Manager = () => {
   // Fetch data from API
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/managers/users`, {
+      const response = await axios.get(`${API_BASE_URL}/admin/managers/users`, {
         headers: getAuthHeaders(),
       });
       const data = response.data;
@@ -96,7 +96,7 @@ const Manager = () => {
 
   const fetchAdmins = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/managers/admins`);
+      const response = await fetch(`${API_BASE_URL}/admin/managers/admins`);
       if (!response.ok) throw new Error("Failed to fetch admins");
       const data = await response.json();
       setAdminsData(
@@ -118,7 +118,7 @@ const Manager = () => {
   const fetchSuperAdmins = async () => {
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/managers/admins/super`,
+        `${API_BASE_URL}/admin/managers/admins/super`,
         {
           headers: getAuthHeaders(),
         }
@@ -194,9 +194,12 @@ const Manager = () => {
   // Customer handlers
   const handleViewUserInfo = async (id) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/managers/users/${id}`, {
-        headers: getAuthHeaders(),
-      });
+      const response = await axios.get(
+        `${API_BASE_URL}/admin/managers/users/${id}`,
+        {
+          headers: getAuthHeaders(),
+        }
+      );
 
       const u = response.data;
 
@@ -220,10 +223,13 @@ const Manager = () => {
   const handleDeleteCustomer = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa khách hàng này?")) {
       try {
-        const response = await fetch(`${API_BASE_URL}/managers/users/${id}`, {
-          method: "DELETE",
-          headers: getAuthHeaders(),
-        });
+        const response = await fetch(
+          `${API_BASE_URL}/admin/managers/users/${id}`,
+          {
+            method: "DELETE",
+            headers: getAuthHeaders(),
+          }
+        );
 
         if (response.status === 204) {
           // Refresh user list
@@ -268,7 +274,7 @@ const Manager = () => {
   const handleViewBookingHistory = async (customerId) => {
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/managers/users/${customerId}/bookings`,
+        `${API_BASE_URL}/admin/managers/users/${customerId}/bookings`,
         {
           headers: getAuthHeaders(),
         }
@@ -354,10 +360,13 @@ const Manager = () => {
 
     if (window.confirm("Bạn có chắc chắn muốn xóa quản trị viên này?")) {
       try {
-        const response = await fetch(`${API_BASE_URL}/managers/admins/${id}`, {
-          method: "DELETE",
-          headers: getAuthHeaders(),
-        });
+        const response = await fetch(
+          `${API_BASE_URL}/admin/managers/admins/${id}`,
+          {
+            method: "DELETE",
+            headers: getAuthHeaders(),
+          }
+        );
 
         if (response.status === 204) {
           // Refresh admin list
@@ -397,7 +406,7 @@ const Manager = () => {
     } else {
       // Add new admin via API
       try {
-        const response = await fetch(`${API_BASE_URL}/managers/admins`, {
+        const response = await fetch(`${API_BASE_URL}/admin/managers/admins`, {
           method: "POST",
           headers: getAuthHeaders(),
           body: JSON.stringify({
@@ -896,20 +905,33 @@ const Manager = () => {
                     ) : (
                       getBookingHistory().map((booking) => (
                         <tr key={booking.bookingId}>
-                          <td style={{ wordBreak: "break-all", fontSize: "0.75rem" }}>
+                          <td
+                            style={{
+                              wordBreak: "break-all",
+                              fontSize: "0.75rem",
+                            }}
+                          >
                             <strong>{booking.reservationCode}</strong>
                           </td>
                           <td>
                             <strong>{booking.flightNumber}</strong>
                             <br />
-                            <small style={{ color: "#666", fontSize: "0.7rem" }}>
+                            <small
+                              style={{ color: "#666", fontSize: "0.7rem" }}
+                            >
                               {booking.totalPassengers} khách
                             </small>
                           </td>
                           <td style={{ fontSize: "0.75rem" }}>
                             {booking.departureCity} → {booking.arrivalCity}
                             {booking.hasReturnFlight && (
-                              <span style={{ color: "#0066cc", display: "block", fontSize: "0.7rem" }}>
+                              <span
+                                style={{
+                                  color: "#0066cc",
+                                  display: "block",
+                                  fontSize: "0.7rem",
+                                }}
+                              >
                                 (Khứ hồi)
                               </span>
                             )}
@@ -918,7 +940,12 @@ const Manager = () => {
                             {booking.bookingDate
                               ? new Date(booking.bookingDate).toLocaleString(
                                   "vi-VN",
-                                  { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                  }
                                 )
                               : "-"}
                           </td>
@@ -927,7 +954,9 @@ const Manager = () => {
                               {(booking.totalAmount / 1000000).toFixed(2)}M
                             </strong>
                             <br />
-                            <small style={{ color: "#28a745", fontSize: "0.7rem" }}>
+                            <small
+                              style={{ color: "#28a745", fontSize: "0.7rem" }}
+                            >
                               Trả: {(booking.paidAmount / 1000000).toFixed(2)}M
                             </small>
                           </td>

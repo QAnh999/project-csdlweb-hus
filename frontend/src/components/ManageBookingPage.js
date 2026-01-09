@@ -2,10 +2,26 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/managebooking.css";
 
-const API = "http://localhost:8000";
+const API = process.env.REACT_APP_API_URL;
 
-const airportMap = { HAN:1, SGN:2, DLI:3, PQC:4, DAD:5, CXR:6, HPH:7, VII:8, VCL:9, HUI:10, THD:11, VCA:12, UIH:13 };
-const airportIdToIata = Object.fromEntries(Object.entries(airportMap).map(([iata,id])=>[id,iata]));
+const airportMap = {
+  HAN: 1,
+  SGN: 2,
+  DLI: 3,
+  PQC: 4,
+  DAD: 5,
+  CXR: 6,
+  HPH: 7,
+  VII: 8,
+  VCL: 9,
+  HUI: 10,
+  THD: 11,
+  VCA: 12,
+  UIH: 13,
+};
+const airportIdToIata = Object.fromEntries(
+  Object.entries(airportMap).map(([iata, id]) => [id, iata])
+);
 
 const ManageBookingPage = () => {
   const navigate = useNavigate();
@@ -26,15 +42,22 @@ const ManageBookingPage = () => {
   const fetchFlightDetails = async (flightId, token) => {
     try {
       const response = await fetch(`${API}/flight/${flightId}`, {
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
         const flightData = await response.json();
         console.log(`Enriched flight ${flightId}:`, flightData);
         return {
-          airport_from: airportIdToIata[flightData.dep_airport] || flightData.airport_from || "N/A",
-          airport_to: airportIdToIata[flightData.arr_airport] || flightData.airport_to || "N/A",
-          f_time_from: flightData.dep_datetime || flightData.f_time_from || "N/A",
+          airport_from:
+            airportIdToIata[flightData.dep_airport] ||
+            flightData.airport_from ||
+            "N/A",
+          airport_to:
+            airportIdToIata[flightData.arr_airport] ||
+            flightData.airport_to ||
+            "N/A",
+          f_time_from:
+            flightData.dep_datetime || flightData.f_time_from || "N/A",
           f_code: flightData.flight_number || flightData.f_code || "N/A",
           flight_id: flightData.id || flightId, // Đảm bảo có flight_id
           flight_number: flightData.flight_number || "N/A",
@@ -43,14 +66,16 @@ const ManageBookingPage = () => {
           terminal: flightData.terminal || null,
         };
       } else {
-        console.warn(`Flight ${flightId} fetch failed (${response.status}): using basic fallback`);
+        console.warn(
+          `Flight ${flightId} fetch failed (${response.status}): using basic fallback`
+        );
         return {
           flight_id: flightId, // Vẫn giữ flight_id
           flight_number: "N/A",
           airport_from: "N/A",
           airport_to: "N/A",
           f_time_from: "N/A",
-          f_code: "N/A"
+          f_code: "N/A",
         };
       }
     } catch (e) {
@@ -61,19 +86,23 @@ const ManageBookingPage = () => {
         airport_from: "N/A",
         airport_to: "N/A",
         f_time_from: "N/A",
-        f_code: "N/A"
+        f_code: "N/A",
       };
     }
   };
 
   // Hàm fetch checkin info cho từng flight
-  const fetchCheckinInfoForFlight = async (reservationCode, flightId, token) => {
+  const fetchCheckinInfoForFlight = async (
+    reservationCode,
+    flightId,
+    token
+  ) => {
     try {
       const res = await fetch(
         `${API}/checkin/online?reservation_code=${reservationCode}&flight_id=${flightId}`,
-        { headers: { "Authorization": `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
       if (res.ok) {
         const checkinData = await res.json();
         return checkinData.passengers || [];
@@ -81,7 +110,10 @@ const ManageBookingPage = () => {
         console.warn(`No checkin info found for flight ${flightId}`);
         return [];
       } else {
-        console.warn(`Failed to load checkin info for flight ${flightId}:`, res.status);
+        console.warn(
+          `Failed to load checkin info for flight ${flightId}:`,
+          res.status
+        );
         return [];
       }
     } catch (e) {
@@ -102,33 +134,40 @@ const ManageBookingPage = () => {
         setBookingCode(code);
         const token = getAuthToken();
         if (!token) {
-          throw new Error("Chưa đăng nhập hoặc token hết hạn. Vui lòng đăng nhập lại.");
+          throw new Error(
+            "Chưa đăng nhập hoặc token hết hạn. Vui lòng đăng nhập lại."
+          );
         }
 
         // Bước 1: Lấy base booking từ history để có reservation_id
         const historyResponse = await fetch(`${API}/booking/history`, {
-          headers: { "Authorization": `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (!historyResponse.ok) {
           const errData = await historyResponse.json().catch(() => ({}));
           throw new Error(errData.detail || "Không thể tải lịch sử booking");
         }
         const historyData = await historyResponse.json();
-        const baseBooking = historyData.find(b => b.reservation_code === code);
+        const baseBooking = historyData.find(
+          (b) => b.reservation_code === code
+        );
         if (!baseBooking) {
           throw new Error("Mã đặt chỗ không tồn tại");
         }
 
         // Bước 2: Lấy chi tiết booking
-        const detailResponse = await fetch(`${API}/booking/${baseBooking.reservation_id}`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
+        const detailResponse = await fetch(
+          `${API}/booking/${baseBooking.reservation_id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (!detailResponse.ok) {
           const errData = await detailResponse.json().catch(() => ({}));
           throw new Error(errData.detail || "Không thể tải chi tiết booking");
         }
         const beBookingDetails = await detailResponse.json();
-        console.log('Raw booking flights:', beBookingDetails.flights);
+        console.log("Raw booking flights:", beBookingDetails.flights);
         setBookingDetails(beBookingDetails);
 
         // Bước 3: Enrich flights với chi tiết flight
@@ -138,43 +177,48 @@ const ManageBookingPage = () => {
             return { ...flight, ...details };
           })
         );
-        console.log('Enriched flights:', enriched);
+        console.log("Enriched flights:", enriched);
         setEnrichedFlights(enriched);
 
         // Bước 4: Lấy checkin info cho từng flight (sử dụng flight_id)
         const perFlight = {};
-        
+
         // Fetch checkin info cho từng flight song song
         const checkinPromises = enriched.map(async (flight) => {
           const flightNumber = flight.flight_number || flight.f_code;
           const flightId = flight.flight_id;
-          
+
           if (!flightId) {
             console.warn(`Flight ${flightNumber} không có flight_id`);
             return;
           }
-          
-          const passengers = await fetchCheckinInfoForFlight(code, flightId, token);
-          
+
+          const passengers = await fetchCheckinInfoForFlight(
+            code,
+            flightId,
+            token
+          );
+
           if (!perFlight[flightNumber]) {
-            perFlight[flightNumber] = { 
-              checkedIn: 0, 
+            perFlight[flightNumber] = {
+              checkedIn: 0,
               total: 0,
               flightId: flightId,
-              flightNumber: flightNumber
+              flightNumber: flightNumber,
             };
           }
-          
+
           perFlight[flightNumber].total += passengers.length;
-          const checkedInCount = passengers.filter(p => p.checkin_status === "checked_in").length;
+          const checkedInCount = passengers.filter(
+            (p) => p.checkin_status === "checked_in"
+          ).length;
           perFlight[flightNumber].checkedIn += checkedInCount;
         });
-        
+
         await Promise.all(checkinPromises);
-        
-        console.log('Checkin per flight:', perFlight);
+
+        console.log("Checkin per flight:", perFlight);
         setCheckinPerFlight(perFlight);
-        
       } catch (err) {
         console.error("Fetch booking data error:", err);
         setError(err.message);
@@ -196,7 +240,10 @@ const ManageBookingPage = () => {
       <div className="managebooking-wrapper">
         <header className="site-header">
           <a href="/" className="logo">
-            <img src="/assets/Lotus_Logo-removebg-preview.png" alt="Lotus Travel" />
+            <img
+              src="/assets/Lotus_Logo-removebg-preview.png"
+              alt="Lotus Travel"
+            />
             <span>Lotus Travel</span>
           </a>
         </header>
@@ -212,7 +259,10 @@ const ManageBookingPage = () => {
       <div className="managebooking-wrapper">
         <header className="site-header">
           <a href="/" className="logo">
-            <img src="/assets/Lotus_Logo-removebg-preview.png" alt="Lotus Travel" />
+            <img
+              src="/assets/Lotus_Logo-removebg-preview.png"
+              alt="Lotus Travel"
+            />
             <span>Lotus Travel</span>
           </a>
         </header>
@@ -227,7 +277,8 @@ const ManageBookingPage = () => {
   // Hàm parse time an toàn
   const parseTime = (time) => {
     if (!time) return { date: "", hour: "" };
-    let date = "", hour = "";
+    let date = "",
+      hour = "";
     if (typeof time === "string") {
       if (time.includes(" ")) {
         [date, hour] = time.split(" ");
@@ -236,7 +287,7 @@ const ManageBookingPage = () => {
         hour = time.split("T")[1]?.substring(0, 5) || "";
       }
     } else if (time instanceof Date) {
-      date = time.toISOString().split('T')[0];
+      date = time.toISOString().split("T")[0];
       hour = time.toTimeString().substring(0, 5);
     }
     return { date, hour };
@@ -246,11 +297,11 @@ const ManageBookingPage = () => {
   const getCheckinStatus = (flight) => {
     const flightNumber = flight.flight_number || flight.f_code;
     const info = checkinPerFlight[flightNumber];
-    
+
     if (!info || info.total === 0) {
       return "Chưa check-in";
     }
-    
+
     if (info.checkedIn === info.total) {
       return "✓ Đã check-in toàn bộ";
     } else if (info.checkedIn > 0) {
@@ -264,9 +315,9 @@ const ManageBookingPage = () => {
   const canCheckinForFlight = (flight) => {
     const flightNumber = flight.flight_number || flight.f_code;
     const info = checkinPerFlight[flightNumber];
-    
+
     if (!info) return true; // Nếu không có info, cho phép check-in
-    
+
     return info.checkedIn < info.total;
   };
 
@@ -274,14 +325,22 @@ const ManageBookingPage = () => {
   const renderServices = () => {
     const services = bookingDetails.services || [];
     if (services.length === 0) {
-      return <p><strong>Dịch vụ:</strong> Không có dịch vụ bổ sung</p>;
+      return (
+        <p>
+          <strong>Dịch vụ:</strong> Không có dịch vụ bổ sung
+        </p>
+      );
     }
     return (
       <div className="flight-detail services-section">
         <h3>Dịch vụ bổ sung</h3>
         <ul>
           {services.map((service, idx) => (
-            <li key={idx}>{service.service_name} x{service.quantity || service.quanitity || 1} ({service.base_price?.toLocaleString() || 0} VND)</li>
+            <li key={idx}>
+              {service.service_name} x
+              {service.quantity || service.quanitity || 1} (
+              {service.base_price?.toLocaleString() || 0} VND)
+            </li>
           ))}
         </ul>
       </div>
@@ -291,33 +350,72 @@ const ManageBookingPage = () => {
   // Render chi tiết chuyến bay với nút check-in cho từng flight
   const renderFlightDetails = () => {
     // Sort flights: outbound first (assume direction or use index)
-    const sortedFlights = [...enrichedFlights].sort((a, b) => 
-      (a.direction === "outbound" ? -1 : 1) || (b.direction === "outbound" ? 1 : 0)
+    const sortedFlights = [...enrichedFlights].sort(
+      (a, b) =>
+        (a.direction === "outbound" ? -1 : 1) ||
+        (b.direction === "outbound" ? 1 : 0)
     );
-    console.log('Sorted flights for render:', sortedFlights);
+    console.log("Sorted flights for render:", sortedFlights);
 
     const flightBlocks = sortedFlights.map((flight, idx) => {
       // Fallback nếu enrich fail
-      const baseFlight = bookingDetails.flights.find(f => f.flight_id === flight.flight_id) || {};
-      const { date, hour } = parseTime(flight.f_time_from || baseFlight.f_time_from);
-      const seatNumbers = flight.seats ? flight.seats.map(s => s.seat_number).join(', ') : (baseFlight.seats ? baseFlight.seats.map(s => s.seat_number).join(', ') : "Chưa chọn");
+      const baseFlight =
+        bookingDetails.flights.find((f) => f.flight_id === flight.flight_id) ||
+        {};
+      const { date, hour } = parseTime(
+        flight.f_time_from || baseFlight.f_time_from
+      );
+      const seatNumbers = flight.seats
+        ? flight.seats.map((s) => s.seat_number).join(", ")
+        : baseFlight.seats
+        ? baseFlight.seats.map((s) => s.seat_number).join(", ")
+        : "Chưa chọn";
       const checkinStatus = getCheckinStatus(flight);
       const directionTitle = idx === 0 ? "Chặng đi" : "Chặng về";
       const fCode = flight.f_code || baseFlight.f_code || "N/A";
-      const airportFrom = flight.airport_from || (airportIdToIata[baseFlight.dep_airport] || baseFlight.airport_from || "N/A");
-      const airportTo = flight.airport_to || (airportIdToIata[baseFlight.arr_airport] || baseFlight.airport_to || "N/A");
+      const airportFrom =
+        flight.airport_from ||
+        airportIdToIata[baseFlight.dep_airport] ||
+        baseFlight.airport_from ||
+        "N/A";
+      const airportTo =
+        flight.airport_to ||
+        airportIdToIata[baseFlight.arr_airport] ||
+        baseFlight.airport_to ||
+        "N/A";
       const canCheckin = canCheckinForFlight(flight);
-      
+
       return (
         <div key={idx} className="flight-detail">
           <h3>{directionTitle}</h3>
-          <p><strong>Mã chuyến bay:</strong> {fCode}</p>
-          <p><strong>Hành trình:</strong> {airportFrom} → {airportTo}</p>
-          <p><strong>Ngày:</strong> {date}</p>
-          <p><strong>Giờ:</strong> {hour}</p>
-          <p><strong>Ghế:</strong> {seatNumbers}</p>
-          <p><strong>Trạng thái check-in:</strong> <span className={`checkin-status ${checkinStatus.includes("Đã check-in toàn bộ") ? "checked-in" : "not-checked"}`}>{checkinStatus}</span></p>
-          
+          <p>
+            <strong>Mã chuyến bay:</strong> {fCode}
+          </p>
+          <p>
+            <strong>Hành trình:</strong> {airportFrom} → {airportTo}
+          </p>
+          <p>
+            <strong>Ngày:</strong> {date}
+          </p>
+          <p>
+            <strong>Giờ:</strong> {hour}
+          </p>
+          <p>
+            <strong>Ghế:</strong> {seatNumbers}
+          </p>
+          <p>
+            <strong>Trạng thái check-in:</strong>{" "}
+            <span
+              className={`checkin-status ${
+                checkinStatus.includes("Đã check-in toàn bộ")
+                  ? "checked-in"
+                  : "not-checked"
+              }`}
+            >
+              {checkinStatus}
+            </span>
+          </p>
+
           {canCheckin && bookingDetails.status === "confirmed" && (
             <button
               className="flight-checkin-btn"
@@ -351,10 +449,14 @@ const ManageBookingPage = () => {
   // Lấy trạng thái
   const getStatus = () => {
     switch (bookingDetails.status) {
-      case "confirmed": return "Đã xác nhận";
-      case "pending": return "Chờ thanh toán";
-      case "cancelled": return "Đã hủy";
-      default: return "Không xác định";
+      case "confirmed":
+        return "Đã xác nhận";
+      case "pending":
+        return "Chờ thanh toán";
+      case "cancelled":
+        return "Đã hủy";
+      default:
+        return "Không xác định";
     }
   };
 
@@ -362,7 +464,10 @@ const ManageBookingPage = () => {
     <div className="managebooking-wrapper">
       <header className="site-header">
         <a href="/" className="logo">
-          <img src="/assets/Lotus_Logo-removebg-preview.png" alt="Lotus Travel" />
+          <img
+            src="/assets/Lotus_Logo-removebg-preview.png"
+            alt="Lotus Travel"
+          />
           <span>Lotus Travel</span>
         </a>
       </header>
@@ -372,8 +477,13 @@ const ManageBookingPage = () => {
           {/* Thông tin đặt chỗ */}
           <div className="flight-detail">
             <h3>Thông tin đặt chỗ</h3>
-            <p><strong>Số lượng hành khách:</strong> {bookingDetails.total_passengers}</p>
-            <p><strong>Danh sách hành khách:</strong></p>
+            <p>
+              <strong>Số lượng hành khách:</strong>{" "}
+              {bookingDetails.total_passengers}
+            </p>
+            <p>
+              <strong>Danh sách hành khách:</strong>
+            </p>
             <ul>
               {bookingDetails.passengers.map((p) => (
                 <li key={p.passenger_id}>
@@ -381,12 +491,25 @@ const ManageBookingPage = () => {
                 </li>
               ))}
             </ul>
-            <p><strong>Mã đặt chỗ:</strong> {bookingCode}</p>
-            <p><strong>Loại vé:</strong> {getBookingType()}</p>
-            <p><strong>Trạng thái:</strong> {getStatus()}</p>
-            <p><strong>Ngày đặt:</strong> {new Date(bookingDetails.created_at).toLocaleDateString('vi-VN')}</p>
+            <p>
+              <strong>Mã đặt chỗ:</strong> {bookingCode}
+            </p>
+            <p>
+              <strong>Loại vé:</strong> {getBookingType()}
+            </p>
+            <p>
+              <strong>Trạng thái:</strong> {getStatus()}
+            </p>
+            <p>
+              <strong>Ngày đặt:</strong>{" "}
+              {new Date(bookingDetails.created_at).toLocaleDateString("vi-VN")}
+            </p>
             {bookingDetails.total_amount && (
-              <p><strong>Tổng tiền:</strong> {bookingDetails.total_amount.toLocaleString()} VND (thuế: {bookingDetails.tax_amount?.toLocaleString() || 0} VND)</p>
+              <p>
+                <strong>Tổng tiền:</strong>{" "}
+                {bookingDetails.total_amount.toLocaleString()} VND (thuế:{" "}
+                {bookingDetails.tax_amount?.toLocaleString() || 0} VND)
+              </p>
             )}
           </div>
           {/* Chi tiết chuyến bay */}
@@ -399,7 +522,10 @@ const ManageBookingPage = () => {
                 localStorage.setItem("current_booking_code", bookingCode);
                 // Lưu flight_id đầu tiên để CheckinPage có thể sử dụng
                 if (enrichedFlights.length > 0) {
-                  localStorage.setItem("current_flight_id", enrichedFlights[0].flight_id);
+                  localStorage.setItem(
+                    "current_flight_id",
+                    enrichedFlights[0].flight_id
+                  );
                 }
                 navigate("/checkin");
               }}

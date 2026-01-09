@@ -41,8 +41,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding-top: 80px; /* Chiều cao header */
+  justify-content: flex-start;
+  /* padding-top: 70px;  */
+  margin-top: 0;
 }
 
 .site-header {
@@ -77,12 +78,13 @@ body {
   color: var(--primary-color-dark);
 }
 
-.page-content {
+.login-page-content {
   width: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 20px;
+  align-items: flex-start;
+  padding: 10px;
+  margin-top: 80px;
 }
 
 .login-box {
@@ -163,8 +165,25 @@ body {
   padding-right: 45px;
 }
 
+.eye-icon {
+  position: absolute;
+  right: 14px;
+  height: 42px;
+  top: 15%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: 1.1rem;
+  transition: color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+}
+
 .eye-icon:hover {
-  color: var(--primary-color-dark);
+  color: var(--primary-color);
 }
 
 .login-options {
@@ -212,9 +231,10 @@ body {
 }
 
 .login-button:hover:not(:disabled) {
-  background: var(--text-light);
+  background: var(--primary-color);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  color: var(--text-dark);
 }
 
 .login-button:disabled {
@@ -358,26 +378,25 @@ body {
 .login-button:disabled {
   animation: pulse 1.5s infinite;
 }
+
 .eye-icon {
   position: absolute;
-  right: 12px;
-  top: 50%;
+  right: 14px;
+  top: 50%; /* căn giữa dọc */
   transform: translateY(-50%);
-
-  background: none;
-  border: none;
-  outline: none;
-
   cursor: pointer;
   color: var(--text-light);
   font-size: 1.2rem;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  z-index: 10; /* QUAN TRỌNG */
+  z-index: 10;
   padding: 0;
+  background: none;
+  border: none;
+  outline: none;
+  width: 30px; /* đảm bảo ô vuông */
+  height: 30px; /* đảm bảo ô vuông */
 }
 
 .eye-icon svg {

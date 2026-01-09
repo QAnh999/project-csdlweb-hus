@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "../style/login.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const LoginPage = () => {
   const navigate = useNavigate();
 
@@ -64,7 +66,7 @@ const LoginPage = () => {
 
     try {
       // Gọi API đăng nhập từ BE
-      const response = await fetch("http://localhost:8000/auth/login", {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -141,9 +143,7 @@ const LoginPage = () => {
       // admin/super_admin -> /admin (frontendadmin ở port khác)
       // user -> / (trang chủ customer)
       if (authData.role === "admin" || authData.role === "super_admin") {
-        // Chuyển hướng sang frontendadmin (Vite app ở port khác, ví dụ 3001)
-        // Nếu cùng domain, có thể dùng window.location.href
-        window.location.href = "http://localhost:3001"; // Hoặc port của frontendadmin
+        window.location.href = "http://localhost:5173/dashboard"; // Hoặc port của frontendadmin
       } else {
         // User thường -> trang chủ
         navigate("/");
@@ -189,7 +189,7 @@ const LoginPage = () => {
         </a>
       </header>
 
-      <div className="page-content">
+      <div className="login-page-content">
         <div className="login-box">
           <h2>Đăng nhập</h2>
 
@@ -224,6 +224,7 @@ const LoginPage = () => {
                   className={error ? "error-input" : ""}
                 />
                 <button
+                  type="button"
                   className="eye-icon"
                   onClick={() => setShowPassword(!showPassword)}
                 >

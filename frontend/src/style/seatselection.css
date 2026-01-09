@@ -66,7 +66,7 @@ body {
   color: var(--primary-color-dark);
 }
 
-.page-content {
+.seat-page-content {
   padding-top: 0px;
   display: flex;
   flex-direction: column;
@@ -86,9 +86,11 @@ h1 {
 }
 
 /* ================= FLIGHT INFO ================= */
-.page-content > p {
+.seat-page-content > p {
   font-size: 15px;
   opacity: 0.9;
+  margin-bottom: 10px;
+  margin-top: -20px;
 }
 
 #seat-map.plane {
@@ -155,6 +157,22 @@ h1 {
   gap: var(--gap);
 }
 
+/* ================= Khoảng trống cho 6 ghế ================= */
+.seat-group.seat-6 .seat:nth-child(3) {
+  margin-right: 20px; /* tách C – D */
+}
+
+/* ================= Khoảng trống cho 4 ghế ================= */
+.seat-group.seat-4 .seat:nth-child(2) {
+  margin-right: 20px; /* tách B – C */
+}
+
+/* Hủy margin phải thừa nếu cần */
+.seat-group.seat-6 .seat:nth-child(4),
+.seat-group.seat-4 .seat:nth-child(3) {
+  margin-right: 0;
+}
+
 .seat {
   width: var(--seat-size);
   height: var(--seat-size);
@@ -167,11 +185,6 @@ h1 {
 
   /* border: 2px solid #0c2a50; */
   transition: 0.3s ease;
-}
-
-/* Khoảng trống giữa dãy C và D */
-.seat-group .seat:nth-child(3) {
-  margin-right: 20px; /* khoảng trống giữa C và D */
 }
 
 .seat.available {

@@ -15,7 +15,7 @@ import "../styles/managers.css";
 import "../styles/booking.css";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000/admin";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const Booking = () => {
   const [bookingsData, setBookingsData] = useState([]);
@@ -30,7 +30,7 @@ const Booking = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/booking`);
+      const response = await axios.get(`${API_BASE_URL}/admin/booking`);
       setBookingsData(
         response.data.map((item) => ({
           id: item.reservation_code,
@@ -89,7 +89,9 @@ const Booking = () => {
 
   const handleViewDetail = async (bookingId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/booking/${bookingId}`);
+      const response = await axios.get(
+        `${API_BASE_URL}/admin/booking/${bookingId}`
+      );
       const data = response.data;
       setSelectedBooking({
         // Booking

@@ -18,7 +18,7 @@ import "../styles/managers.css";
 import "../styles/service.css";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000/admin";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const categoryConfig = {
   meal: {
@@ -86,7 +86,7 @@ const Service = () => {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/services/`);
+      const response = await axios.get(`${API_BASE_URL}/admin/services/`);
       const data = response.data;
       setServicesData(
         data.map((item) => ({
@@ -158,7 +158,9 @@ const Service = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa dịch vụ này?")) {
       try {
-        const response = await axios.delete(`${API_BASE_URL}/services/${id}`);
+        const response = await axios.delete(
+          `${API_BASE_URL}/admin/services/${id}`
+        );
         if (response.data.message) {
           await fetchServices();
           alert("Xóa dịch vụ thành công!");
@@ -173,7 +175,7 @@ const Service = () => {
     e.preventDefault();
     if (editingId) {
       try {
-        await axios.put(`${API_BASE_URL}/services/${editingId}`, {
+        await axios.put(`${API_BASE_URL}/admin/services/${editingId}`, {
           name: formData.name,
           description: formData.description,
           category: formData.category,
@@ -189,7 +191,7 @@ const Service = () => {
       }
     } else {
       try {
-        await axios.post(`${API_BASE_URL}/services/`, {
+        await axios.post(`${API_BASE_URL}/admin/services/`, {
           name: formData.name,
           description: formData.description,
           category: formData.category,

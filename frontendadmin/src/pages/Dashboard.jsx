@@ -14,7 +14,7 @@ import "../styles/main.css";
 import { toast } from "sonner";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000/admin";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const Dashboard = () => {
   // KPI states
@@ -59,7 +59,9 @@ const Dashboard = () => {
   const fetchKPI = async () => {
     try {
       setLoadingKPI(true);
-      const res = await axios.get(`${API_BASE_URL}/dashboard/daily-stats`);
+      const res = await axios.get(
+        `${API_BASE_URL}/admin/dashboard/daily-stats`
+      );
       const data = res.data; // axios tự parse JSON
 
       // Cập nhật từng state riêng biệt
@@ -77,7 +79,9 @@ const Dashboard = () => {
 
   const fetchRecentBookings = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/dashboard/recent-bookings`);
+      const res = await axios.get(
+        `${API_BASE_URL}/admin/dashboard/recent-bookings`
+      );
       setRecentBookingsBuffer(
         res.data.map((item) => ({
           user: item.user_name,
@@ -95,7 +99,9 @@ const Dashboard = () => {
 
   const fetchPopularAirlines = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/dashboard/popular-airlines`);
+      const res = await axios.get(
+        `${API_BASE_URL}/admin/dashboard/popular-airlines`
+      );
       setPopularAirlines(
         res.data.map((item) => ({
           airline: item.airline_name,
@@ -110,7 +116,9 @@ const Dashboard = () => {
 
   const fetchPopularRoutes = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/dashboard/popular-routes`);
+      const res = await axios.get(
+        `${API_BASE_URL}/admin/dashboard/popular-routes`
+      );
       const data = res.data;
       setTopFlightRoutes(
         data.map((item) => ({
@@ -129,7 +137,9 @@ const Dashboard = () => {
   // Fetch weekly tickets data
   const fetchWeeklyTickets = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/dashboard/weekly-tickets`);
+      const res = await axios.get(
+        `${API_BASE_URL}/admin/dashboard/weekly-tickets`
+      );
       setWeeklyTickets(
         res.data.map((item) => ({
           date: item.date,
@@ -145,7 +155,9 @@ const Dashboard = () => {
   // Fetch weekly revenue data
   const fetchWeeklyRevenue = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/dashboard/weekly-revenue`);
+      const res = await axios.get(
+        `${API_BASE_URL}/admin/dashboard/weekly-revenue`
+      );
       setWeeklyRevenue(
         res.data.revenue_by_day.map((item) => ({
           date: item.date,
@@ -161,7 +173,9 @@ const Dashboard = () => {
   // Fetch monthly revenue data
   const fetchMonthlyRevenue = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/dashboard/monthly-revenue`);
+      const res = await axios.get(
+        `${API_BASE_URL}/admin/dashboard/monthly-revenue`
+      );
       setMonthlyRevenue(
         res.data.weeks.map((week) => ({
           week_number: week.week_number,

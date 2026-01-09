@@ -14,7 +14,7 @@ import "../styles/managers.css";
 import "../styles/promotion.css";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000/admin";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const Promotion = () => {
   const [promotionsData, setPromotionsData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,7 +26,7 @@ const Promotion = () => {
 
   const fetchPromotionsData = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/promotions`);
+      const response = await axios.get(`${API_BASE_URL}/admin/promotions`);
       const data = response.data;
       setPromotionsData(
         data.map((item) => ({
@@ -116,13 +116,13 @@ const Promotion = () => {
       if (editingId) {
         // Update promotion
         await axios.put(
-          `${API_BASE_URL}/promotions/${editingId}`,
+          `${API_BASE_URL}/admin/promotions/${editingId}`,
           promotionData
         );
         alert("Cập nhật khuyến mãi thành công!");
       } else {
         // Create new promotion
-        await axios.post(`${API_BASE_URL}/promotions`, promotionData);
+        await axios.post(`${API_BASE_URL}/admin/promotions/`, promotionData);
         alert("Thêm khuyến mãi thành công!");
       }
       await fetchPromotionsData();

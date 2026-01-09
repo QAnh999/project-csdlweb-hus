@@ -14,7 +14,7 @@ import "../styles/managers.css";
 import "../styles/feedback.css";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000/admin";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const Feedback = () => {
   const [feedbackData, setFeedbackData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +25,7 @@ const Feedback = () => {
 
   const fetchFeedbackData = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/feedbacks`);
+      const response = await axios.get(`${API_BASE_URL}/admin/feedbacks`);
       const data = response.data;
       setFeedbackData(
         data.map((item) => ({
@@ -71,7 +71,9 @@ const Feedback = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa phản hồi này?")) {
       try {
-        const response = await axios.delete(`${API_BASE_URL}/feedbacks/${id}`);
+        const response = await axios.delete(
+          `${API_BASE_URL}/admin/feedbacks/${id}`
+        );
         if (response.data.message === "Feedback deleted successfully") {
           await fetchFeedbackData();
           alert("Xóa phản hồi thành công!");
