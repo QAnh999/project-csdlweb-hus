@@ -26,7 +26,7 @@ const Promotion = () => {
 
   const fetchPromotionsData = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/promotions`);
+      const response = await axios.get(`${API_BASE_URL}/admin/promotions/`);
       const data = response.data;
       setPromotionsData(
         data.map((item) => ({

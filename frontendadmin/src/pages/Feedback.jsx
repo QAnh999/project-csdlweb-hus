@@ -25,7 +25,7 @@ const Feedback = () => {
 
   const fetchFeedbackData = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/feedbacks`);
+      const response = await axios.get(`${API_BASE_URL}/admin/feedbacks/`);
       const data = response.data;
       setFeedbackData(
         data.map((item) => ({

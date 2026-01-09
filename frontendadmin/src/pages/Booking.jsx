@@ -30,7 +30,7 @@ const Booking = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/booking`);
+      const response = await axios.get(`${API_BASE_URL}/admin/booking/`);
       setBookingsData(
         response.data.map((item) => ({
           id: item.reservation_code,
