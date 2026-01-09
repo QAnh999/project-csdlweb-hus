@@ -265,7 +265,7 @@ const Flight = () => {
   const viewFlightDetail = async (flightId) => {
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/admin/flights/${flightId}`
+        `${API_BASE_URL}/admin/flights/${flightId}/`
       );
       const data = response.data;
 
@@ -303,7 +303,7 @@ const Flight = () => {
       setFlightData(flightData.filter((f) => f.id !== flightId));
 
       try {
-        await axios.delete(`${API_BASE_URL}/admin/flights/${flightId}`);
+        await axios.delete(`${API_BASE_URL}/admin/flights/${flightId}/`);
         alert("Xóa chuyến bay thành công!");
       } catch (error) {
         console.error("Error deleting flight:", error);
@@ -378,7 +378,7 @@ const Flight = () => {
       };
 
       await axios.put(
-        `${API_BASE_URL}/admin/flights/${selectedFlight.id}`,
+        `${API_BASE_URL}/admin/flights/${selectedFlight.id}/`,
         payload
       );
 
