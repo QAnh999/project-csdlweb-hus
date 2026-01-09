@@ -100,13 +100,10 @@ const Flight = () => {
       if (date) params.departure_date = date;
       if (seatClass) params.seat_class = seatClass;
 
-      const response = await axios.get(
-        `${API_BASE_URL}/admin/flights/search/`,
-        {
-          params,
-          cancelToken: source.token,
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/admin/flights/search`, {
+        params,
+        cancelToken: source.token,
+      });
 
       setFlightData(
         response.data.map((flight) => ({
