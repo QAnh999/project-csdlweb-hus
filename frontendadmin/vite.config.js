@@ -15,13 +15,5 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5173,
     strictPort: true,
-    proxy: {
-      "/admin": {
-        target: "https://backend-599200532420.europe-west4.run.app",
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/admin/, "/admin"),
-      },
-    },
   },
 });

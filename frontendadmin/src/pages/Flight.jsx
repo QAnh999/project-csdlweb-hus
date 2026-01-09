@@ -70,9 +70,9 @@ const Flight = () => {
     setIsLoadingMasterData(true);
     try {
       const [airportsRes, airlinesRes, aircraftsRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/admin/airports`),
-        axios.get(`${API_BASE_URL}/admin/airlines`),
-        axios.get(`${API_BASE_URL}/admin/aircrafts`),
+        axios.get(`${API_BASE_URL}/admin/airports/`),
+        axios.get(`${API_BASE_URL}/admin/airlines/`),
+        axios.get(`${API_BASE_URL}/admin/aircrafts/`),
       ]);
       setAirports(airportsRes.data);
       setAirlines(airlinesRes.data);
@@ -98,10 +98,13 @@ const Flight = () => {
       if (date) params.departure_date = date;
       if (seatClass) params.seat_class = seatClass;
 
-      const response = await axios.get(`${API_BASE_URL}/admin/flights/search`, {
-        params,
-        cancelToken: source.token,
-      });
+      const response = await axios.get(
+        `${API_BASE_URL}/admin/flights/search/`,
+        {
+          params,
+          cancelToken: source.token,
+        }
+      );
 
       setFlightData(
         response.data.map((flight) => ({
