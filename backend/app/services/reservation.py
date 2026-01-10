@@ -35,6 +35,18 @@ class ReservationService:
     def _assert_user(self, reservation, user_id: int):
         if reservation.user_id != user_id:
             raise ValueError("Bạn chưa được cấp quyền để thay đổi nội dung này")
+        
+    def _assert_flight(self, flight):
+        if not flight:
+            raise ValueError("Chuyến bay không tồn tại")
+
+        if flight.status != "scheduled":
+            raise ValueError("Chuyến bay không còn khả dụng")
+
+        cutoff_time = datetime.utcnow() + timedelta(hours=2)
+        if flight.dep_datetime < cutoff_time:
+            raise ValueError("Chuyến bay đã quá thời gian cho phép đặt vé")
+
 
     def _get_reservation(self, db: Session, reservation_id: int):
         reservation = self.reservation_repo.get(db, reservation_id)
@@ -71,6 +83,13 @@ class ReservationService:
     def start_reservation(self, db: Session, user_id: int, main_flight_id: int, return_flight_id: int = None):
         now = datetime.utcnow()
         expires_at = now + timedelta(minutes=self.HOLD_MINUTES)
+
+        main_flight = self.flight_repo.get(db, main_flight_id)
+        self._assert_flight(main_flight)
+
+        if return_flight_id:
+            return_flight = self.flight_repo.get(db, return_flight_id)
+            self._assert_flight(return_flight)
 
         try:
             reservation = self.reservation_repo.create(db, {
@@ -285,7 +304,10 @@ class ReservationService:
                 raise ValueError("Đặt chỗ đã được hoàn tất. Không thể finalize lại.")
                 
             main_flight = self.flight_repo.get(db, reservation.main_flight_id)
+            self._assert_flight(main_flight)
             return_flight = self.flight_repo.get(db, reservation.return_flight_id) if reservation.return_flight_id else None
+            if return_flight:
+                self._assert_flight(return_flight)
 
             passengers = self.res_passenger_repo.get_by_reservation(db, reservation.id)
             if not passengers:

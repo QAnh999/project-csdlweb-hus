@@ -16,11 +16,15 @@ class FlightRepository(BaseRepository[Flight, FlightCreate, FlightUpdate]):
     def search(self, db: Session, dep_airport: int, arr_airport: int, dt: datetime) -> List[Flight]:
         start = datetime(dt.year, dt.month, dt.day)
         end = start + timedelta(days=1)
+
+        cutoff_time = datetime.now() + timedelta(hours=2)
+
         return db.query(Flight).filter(
             Flight.dep_airport == dep_airport,
             Flight.arr_airport == arr_airport,
             Flight.dep_datetime >= start,
             Flight.dep_datetime < end, 
+            Flight.dep_datetime >= cutoff_time,
             Flight.status == "scheduled"
         ).all()
     
