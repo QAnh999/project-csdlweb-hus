@@ -5,9 +5,7 @@ import "../styles/main.css";
 import "../styles/flight.css";
 import axios from "axios";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://backend-599200532420.europe-west4.run.app";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const getAirlineLogo = (airlineName) => {
   const logoMap = {
@@ -302,7 +300,7 @@ const Flight = () => {
       setFlightData(flightData.filter((f) => f.id !== flightId));
 
       try {
-        await axios.delete(`${API_BASE_URL}/admin/flights/${flightId}/`);
+        await axios.delete(`${API_BASE_URL}/admin/flights/${flightId}`);
         alert("Xóa chuyến bay thành công!");
       } catch (error) {
         console.error("Error deleting flight:", error);
@@ -377,7 +375,7 @@ const Flight = () => {
       };
 
       await axios.put(
-        `${API_BASE_URL}/admin/flights/${selectedFlight.id}/`,
+        `${API_BASE_URL}/admin/flights/${selectedFlight.id}`,
         payload
       );
 
