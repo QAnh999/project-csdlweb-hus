@@ -1,117 +1,182 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap");
-
-:root {
-  --primary-color: #d0e1f9;
-  --primary-color-dark: #283655;
-  --text-dark: #283655;
-  --text-light: #4d648d;
-  --extra-light: #f3f4f6;
-  --max-width: 1200px;
-  --header-color: #e9effdff;
-}
-
-/* ================= WRAPPER ================= */
-.payment-wrapper {
-  min-height: 100vh;
-  /* background-color: #f5f7fa; */
-  padding-top: 80px;
-}
-
-/* ================= PAGE ================= */
-.payment-page {
+/* ================= REVIEW PAGE ================= */
+.review-page {
   max-width: 800px;
-  margin: 0 auto 50px;
-  padding: 25px;
+  margin: 0 auto;
+  padding: 20px;
+  margin-top: 80px; /* tạo khoảng cho header fixed */
   font-family: "Noto Serif", serif;
   color: var(--text-dark);
-  background: var(--extra-light);
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-.payment-page-container h2 {
+.review-page h2 {
+  width: 100%;
   background-color: var(--primary-color-dark);
   color: var(--extra-light);
-  padding: 25px;
-  text-align: center;
+  padding: 25px; /* padding đều trên/dưới/trái/phải */
+  text-align: center; /* căn giữa ngang */
+  margin-bottom: 35px;
   border-radius: 15px;
   font-size: 1.4rem;
-  margin-bottom: 30px;
+  font-family: "Noto Serif", serif;
+  display: flex;
+  justify-content: center; /* ngang */
+  align-items: center; /* dọc */
+  text-align: center; /* fallback cho inline text */
 }
 
-.payment-page p {
-  display: grid;
-  grid-template-columns: 1fr auto; /* label trái – value phải */
-  align-items: center;
-  gap: 80px;
-  padding: 10px 0;
-  font-size: 1rem;
-  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+.review-page .card {
+  background: var(--white);
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1.5px solid rgba(5, 35, 71, 0.1);
 }
 
-.payment-page p strong {
-  font-weight: 600;
-  color: var(--text-dark);
-  text-align: left;
-}
-
-.payment-page p span,
-.payment-page p:not(:has(strong)) {
-  text-align: right;
-}
-
-.payment-page button {
+.review-page .card strong {
   display: block;
-  margin: 25px auto 0;
-  padding: 12px 28px;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: var(--primary-color-dark);
+}
+
+.review-page .card h4 {
+  margin-top: 15px;
+  margin-bottom: 8px;
+  color: var(--primary-color-dark);
+  font-size: 1rem;
+}
+
+/* Dịch vụ chọn: giống seat/service selection */
+.review-page .card div[style] {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  margin: 4px 0;
+  transition: all 0.2s ease;
+}
+
+.review-page .card div[style]:hover {
+  background-color: #e3f2fd; /* hover nhẹ giống nút chọn */
+  border-color: var(--primary-color);
+}
+
+/* Nút đồng bộ với btn-pass-next */
+.review-page button {
+  padding: 12px 24px;
   font-size: 1rem;
   font-weight: 600;
   border-radius: 8px;
   font-family: "Noto Serif", serif;
   cursor: pointer;
-  border: none;
-
-  /* ================= CHÍNH ================= */
-  background-color: var(--primary-color-dark); /* nền chính */
-  color: #fff; /* text trắng */
-
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
+  border: none;
+  margin: 15px auto 20px auto; /* canh giữa */
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  background: var(--primary-color-dark);
+  color: var(--white);
 }
 
-.payment-page button:hover:not(:disabled),
-.payment-page button:active:not(:disabled) {
-  background-color: var(--primary-color); /* hover nền sáng hơn */
-  color: var(--primary-color-dark); /* chữ màu tối */
-  transform: translateY(-1px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+.review-page button:hover:not(:disabled),
+.review-page button:active:not(:disabled) {
+  background-color: var(--primary-color); /* xanh da trời */
+  color: var(--text-dark);
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-.payment-page button:disabled {
+.review-page button:disabled {
   background: #ccc;
   color: #666;
   cursor: not-allowed;
   box-shadow: none;
+  transform: none;
 }
 
-.payment-page .warning {
-  margin-top: 15px;
+/* Thanh toán button style giống nhau */
+.review-page button + button {
+  margin-top: 10px;
+}
+
+/* Loading */
+.review-page p {
   text-align: center;
-  color: #d97706;
-  font-style: italic;
+  padding: 20px 0;
+  font-size: 1.1rem;
+  color: var(--text-light);
 }
 
-/* ================= SUCCESS ================= */
-.payment-page .success-card {
-  margin-top: 30px;
+/* Responsive */
+@media (max-width: 768px) {
+  .review-page {
+    padding: 15px;
+  }
+
+  .review-page button {
+    width: 100%;
+  }
+}
+
+/* ================= Dịch vụ bổ sung label–value nâng cao ================= */
+.review-page .service-item {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 15px;
-  text-align: center;
+  padding: 12px 20px; /* tăng padding cho rộng hơn */
+  border-radius: 12px; /* bo tròn hơn */
+  border: 1px solid rgba(0, 0, 0, 0.1); /* border nhẹ */
+  margin: 8px 0;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  background-color: var(--white);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* shadow nhẹ */
 }
 
-.payment-page .success h3 {
-  color: #2e7d32;
-  margin: 6px;
+.review-page .service-item.selected {
+  background: linear-gradient(90deg, #e3f2fd, #cde6fb); /* gradient đẹp hơn */
+  border-color: var(--primary-color-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.review-page .service-item span.label {
+  font-weight: 600;
+  color: var(--text-dark);
+  flex: 1;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.review-page .service-item span.value {
+  font-weight: 500;
+  color: var(--primary-color-dark);
+  text-align: right;
+  min-width: 150px;
+  font-size: 0.95rem;
+}
+
+/* Hover effect */
+.review-page .service-item:hover {
+  background-color: #f0f6fd;
+  border-color: var(--primary-color-dark);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Responsive nhỏ */
+@media (max-width: 480px) {
+  .review-page .service-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 15px;
+  }
+
+  .review-page .service-item span.value {
+    text-align: left;
+    margin-top: 4px;
+  }
 }
