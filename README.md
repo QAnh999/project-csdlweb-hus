@@ -2,6 +2,8 @@
 
 Website quản lý và bán vé máy bay Lotus Travel được xây dựng với React (Vite) và Cloud Run Backend. Dự án thuộc học phần Cơ sở dữ liệu Web và hệ thống thông tin - HUS.
 
+## Figma
+* Link: https://www.figma.com/design/8Hjk7U2LPOphQf0eDD7zBF/Lotus-Travel?node-id=1191-1297&t=LRPGNkvyBFHyxneV-1
 ## Tech Stack
 
 * **Frontend:** ReactJS, Vite, Axios, CSS Modules.
