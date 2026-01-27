@@ -17,6 +17,7 @@ import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8000/admin";
 
+
 const Booking = () => {
   const [bookingsData, setBookingsData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
